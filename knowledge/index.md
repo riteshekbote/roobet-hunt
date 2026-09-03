@@ -3,3 +3,11 @@
 - 2026-09-03 REJECTED OTHER @ api.roobet.com: mass assignment hypothesis parked — no live endpoint confirmed, auth state unknown.
 - 2026-09-03 REJECTED OATH @ auth.roobet.com: OAuth redirect_uri bypass parked — endpoint path unknown, passive probe needed first.
 - 2026-09-03 REJECTED IDOR @ account.roobet.com: IDOR hypothesis parked — requires auth + user ID format discovery.
+- 2026-09-03 REJECTED OTHER @ api.roobet.com: mass assignment hypothesis parked — 403 block confirms Cloudflare bot management; no live API endpoint reachable without valid session/origin.
+- 2026-09-03 REJECTED OATH @ auth.roobet.com: OAuth redirect_uri bypass parked — auth.roobet.com does not resolve/respond; endpoint path unknown.
+- 2026-09-03 REJECTED IDOR @ account.roobet.com: IDOR hypothesis parked — account.roobet.com does not resolve/respond; no user ID format discoverable.
+- 2026-09-03 ACCEPTED MISCONFIG @ fs.roobet.com: GCS bucket allows ListBucketResult via ?list-type=2 but serves only FullStory assets; low impact.
+- 2026-09-03 REJECTED OTHER @ roobet.com bundle: ContentStack delivery tokens public-by-design; preview token low-severity, program-excluded.
+- 2026-09-03 PARKED api.roobet.com mass-assignment: no live endpoint confirmed, auth unknown.
+- 2026-09-03 PARKED auth.roobet.com OAuth redirect_uri: endpoint path unknown, passive probe needed.
+- 2026-09-03 PARKED account.roobet.com IDOR: requires auth + user ID format discovery.

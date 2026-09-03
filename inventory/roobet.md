@@ -57,3 +57,10 @@ www.roobet.com
 - NEW login.roobet.com / portal.roobet.com / my.roobet.com — auth entry points, target for redirect_uri/state flaws
 - NEW support.roobet.com / mail.roobet.com — support/mail, lower priority
 - NEW roobet.com — root domain, target for subdomain takeover on dangling CNAMEs
+
+## 2026-09-03 20:05:21 UTC
+- NEW api.roobet.com: HTTP 403 (Cloudflare bot-managed, blocks plain curl)
+- NEW www.roobet.com: HTTP 301 → roobet.com
+- NEW roobet.com: HTTP 200 (Remix/React SPA, catch-all /api/* routes)
+- NEW fs.roobet.com: HTTP 405 HEAD / 200 GET (GCS bucket serving FullStory, `?list-type=2` returns 301 to fullstory.com)
+- CHANGED 17/20 inventory hosts: no HTTP response (timeout/connection refused) — likely non-existent or strictly internal

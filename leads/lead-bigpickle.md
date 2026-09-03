@@ -39,3 +39,43 @@ testability: PASSIVE
 [NEXT] PROBE: GET https://fs.roobet.com/?list-type=2&max-keys=1 then GET https://fs.roobet.com/s/ (compare 200 ListBucketResult vs 403); also GET https://fs.roobet.com/robots.txt content. If no 200 listing, escalate to browser-phase probe of wss://api.roobet.com/ GraphQL introspection (AUTH_HELPED).
 [LEARN] REJECTED OTHER @ roobet.com bundle: delivered ContentStack tokens are public-by-design; not reportable. No delta in server surface from prior runs.
 [RISK] roobet: 62 — real but gated surface (api.roobet.com Cloudflare/Turnstile bot-management blocks all scripted probes; GraphQL admin only via browser). Two new subdomains discovered; one testable passive lead (fs.roobet.com GCS). Engagement rules (max 1 rps, passive-first, no data modification, poc_required) complied with; no scanner POC runs.
+## 2026-09-03 19:58:10 UTC [target] (model bigpickle)
+[PRIO] fs.roobet.com,6.0,GCS_BUCKET_MISCONFIG,PASSIVE
+[PRIO] api.roobet.com,6.7,GRAPHQL_ADMIN_WSPORTS,AUTH_HELPED
+[PRIO] roobet.com,4.55,CLIENT_TOKEN_LEAK,PASSIVE
+[HYP] fs.roobet.com GCS bucket object listing exposure
+class: MISCONFIG
+asset: fs.roobet.com
+confidence: 45
+reasoning: Non-Cloudflare GCP IP 34.8.116.253 serving FullStory JS from /s/; root 302->fullstory.com; UploadServer header suggests GCS; separate trust boundary from Cloudflare-protected roobet.com assets.
+evidence_needed: ListBucketResult XML (200) on S3-compatible query, or objects outside /s/ served.
+verify_steps: GET https://fs.roobet.com/?list-type=2&max-keys=1 (expect 200+XML or 403); GET https://fs.roobet.com/s/ (listing vs 403). Read-only, <1 rps.
+impact: Internal static asset/script disclosure => medium.
+testability: PASSIVE
+[HYP] api.roobet.com GraphQL admin WS port exposed via Cloudflare
+class: MISCONFIG
+asset: api.roobet.com:8088
+confidence: 55
+reasoning: Client bundle embeds ROOBET_WS_GQL_ADMIN_PORT=8088, ROOBET_WS_GQL_PRODUCT_PORT=8087, ROOBET_WS_API_URL=wss://api.roobet.com/. Ports 8087/8088 not externally reachable (TCP refused; Cloudflare only 443/8443). HTTP 403 from Cloudflare bot management.
+evidence_needed: WSS upgrade success + GQL introspection returning admin schema fields.
+verify_steps: Browser session (turnstile passed): wss://api.roobet.com/ GraphQL subscription handshake on 8088; if 101 upgrade + introspection returns admin fields => exposed. Read-only.
+impact: ATO / admin mutations on wallets/bonuses => critical if reachable.
+testability: AUTH_HELPED
+[HYP] Commerce SDK token misconfiguration in client bundle
+class: OTHER
+asset: roobet.com SPA bundle
+confidence: 38
+reasoning: Bundle leaks ROOBET_BETBY_BRAND_ID, ROOBET_PAYMENTIQ_MERCHANT_ID/ENV=sunpetal, ContentStack delivery+preview tokens. Delivery tokens public-by-design. Preview token might read draft CMS content.
+evidence_needed: ContentStack preview API returns non-public draft content via preview token.
+verify_steps: POST preview-locale query with csde... preview token. Read-only.
+impact: Draft marketing-content disclosure => low; program-excluded class.
+testability: PASSIVE
+[PARKED] Commerce SDK token leak: confidence 38 < 40; REJECTED-class (ContentStack public tokens); no actionable customer/financial data. Parked.
+[FINAL] 1. fs.roobet.com GCS bucket misconfig (6.0, PASSIVE, 45) — only fully passively verifiable lead.
+[FINAL] 2. api.roobet.com GraphQL admin (6.7, AUTH_HELPED, 55) — highest value but requires browser.
+[NEXT] PROBE: GET https://fs.roobet.com/?list-type=2&max-keys=1 then GET https://fs.roobet.com/s/ (compare 200 ListBucketResult XML vs 403 AccessDenied); also GET https://fs.roobet.com/robots.txt for info. Read-only, <1 rps.
+[LEARN] REJECTED OTHER @ roobet.com bundle: ContentStack delivery tokens public-by-design; preview token low-severity, program-excluded.
+[LEARN] PARKED api.roobet.com mass-assignment: no live endpoint confirmed, auth unknown.
+[LEARN] PARKED auth.roobet.com OAuth redirect_uri: endpoint path unknown, passive probe needed.
+[LEARN] PARKED account.roobet.com IDOR: requires auth + user ID format discovery.
+[RISK] roobet: 60 — real surface gated by Cloudflare bot-management; two new subdomains, one passive-verifiable lead (fs.roobet.com GCS); no scanner POC, compliance maintained (≤1 rps, passive-first, no data mutation).
