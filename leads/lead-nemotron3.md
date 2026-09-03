@@ -106,3 +106,52 @@ testability: PASSIVE
 [LEARN] REJECTED IDOR @ account.roobet.com: IDOR hypothesis parked — account.roobet.com does not resolve/respond; no user ID format discoverable.
 [LEARN] ACCEPTED MISCONFIG @ fs.roobet.com: GCS bucket allows ListBucketResult via ?list-type=2 but serves only FullStory assets; low impact.
 [RISK] roobet: 65 — High-value crypto casino with primary API (api.roobet.com) behind Cloudflare bot management (403), auth/account/admin subdomains unresponsive. Main SPA at roobet.com exposes Remix catch-all routes. Attack surface compressed to 3 live hosts. Risk elevated by crypto wallet/betting flows but blocked by lack of auth context and unresponsive critical subdomains.
+## 2026-09-03 22:31:31 UTC [target] (model nemotron3)
+[NEW] roobet.com/.well-known/oauth-authorization-server: HTTP 200 (SPA shell catch-all, not OAuth metadata)
+[NEW] roobet.com/.well-known/openid-configuration: HTTP 200 (SPA shell catch-all, not OAuth metadata)
+[NEW] fs.roobet.com/?list-type=2&max-keys=1: HTTP 301 → fullstory.com (GCS bucket serves only FullStory)
+[NEW] api.roobet.com/graphql: HTTP 403 (Cloudflare bot management blocks GraphQL POST)
+[CHANGED] auth.roobet.com, account.roobet.com, admin.roobet.com, 14 others: no HTTP response (timeout/refused) — confirmed non-resolving or strictly internal
+[PRIO] api.roobet.com,7.5,attack_surface=9,business_value=9,tech_exposure=8,gate_ease=4,cloud_surface=8,freshness=10
+[PRIO] roobet.com,6.0,attack_surface=7,business_value=7,tech_exposure=6,gate_ease=8,cloud_surface=5,freshness=10
+[PRIO] fs.roobet.com,3.5,attack_surface=3,business_value=2,tech_exposure=4,gate_ease=10,cloud_surface=5,freshness=8
+[PRIO] auth.roobet.com,0.0,attack_surface=0,business_value=0,tech_exposure=0,gate_ease=0,cloud_surface=0,freshness=0
+[PRIO] account.roobet.com,0.0,attack_surface=0,business_value=0,tech_exposure=0,gate_ease=0,cloud_surface=0,freshness=0
+[PRIO] admin.roobet.com,0.0,attack_surface=0,business_value=0,tech_exposure=0,gate_ease=0,cloud_surface=0,freshness=0
+[HYP] Remix SPA Catch-All Route Masks API Endpoints on roobet.com
+class: MISCONFIG
+asset: roobet.com
+confidence: 65
+reasoning: roobet.com returns 200 HTML for /.well-known/oauth-authorization-server and /.well-known/openid-configuration — the Remix catch-all route serves SPA shell for all unknown paths. Actual API endpoints under /api/* may exist but are masked by the catch-all.
+evidence_needed: 200 JSON response with authorization_endpoint/token_endpoint/jwks_uri from a non-catch-all path, or discovery of actual API routes via client bundle analysis
+verify_steps: GET https://roobet.com/api/auth/session → GET https://roobet.com/api/user/profile → GET https://roobet.com/api/graphql (observe if any return JSON vs HTML)
+impact: Hidden API surface for auth/session/user endpoints → IDOR/mass assignment/business logic flaws. Severity: MEDIUM-HIGH.
+testability: PASSIVE
+[HYP] Cloudflare Bot Management Bypass via Origin/Referer Headers on api.roobet.com
+class: OTHER
+asset: api.roobet.com
+confidence: 50
+reasoning: api.roobet.com returns 403 for plain curl and GraphQL POST. Client bundle references GraphQL WS ports 8087/8088; the API may allow requests with valid Origin/Referer headers matching roobet.com or specific CF rules.
+evidence_needed: 200 JSON response from POST /graphql with introspection query when sending Origin: https://roobet.com and Referer: https://roobet.com/
+verify_steps: POST https://api.roobet.com/graphql -H "Content-Type: application/json" -H "Origin: https://roobet.com" -H "Referer: https://roobet.com/" -d '{"query":"{__schema{types{name}}}"}' → observe 200 vs 403
+impact: GraphQL introspection → full API surface mapping → targeted mass assignment/IDOR/broken auth. Severity: HIGH.
+testability: PASSIVE
+[HYP] GCS Bucket Path Traversal via Prefix/Delimiter on fs.roobet.com
+class: MISCONFIG
+asset: fs.roobet.com
+confidence: 40
+reasoning: GCS bucket returns 301 for ?list-type=2 to fullstory.com. May allow object metadata exposure via prefix/delimiter parameters before redirect, or alternate bucket paths.
+evidence_needed: XML ListBucketResult with Contents[] showing non-FullStory keys, or 200 on prefix paths like /s/ or /assets/
+verify_steps: GET https://fs.roobet.com/?list-type=2&prefix=s/&max-keys=100 → GET https://fs.roobet.com/s/ → GET https://fs.roobet.com/assets/
+impact: Source map disclosure → client-side logic reconstruction. Severity: LOW.
+testability: PASSIVE
+[PARKED] GCS Bucket Path Traversal via Prefix/Delimiter on fs.roobet.com: confidence 40 < 40 threshold; bucket confirmed FullStory-only via 301 redirect; low business value.
+[FINAL] 1. Remix SPA Catch-All Route Masks API Endpoints on roobet.com (65) 2. Cloudflare Bot Management Bypass via Origin/Referer Headers on api.roobet.com (50)
+[NEXT] PROBE: POST https://api.roobet.com/graphql -H "Content-Type: application/json" -H "Origin: https://roobet.com" -H "Referer: https://roobet.com/" -d '{"query":"{__schema{types{name}}}"}'
+[LEARN] REJECTED MISCONFIG @ roobet.com: OAuth metadata endpoints return SPA shell (catch-all route), not JSON configuration.
+[LEARN] REJECTED MISCONFIG @ fs.roobet.com: GCS bucket ?list-type=2 redirects to fullstory.com; no object enumeration possible.
+[LEARN] REJECTED OTHER @ api.roobet.com: GraphQL endpoint blocked by Cloudflare bot management (403) without valid Origin/Referer.
+[LEARN] ACCEPTED MISCONFIG @ roobet.com: Remix catch-all route masks potential API endpoints under /api/* paths.
+[LEARN] PARKED api.roobet.com Cloudflare bypass: requires valid browser headers/session to test.
+[LEARN] PARKED auth.roobet.com/account.roobet.com/admin.roobet.com: subdomains unresponsive; no attack surface confirmed.
+[RISK] roobet: 60 — High-value crypto casino with primary API (api.roobet.com) behind Cloudflare bot management (403), auth/account/admin subdomains unresponsive. Main SPA at roobet.com uses catch-all routing masking /api/* endpoints. Attack surface compressed to 2 testable hosts (api.roobet.com, roobet.com). Risk elevated by crypto wallet/betting flows but blocked by lack of auth context and unresponsive critical subdomains.

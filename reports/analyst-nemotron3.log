@@ -313,3 +313,141 @@ testability: PASSIVE
 
 ### STEP 7 — RISK
 [RISK] roobet: 65 — High-value crypto casino with primary API (api.roobet.com) behind Cloudflare bot management (403), auth/account/admin subdomains unresponsive. Main SPA at roobet.com exposes Remix catch-all routes. Attack surface compressed to 3 live hosts. Risk elevated by crypto wallet/betting flows but blocked by lack of auth context and unresponsive critical subdomains.
+===== ANALYST nemotron3 2026-09-03 22:40:48 UTC =====
+[0m
+> build · nemotron-3-ultra-free
+[0m
+[0m$ [0mcurl -I -s --max-time 5 "https://roobet.com/.well-known/oauth-authorization-server" 2>&1 | head -10
+HTTP/2 200 
+date: Thu, 03 Sep 2026 22:29:40 GMT
+content-type: text/html; charset=utf-8
+link: </assets/manifest-4745d68a.js>; rel="modulepreload", </assets/entry.client-0ubAY5Pd.js>; rel="modulepreload", </assets/BycVStx7.js>; rel="modulepreload", </assets/CebBPy2B.js>; rel="modulepreload", </assets/DQtOo7t2.js>; rel="modulepreload", </assets/CfLKX0ck.js>; rel="modulepreload", </assets/De5ZaDEy.js>; rel="modulepreload", </assets/R3ZQpkPs.js>; rel="modulepreload", </assets/C8WOk18o.js>; rel="modulepreload", </assets/7PKYY1y6.js>; rel="modulepreload", </assets/Bbj_b4DP.js>; rel="modulepreload", </assets/B7VHpX9k.js>; rel="modulepreload", </assets/BTdu5SyC.js>; rel="modulepreload", </assets/DHny6ZyW.js>; rel="modulepreload", </assets/B-7kg8XL.js>; rel="modulepreload", </assets/BMbFMiWZ.js>; rel="modulepreload", </assets/DdygTOXq.js>; rel="modulepreload", </assets/CvbfkKxE.js>; rel="modulepreload", </assets/C2SMr0nW.js>; rel="modulepreload", </assets/BdcD5AhO.js>; rel="modulepreload", </assets/B_kLh99m.js>; rel="modulepreload", </assets/47Sg-PSX.js>; rel="modulepreload", </assets/CtIv67Bp.js>; rel="modulepreload", </assets/Bn_Vdn1i.js>; rel="modulepreload", </assets/s9UlIO7M.js>; rel="modulepreload", </assets/BuXhe-U4.js>; rel="modulepreload", </assets/CKZph0fm.js>; rel="modulepreload", </assets/BMYb1ebP.js>; rel="modulepreload", </assets/DIemIIBB.js>; rel="modulepreload", </assets/C_wF9LxY.js>; rel="modulepreload", </assets/CNpX54hg.js>; rel="modulepreload", </assets/CLwI5JrA.js>; rel="modulepreload", </assets/DbCQ8ARm.js>; rel="modulepreload", </assets/BOTcObRq.js>; rel="modulepreload", </assets/D5lzM5Wm.js>; rel="modulepreload", </assets/DO08z_x5.js>; rel="modulepreload", </assets/CJKp1aY2.js>; rel="modulepreload", </assets/DtgEv_RY.js>; rel="modulepreload", </assets/Codk88Qv.js>; rel="modulepreload", </assets/DdfFizJO.js>; rel="modulepreload", </assets/BlLfFSnk.js>; rel="modulepreload", </assets/3mV3WY3f.js>; rel="modulepreload", </assets/DD5g-28X.js>; rel="modulepreload", </assets/DVtDR8np.js>; rel="modulepreload", </assets/DRVhbVgr.js>; rel="modulepreload", </assets/DbAqieFT.js>; rel="modulepreload", </assets/CIKtYGSZ.js>; rel="modulepreload", </assets/jCrfiNuf.js>; rel="modulepreload", </assets/CdanJuGc.js>; rel="modulepreload", </assets/BV40BwRT.js>; rel="modulepreload", </assets/CxmxS2p4.js>; rel="modulepreload", </assets/DlQAIuxs.js>; rel="modulepreload", </assets/DQctxDad.js>; rel="modulepreload", </assets/5Yj_Ksbc.js>; rel="modulepreload", </assets/DVTn2m7L.js>; rel="modulepreload", </assets/CDUBPsjr.js>; rel="modulepreload", </assets/MVfEv-jF.js>; rel="modulepreload", </assets/Clo1Bnse.js>; rel="modulepreload", </assets/BkR8e2mw.js>; rel="modulepreload", </assets/Bnd_zETN.js>; rel="modulepreload", </assets/DGV4B6TH.js>; rel="modulepreload", </assets/DegvW-QS.js>; rel="modulepreload", </assets/CZ1Xolzm.js>; rel="modulepreload", </assets/ZdZ4aQ_D.js>; rel="modulepreload", </assets/CVkJJu8F.js>; rel="modulepreload", </assets/root-BcbpOPnt.js>; rel="modulepreload", </assets/gcKUPIEa.js>; rel="modulepreload"
+cf-ray: a35831ce1fb00a0f-IAD
+cf-cache-status: DYNAMIC
+access-control-allow-origin: *
+cache-control: public, max-age=0, must-revalidate
+server: cloudflare
+set-cookie: __cf_bm=_LNzYFtI7qI5CJfggoQ.Ykv.cKEJHgemV3TQQrMbhQQ-1788474580.240378-1.0.1.1-y35k91KRTwXz3zUHFGTmmvu70kIKRgNmtyksYq_q08YQq9hzMI.SBwVn0ZlIpvkLQYO4QtGWSl61b_d4vRskGXMOjHLHha4KA4ve.aDHxD3HfCDQ7Ri6NK1Pp21Muj19; HttpOnly; SameSite=None; Secure; Path=/; Domain=roobet.com; Expires=Thu, 03 Sep 2026 22:59:40 GMT
+[0m
+[0m$ [0mcurl -I -s --max-time 5 "https://roobet.com/.well-known/openid-configuration" 2>&1 | head -10
+HTTP/2 200 
+date: Thu, 03 Sep 2026 22:29:40 GMT
+content-type: text/html; charset=utf-8
+link: </assets/manifest-4745d68a.js>; rel="modulepreload", </assets/entry.client-0ubAY5Pd.js>; rel="modulepreload", </assets/BycVStx7.js>; rel="modulepreload", </assets/CebBPy2B.js>; rel="modulepreload", </assets/DQtOo7t2.js>; rel="modulepreload", </assets/CfLKX0ck.js>; rel="modulepreload", </assets/De5ZaDEy.js>; rel="modulepreload", </assets/R3ZQpkPs.js>; rel="modulepreload", </assets/C8WOk18o.js>; rel="modulepreload", </assets/7PKYY1y6.js>; rel="modulepreload", </assets/Bbj_b4DP.js>; rel="modulepreload", </assets/B7VHpX9k.js>; rel="modulepreload", </assets/BTdu5SyC.js>; rel="modulepreload", </assets/DHny6ZyW.js>; rel="modulepreload", </assets/B-7kg8XL.js>; rel="modulepreload", </assets/BMbFMiWZ.js>; rel="modulepreload", </assets/DdygTOXq.js>; rel="modulepreload", </assets/CvbfkKxE.js>; rel="modulepreload", </assets/C2SMr0nW.js>; rel="modulepreload", </assets/BdcD5AhO.js>; rel="modulepreload", </assets/B_kLh99m.js>; rel="modulepreload", </assets/47Sg-PSX.js>; rel="modulepreload", </assets/CtIv67Bp.js>; rel="modulepreload", </assets/Bn_Vdn1i.js>; rel="modulepreload", </assets/s9UlIO7M.js>; rel="modulepreload", </assets/BuXhe-U4.js>; rel="modulepreload", </assets/CKZph0fm.js>; rel="modulepreload", </assets/BMYb1ebP.js>; rel="modulepreload", </assets/DIemIIBB.js>; rel="modulepreload", </assets/C_wF9LxY.js>; rel="modulepreload", </assets/CNpX54hg.js>; rel="modulepreload", </assets/CLwI5JrA.js>; rel="modulepreload", </assets/DbCQ8ARm.js>; rel="modulepreload", </assets/BOTcObRq.js>; rel="modulepreload", </assets/D5lzM5Wm.js>; rel="modulepreload", </assets/DO08z_x5.js>; rel="modulepreload", </assets/CJKp1aY2.js>; rel="modulepreload", </assets/DtgEv_RY.js>; rel="modulepreload", </assets/Codk88Qv.js>; rel="modulepreload", </assets/DdfFizJO.js>; rel="modulepreload", </assets/BlLfFSnk.js>; rel="modulepreload", </assets/3mV3WY3f.js>; rel="modulepreload", </assets/DD5g-28X.js>; rel="modulepreload", </assets/DVtDR8np.js>; rel="modulepreload", </assets/DRVhbVgr.js>; rel="modulepreload", </assets/DbAqieFT.js>; rel="modulepreload", </assets/CIKtYGSZ.js>; rel="modulepreload", </assets/jCrfiNuf.js>; rel="modulepreload", </assets/CdanJuGc.js>; rel="modulepreload", </assets/BV40BwRT.js>; rel="modulepreload", </assets/CxmxS2p4.js>; rel="modulepreload", </assets/DlQAIuxs.js>; rel="modulepreload", </assets/DQctxDad.js>; rel="modulepreload", </assets/5Yj_Ksbc.js>; rel="modulepreload", </assets/DVTn2m7L.js>; rel="modulepreload", </assets/CDUBPsjr.js>; rel="modulepreload", </assets/MVfEv-jF.js>; rel="modulepreload", </assets/Clo1Bnse.js>; rel="modulepreload", </assets/BkR8e2mw.js>; rel="modulepreload", </assets/Bnd_zETN.js>; rel="modulepreload", </assets/DGV4B6TH.js>; rel="modulepreload", </assets/DegvW-QS.js>; rel="modulepreload", </assets/CZ1Xolzm.js>; rel="modulepreload", </assets/ZdZ4aQ_D.js>; rel="modulepreload", </assets/CVkJJu8F.js>; rel="modulepreload", </assets/root-BcbpOPnt.js>; rel="modulepreload", </assets/gcKUPIEa.js>; rel="modulepreload"
+cf-ray: a35831d24f41bb25-IAD
+cf-cache-status: DYNAMIC
+access-control-allow-origin: *
+cache-control: public, max-age=0, must-revalidate
+server: cloudflare
+set-cookie: __cf_bm=IUPwuSOv4kPZtxlVFogW2F30tT2I3WAQGU..Up1ttBQ-1788474580.8641088-1.0.1.1-ZjdohxDT_XMNf4LHBMtqVfLWtiN_3aSupFOhm8v4lgzwQSn_kmg3fXA1iN7AM1Lok.2zBD9nyzLTaHLmJeBlrVihVpccl8g40koMPIsR1Bxh7.Wp6pDb6YSnPVlC2ueI; HttpOnly; SameSite=None; Secure; Path=/; Domain=roobet.com; Expires=Thu, 03 Sep 2026 22:59:40 GMT
+[0m
+[0m$ [0mcurl -s --max-time 5 "https://fs.roobet.com/?list-type=2&max-keys=1" 2>&1 | head -20
+<a href="https://www.eu1.fullstory.com">Found</a>.
+[0m
+[0m$ [0mcurl -I -s --max-time 5 "https://api.roobet.com/graphql" -H "Content-Type: application/json" 2>&1 | head -10
+HTTP/2 403 
+date: Thu, 03 Sep 2026 22:30:12 GMT
+content-type: text/html; charset=UTF-8
+cache-control: private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+expires: Thu, 01 Jan 1970 00:00:01 GMT
+referrer-policy: same-origin
+x-frame-options: SAMEORIGIN
+strict-transport-security: max-age=31536000; includeSubDomains; preload
+speculation-rules: "/cdn-cgi/speculation"
+server: cloudflare
+[0m
+[0m$ [0mcurl -s --max-time 5 "https://api.roobet.com/graphql" -H "Content-Type: application/json" -d '{"query":"{__schema{types{name}}}"}' 2>&1 | head -30
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js ie6 oldie" lang="en-US"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js ie7 oldie" lang="en-US"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js ie8 oldie" lang="en-US"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en-US"> <!--<![endif]-->
+<head>
+<title>Attention Required! | Cloudflare</title>
+<meta charset="UTF-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<link rel="stylesheet" id="cf_styles-css" href="/cdn-cgi/styles/cf.errors.css" />
+<!--[if lt IE 9]><link rel="stylesheet" id='cf_styles-ie-css' href="/cdn-cgi/styles/cf.errors.ie.css" /><![endif]-->
+<style>body{margin:0;padding:0}</style>
+
+
+<!--[if gte IE 10]><!-->
+<script>
+  if (!navigator.cookieEnabled) {
+    window.addEventListener('DOMContentLoaded', function () {
+      var cookieEl = document.getElementById('cookie-alert');
+      cookieEl.style.display = 'block';
+    })
+  }
+</script>
+<!--<![endif]-->
+
+</head>
+<body>
+[0m
+**STEP 1 — DELTA**
+[NEW] roobet.com/.well-known/oauth-authorization-server: HTTP 200 (SPA shell catch-all, not OAuth metadata)
+[NEW] roobet.com/.well-known/openid-configuration: HTTP 200 (SPA shell catch-all, not OAuth metadata)
+[NEW] fs.roobet.com/?list-type=2&max-keys=1: HTTP 301 → fullstory.com (GCS bucket serves only FullStory)
+[NEW] api.roobet.com/graphql: HTTP 403 (Cloudflare bot management blocks GraphQL POST)
+[CHANGED] auth.roobet.com, account.roobet.com, admin.roobet.com, 14 others: no HTTP response (timeout/refused) — confirmed non-resolving or strictly internal
+
+**STEP 2 — PRIORITIZE**
+[PRIO] api.roobet.com,7.5,attack_surface=9,business_value=9,tech_exposure=8,gate_ease=4,cloud_surface=8,freshness=10
+[PRIO] roobet.com,6.0,attack_surface=7,business_value=7,tech_exposure=6,gate_ease=8,cloud_surface=5,freshness=10
+[PRIO] fs.roobet.com,3.5,attack_surface=3,business_value=2,tech_exposure=4,gate_ease=10,cloud_surface=5,freshness=8
+[PRIO] auth.roobet.com,0.0,attack_surface=0,business_value=0,tech_exposure=0,gate_ease=0,cloud_surface=0,freshness=0
+[PRIO] account.roobet.com,0.0,attack_surface=0,business_value=0,tech_exposure=0,gate_ease=0,cloud_surface=0,freshness=0
+[PRIO] admin.roobet.com,0.0,attack_surface=0,business_value=0,tech_exposure=0,gate_ease=0,cloud_surface=0,freshness=0
+
+**STEP 3 — HYPOTHESES**
+[HYP] Remix SPA Catch-All Route Masks API Endpoints on roobet.com
+class: MISCONFIG
+asset: roobet.com
+confidence: 65
+reasoning: roobet.com returns 200 HTML for /.well-known/oauth-authorization-server and /.well-known/openid-configuration — the Remix catch-all route serves SPA shell for all unknown paths. Actual API endpoints under /api/* may exist but are masked by the catch-all.
+evidence_needed: 200 JSON response with authorization_endpoint/token_endpoint/jwks_uri from a non-catch-all path, or discovery of actual API routes via client bundle analysis
+verify_steps: GET https://roobet.com/api/auth/session → GET https://roobet.com/api/user/profile → GET https://roobet.com/api/graphql (observe if any return JSON vs HTML)
+impact: Hidden API surface for auth/session/user endpoints → IDOR/mass assignment/business logic flaws. Severity: MEDIUM-HIGH.
+testability: PASSIVE
+
+[HYP] Cloudflare Bot Management Bypass via Origin/Referer Headers on api.roobet.com
+class: OTHER
+asset: api.roobet.com
+confidence: 50
+reasoning: api.roobet.com returns 403 for plain curl and GraphQL POST. Client bundle references GraphQL WS ports 8087/8088; the API may allow requests with valid Origin/Referer headers matching roobet.com or specific CF rules.
+evidence_needed: 200 JSON response from POST /graphql with introspection query when sending Origin: https://roobet.com and Referer: https://roobet.com/
+verify_steps: POST https://api.roobet.com/graphql -H "Content-Type: application/json" -H "Origin: https://roobet.com" -H "Referer: https://roobet.com/" -d '{"query":"{__schema{types{name}}}"}' → observe 200 vs 403
+impact: GraphQL introspection → full API surface mapping → targeted mass assignment/IDOR/broken auth. Severity: HIGH.
+testability: PASSIVE
+
+[HYP] GCS Bucket Path Traversal via Prefix/Delimiter on fs.roobet.com
+class: MISCONFIG
+asset: fs.roobet.com
+confidence: 40
+reasoning: GCS bucket returns 301 for ?list-type=2 to fullstory.com. May allow object metadata exposure via prefix/delimiter parameters before redirect, or alternate bucket paths.
+evidence_needed: XML ListBucketResult with Contents[] showing non-FullStory keys, or 200 on prefix paths like /s/ or /assets/
+verify_steps: GET https://fs.roobet.com/?list-type=2&prefix=s/&max-keys=100 → GET https://fs.roobet.com/s/ → GET https://fs.roobet.com/assets/
+impact: Source map disclosure → client-side logic reconstruction. Severity: LOW.
+testability: PASSIVE
+
+**STEP 4 — SELF-CRITIQUE**
+[PARKED] GCS Bucket Path Traversal via Prefix/Delimiter on fs.roobet.com: confidence 40 < 40 threshold; bucket confirmed FullStory-only via 301 redirect; low business value.
+[FINAL] 1. Remix SPA Catch-All Route Masks API Endpoints on roobet.com (65) 2. Cloudflare Bot Management Bypass via Origin/Referer Headers on api.roobet.com (50)
+
+**STEP 5 — NEXT ACTION**
+[NEXT] PROBE: POST https://api.roobet.com/graphql -H "Content-Type: application/json" -H "Origin: https://roobet.com" -H "Referer: https://roobet.com/" -d '{"query":"{__schema{types{name}}}"}'
+
+**STEP 6 — LEARNING**
+[LEARN] REJECTED MISCONFIG @ roobet.com: OAuth metadata endpoints return SPA shell (catch-all route), not JSON configuration.
+[LEARN] REJECTED MISCONFIG @ fs.roobet.com: GCS bucket ?list-type=2 redirects to fullstory.com; no object enumeration possible.
+[LEARN] REJECTED OTHER @ api.roobet.com: GraphQL endpoint blocked by Cloudflare bot management (403) without valid Origin/Referer.
+[LEARN] ACCEPTED MISCONFIG @ roobet.com: Remix catch-all route masks potential API endpoints under /api/* paths.
+[LEARN] PARKED api.roobet.com Cloudflare bypass: requires valid browser headers/session to test.
+[LEARN] PARKED auth.roobet.com/account.roobet.com/admin.roobet.com: subdomains unresponsive; no attack surface confirmed.
+
+**STEP 7 — RISK**
+[RISK] roobet: 60 — High-value crypto casino with primary API (api.roobet.com) behind Cloudflare bot management (403), auth/account/admin subdomains unresponsive. Main SPA at roobet.com uses catch-all routing masking /api/* endpoints. Attack surface compressed to 2 testable hosts (api.roobet.com, roobet.com). Risk elevated by crypto wallet/betting flows but blocked by lack of auth context and unresponsive critical subdomains.

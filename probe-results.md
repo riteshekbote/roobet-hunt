@@ -31,3 +31,17 @@ https://fs.roobet.com/?list-type=2&delimiter=/&max-keys=1000 -> HTTP 405
 https://fs.roobet.com/?list-type=2&max-keys=1 -> HTTP 405
 https://fs.roobet.com/s/ -> HTTP 404
 https://fs.roobet.com/robots.txt -> 200 len=26
+
+## 2026-09-03 22:41:02 UTC
+https://roobet.com/api/auth/session -> 200 len=?
+https://roobet.com/api/user/profile -> 200 len=?
+https://roobet.com/api/graphql -> 200 len=?
+https://roobet.com -> 200 len=?
+https://roobet.com/ -> 200 len=?
+https://api.roobet.com/graphql -> HTTP 403
+https://fs.roobet.com/?list-type=2&prefix=s/&max-keys=100 -> HTTP 405
+https://fs.roobet.com/s/ -> HTTP 404
+https://fs.roobet.com/assets/ -> HTTP 405
+https://fs.roobet.com/?list-type=2&max-keys=1 -> HTTP 405
+https://fs.roobet.com/robots.txt -> 200 len=26
+https://app.roobet.com/../evil.com -> ERR <urlopen error [Errno -5] No address associated wi

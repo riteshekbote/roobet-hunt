@@ -11,3 +11,15 @@
 - 2026-09-03 PARKED api.roobet.com mass-assignment: no live endpoint confirmed, auth unknown.
 - 2026-09-03 PARKED auth.roobet.com OAuth redirect_uri: endpoint path unknown, passive probe needed.
 - 2026-09-03 PARKED account.roobet.com IDOR: requires auth + user ID format discovery.
+- 2026-09-03 REJECTED MISCONFIG @ roobet-dev-public-images-prod S3: bucket 403-locked on list+location; no public-object exposure.
+- 2026-09-03 REJECTED OATH @ roobet.com: .well-known oauth-authorization-server + openid-configuration return SPA catch-all HTML, not real OAuth metadata; no issuer/endpoint leak.
+- 2026-09-03 ACCEPTED OTHER @ roobet.com _api/: two undocumented live server routes confirmed reachable past Cloudflare bot-gate (settings/get, tp-games/essentials); new low-gate server surface.
+- 2026-09-03 REJECTED MISCONFIG @ roobet-dev-public-images-prod S3: bucket 403-locked on list+location; no public-object exposure.
+- 2026-09-03 REJECTED OATH @ roobet.com: `/.well-known/oauth-authorization-server` + openid-configuration return SPA catch-all HTML, not real OAuth metadata; no issuer/endpoint leak (earlier '200 len' misread).
+- 2026-09-03 ACCEPTED OTHER @ roobet.com `_api/`: two undocumented live server routes confirmed reachable past Cloudflare bot-gate (settings/get, tp-games/essentials); new low-gate server surface worth enumerating.
+- 2026-09-03 REJECTED MISCONFIG @ roobet.com: OAuth metadata endpoints return SPA shell (catch-all route), not JSON configuration.
+- 2026-09-03 REJECTED MISCONFIG @ fs.roobet.com: GCS bucket ?list-type=2 redirects to fullstory.com; no object enumeration possible.
+- 2026-09-03 REJECTED OTHER @ api.roobet.com: GraphQL endpoint blocked by Cloudflare bot management (403) without valid Origin/Referer.
+- 2026-09-03 ACCEPTED MISCONFIG @ roobet.com: Remix catch-all route masks potential API endpoints under /api/* paths.
+- 2026-09-03 PARKED api.roobet.com Cloudflare bypass: requires valid browser headers/session to test.
+- 2026-09-03 PARKED auth.roobet.com/account.roobet.com/admin.roobet.com: subdomains unresponsive; no attack surface confirmed.
