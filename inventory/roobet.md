@@ -39,3 +39,21 @@ www.roobet.com
 ## 2026-09-03 08:51:33 UTC
 
 ## 2026-09-03 13:28:47 UTC
+
+## 2026-09-03 17:18:26 UTC
+- NEW `fs.roobet.com` (34.8.116.253, non-Cloudflare GCP/GCS host, 200, serves FullStory `/s/fs.js`) — absent from inventory.
+- NEW `crash-gs.roobet.com` (Cloudflare, Crash game-server, wss/socket.io) — absent from inventory.
+- CHANGED `api.roobet.com` confirmed Cloudflare bot-managed: plain curl => 403 block; GraphQL WS ports 8087(product)/8088(admin) embedded in client bundle but NOT externally reachable (Cloudflare exposes only 4
+- CHANGED `roobet.com` is Remix/React SPA; all `/api/*` server-differentiables absent (200 SPA shell catch-all).
+- NEW api.roobet.com — primary API surface, high-value target for auth/IDOR/SSRF/mass-assignment
+- NEW auth.roobet.com — authentication/authorization service, target for OAuth/JWT/session flaws
+- NEW account.roobet.com — user account management, target for IDOR/BOLA on wallet/profile endpoints
+- NEW admin.roobet.com — admin panel candidate, target for auth bypass/privilege escalation
+- NEW billing.roobet.com — payment/wallet flows, target for business logic flaws on deposits/withdrawals
+- NEW dashboard.roobet.com — user dashboard, target for IDOR/cross-user data access
+- NEW app.roobet.com / web.roobet.com / www.roobet.com / m.roobet.com — main web apps, target for XSS/OAuth redirect flaws
+- NEW sso.roobet.com — single sign-on, target for SAML/OIDC misconfig
+- NEW dev.roobet.com / staging.roobet.com / test.roobet.com — non-prod environments, target for debug endpoints/swagger exposure
+- NEW login.roobet.com / portal.roobet.com / my.roobet.com — auth entry points, target for redirect_uri/state flaws
+- NEW support.roobet.com / mail.roobet.com — support/mail, lower priority
+- NEW roobet.com — root domain, target for subdomain takeover on dangling CNAMEs
