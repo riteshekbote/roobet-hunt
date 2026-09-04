@@ -62,3 +62,4 @@
 - 2026-09-04 ACCEPTED OTHER @ roobet.com/_api/*: Full enumeration complete — 40 route candidates tested, exactly 6 live routes confirmed (settings/get 200, tp-games/essentials 200, admin/users 401, admin/stats 401, affiliate/get 401, auth/logout 302). Surface is small and well-defined.
 - 2026-09-04 ACCEPTED OTHER @ roobet.com auth/logout: Auth mechanism revealed — Express.js session cookies (`connect.sid` HttpOnly + `userId` non-HttpOnly + `twofactorRequired`). Standard session-based auth; no bypass without valid session.
 - 2026-09-04 REJECTED OTHER @ roobet.com/_api/*: 34 of 40 candidates returned 404 SPA shell. Route family is not large — only 6 registered routes exist.
+- 2026-09-04 ACCEPTED OTHER @ roobet.com auth/logout: Auth mechanism revealed — Express.js session cookies (connect.sid HttpOnly + userId non-HttpOnly + twofactorRequired). Standard session-based auth; no bypass without valid session.

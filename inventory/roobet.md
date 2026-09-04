@@ -168,3 +168,5 @@ www.roobet.com
 - CHANGED auth.roobet.com, account.roobet.com, admin.roobet.com + 14 others: no HTTP response (confirmed non-resolving/internal)
 - CHANGED fs.roobet.com/?list-type=2 returns 301 → fullstory.com; GCS bucket serves only FullStory
 - CHANGED roobet.com/.well-known/oauth-authorization-server + openid-configuration return SPA shell (catch-all), not OAuth metadata
+
+## 2026-09-04 17:53:31 UTC
