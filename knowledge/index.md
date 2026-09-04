@@ -63,3 +63,13 @@
 - 2026-09-04 ACCEPTED OTHER @ roobet.com auth/logout: Auth mechanism revealed — Express.js session cookies (`connect.sid` HttpOnly + `userId` non-HttpOnly + `twofactorRequired`). Standard session-based auth; no bypass without valid session.
 - 2026-09-04 REJECTED OTHER @ roobet.com/_api/*: 34 of 40 candidates returned 404 SPA shell. Route family is not large — only 6 registered routes exist.
 - 2026-09-04 ACCEPTED OTHER @ roobet.com auth/logout: Auth mechanism revealed — Express.js session cookies (connect.sid HttpOnly + userId non-HttpOnly + twofactorRequired). Standard session-based auth; no bypass without valid session.
+- 2026-09-04 REJECTED OTHER @ roobet.com/_api/settings/get: XFF/query/Cookie/Referer input is NOT reflected (ip=server-observed egress, sessionId rotates per-request, auth cookie is connect.sid) — no reflection or session-fixation vector.
+- 2026-09-04 REJECTED MISCONFIG @ api.roobet.com: raw WS upgrade to /graphql on 443+8443 => HTTP 403 from Cloudflare edge — bot-gate enforces WS, admin port 8088 unreachable; not exploitable without Turnstile-passing browser session.
+- 2026-09-04 ACCEPTED OTHER @ crash-gs.roobet.com: TLS upgrade to socket.io endpoint stays open (no 4xx) then app-layer timeout = live Socket.IO server, passive curl insufficient; held HUMAN_ONLY.
+- 2026-09-04 ACCEPTED OTHER @ roobet.com /pusher/auth + /pusher/user-auth: POST=>405 (live route), GET=>200 SPA catch-all; POST-only auth endpoints requiring valid session + exact body.
+- 2026-09-04 ACCEPTED OTHER @ api.roobet.com bundle: re-analysis found NO new Roobet-owned hosts/routes; FastTrack config is 3P (out of scope).
+- 2026-09-04 REJECTED OTHER @ roobet.com/_api/settings/get: XFF/query/Cookie/Referer input NOT reflected (`ip`=server-observed egress, sessionId rotates per-request, auth cookie = connect.sid) — no reflection or session-fixation vector.
+- 2026-09-04 REJECTED MISCONFIG @ api.roobet.com: raw WS upgrade /graphql on 443+8443 ⇒ HTTP 403 (Cloudflare edge) — bot-gate enforces WS; admin port 8088 unreachable; needs Turnstile-passing browser.
+- 2026-09-04 ACCEPTED OTHER @ crash-gs.roobet.com: socket.io TLS upgrade stays open (no 4xx) then app-layer timeout — live Socket.IO server, HUMAN_ONLY.
+- 2026-09-04 ACCEPTED OTHER @ roobet.com /pusher/auth + /pusher/user-auth: POST⇒405 (live), GET⇒200 SPA shell; POST-only auth endpoints, need session.
+- 2026-09-04 ACCEPTED OTHER @ api.roobet.com bundle: no new Roobet-owned subdomains/routes; FastTrack config URL is 3P (out of scope).

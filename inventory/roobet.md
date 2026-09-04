@@ -170,3 +170,16 @@ www.roobet.com
 - CHANGED roobet.com/.well-known/oauth-authorization-server + openid-configuration return SPA shell (catch-all), not OAuth metadata
 
 ## 2026-09-04 17:53:31 UTC
+
+## 2026-09-04 20:00:09 UTC
+- NEW api.roobet.com WS surface fully gated: raw TLS WebSocket upgrade to `wss://api.roobet.com/graphql` on BOTH 443 and 8443 returns `HTTP/1.1 403 Forbidden` (Cloudflare edge, not 101) — bot-gate covers WS
+- NEW crash-gs.roobet.com: TLS WS upgrade to `/socket.io/?EIO=3&transport=websocket` does NOT get 4xx (connection stays open) then app-layer timeout — consistent with live Socket.IO server awaiting protocol
+- CHANGED `_api/settings/get` input reflection NEGATIVE: X-Forwarded-For: 203.0.113.7, `?sessionId=[64hex]`, `Referer: https://evil.com`, and `Cookie: sessionId=deadbeef` produce identical fields — `ip` stays s
+- NEW roobet.com `/pusher/auth` + `/pusher/user-auth`: POST => 405 (live route, wrong method/body), GET => 200 SPA-shell catch-all. Pusher auth is POST-only; requires valid session + exact `socket_id`/`chan
+- NEW Bundle re-analysis (entry.client-DstZRzUD.js): confirms ROOBET_* inlining (WS_API_URL `wss://api.roobet.com/`, GQL ports 8087/8088, CRASH_WS_URL crash-gs, pusher authEndpoint `/pusher/auth`). Only mod
+- CHANGED `_api/{missions,challenges,bonuses,sportsbook}/get+sportsbook` => 404 SPA shell; surface remains exactly 6 live routes.
+- NEW api.roobet.com: raw WS upgrade to `/graphql` on 443 AND 8443 → `HTTP 403 Forbidden` from Cloudflare edge (bot-gate enforces WS upgrades, not just HTTP; admin port 8088 unreachable via edge).
+- NEW crash-gs.roobet.com: TLS upgrade to `/socket.io/?EIO=3&transport=websocket` stays open (no 4xx) then app-layer timeout = live Socket.IO server awaiting protocol frames; curl cannot complete handshake.
+- CHANGED `_api/settings/get` reflection NEGATIVE — X-Forwarded-For/`?sessionId`/Referer/Cookie all inert (`ip` = server-observed egress 20.118.246.10, sessionId rotates per-request, not the auth cookie).
+- NEW `/pusher/auth` + `/pusher/user-auth` POST→405 (live), GET→200 SPA-shell catch-all; POST-only Pusher auth, session+exact-body required.
+- CHANGED `_api/{missions,challenges,bonuses,sportsbook}/get` → 404; surface still exactly 6 live routes. Bundle re-analysis: no new Roobet-owned hosts (FastTrack config is 3P).
