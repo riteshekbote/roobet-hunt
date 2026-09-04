@@ -131,3 +131,12 @@ www.roobet.com
 - CHANGED roobet.com `/.well-known/oauth-authorization-server` + `/.well-known/openid-configuration` both return 200 SPA shell HTML (catch-all), NOT real OAuth/OIDC metadata — neutralizes nemotron3 OAuth-meta h
 - CHANGED roobet.com `/pusher/auth` + `/pusher/user-auth` exist as live routes (405 on the POST format tested) — Pusher channel/user auth surface, auth-adjacent.
 - NEW roobet.com `/_api/` server route family: `_api/settings/get` (200 JSON: internal config incl. client IP, per-request sessionId hex, restricted-country/feature flags, serverTime) and `_api/tp-games/ess
+
+## 2026-09-04 05:08:52 UTC
+- NEW roobet.com `/_api/` server route family confirmed: `_api/settings/get` (200 JSON: internal config, client IP, 64-hex sessionId, feature flags, serverTime) and `_api/tp-games/essentials` (200 JSON: ful
+- NEW crash-gs.roobet.com confirmed live Socket.IO game-server (wss://crash-gs.roobet.com/socket.io/?EIO=3&transport=websocket) — TCP 443 connects, HTTP hangs/000
+- NEW roobet.com `/pusher/auth` + `/pusher/user-auth` exist as live routes (405 on POST format tested) — Pusher channel/user auth surface
+- CHANGED roobet.com `/.well-known/oauth-authorization-server` + `/.well-known/openid-configuration` both return 200 SPA shell HTML (Remix catch-all), NOT real OAuth/OIDC metadata
+- CHANGED auth.roobet.com, account.roobet.com, admin.roobet.com, 14 others: no HTTP response (timeout/refused) — confirmed non-resolving or strictly internal
+- CHANGED api.roobet.com GraphQL POST returns 403 (Cloudflare bot management) even with Origin/Referer headers — bot-gate remains intact for scripted probes
+- CHANGED fs.roobet.com/?list-type=2 returns 301 → fullstory.com; GCS bucket serves only FullStory assets; no object enumeration possible

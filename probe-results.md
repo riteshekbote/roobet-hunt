@@ -59,3 +59,9 @@ https://roobet.com/.well-known/oauth-authorization-server -> 200 len=?
 https://roobet.com/.well-known/openid-configuration -> 200 len=?
 https://auth.roobet.com/.well-known/oauth-authorization-server -> ERR <urlopen error [Errno -5] No address associated wi
 https://fs.roobet.com/?list-type=2&max-keys=1000 -> HTTP 405
+
+## 2026-09-04 05:08:57 UTC
+https://roobet.com/_api/{auth,user,wallet,config,benefits,trivia,promotion,affiliate,notifications,jackpot,leaderboard -> HTTP 404
+https://api.roobet.com/graphql -> HTTP 403
+https://roobet.com -> 200 len=?
+https://roobet.com/ -> 200 len=?
