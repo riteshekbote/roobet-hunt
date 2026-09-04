@@ -5906,3 +5906,27 @@ testability: AUTH_HELPED
 [RISK] roobet: 66 — Passive surface fully enumerated and bounded: 6 `_api/*` routes; HTTP+WS bot-gates 403 on api.roobet.com both ports; no input reflection/fixation; 3P configs excluded. Single unresolved high-value line is the admin/affiliate 401→200 vertical priv-esc, solvable only with a live session (engagement constraints: no customer/auth-data exposure, account_creation restricted). No confirmed reportable vuln; ≤1 rps, GET-only, no writes, no auth-bypass on live data; compliance intact.
 
 Hand-off queued: `roobet.com/_api/admin/*` session test (AUTH_HELPED). Supporting artifacts in `leads/lead-bigpickle.md`; state in `state_bigpickle.json`.
+===== ANALYST bigpickle 2026-09-04 22:18:36 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mUA='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36'
+run() { curl -sS -o "$1" -D "$2" --max-time 18 -A "$UA" -w 'HTTP:%{http_code} size:%{size_download} time:%{time_total}s\n' "$3"; }
+echo '--- P1 admin/gf9k2xw7 (GET) ---'
+run /tmp/p1 b1.txt 'https://roobet.com/_api/admin/gf9k2xw7'
+sleep 1.5
+echo '--- P2 affiliate/gf9k2xw7 (GET) ---'
+run /tmp/p2 b2.txt 'https://roobet.com/_api/affiliate/gf9k2xw7'
+sleep 1.5
+echo '--- P3 opt _api/admin/users (OPTIONS) ---'
+curl -sS -o /tmp/p3 -D b3.txt --max-time 18 -A "$UA" -X OPTIONS -w 'HTTP:%{http_code} size:%{size_download}\n' 'https://roobet.com/_api/admin/users'
+--- P1 admin/gf9k2xw7 (GET) ---
+HTTP:404 size:1091 time:0.315185s
+--- P2 affiliate/gf9k2xw7 (GET) ---
+HTTP:404 size:1095 time:0.272294s
+--- P3 opt _api/admin/users (OPTIONS) ---
+HTTP:204 size:0
+[0m
+[93m[1m! [0mpermission requested: external_directory (/tmp/*); auto-rejecting
+[0m✗ [0mecho '=== b3 (OPTIONS admin/users headers) ==='; cat /tmp/b3.txt; echo; echo '=== b1 (admin/gf9k2xw7 headers) ==='; cat /tmp/b1.txt; echo; echo '=== p1 body first 300B ==='; head -c 300 /tmp/p1; echo failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.

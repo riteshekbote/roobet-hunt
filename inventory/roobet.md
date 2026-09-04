@@ -183,3 +183,17 @@ www.roobet.com
 - CHANGED `_api/settings/get` reflection NEGATIVE — X-Forwarded-For/`?sessionId`/Referer/Cookie all inert (`ip` = server-observed egress 20.118.246.10, sessionId rotates per-request, not the auth cookie).
 - NEW `/pusher/auth` + `/pusher/user-auth` POST→405 (live), GET→200 SPA-shell catch-all; POST-only Pusher auth, session+exact-body required.
 - CHANGED `_api/{missions,challenges,bonuses,sportsbook}/get` → 404; surface still exactly 6 live routes. Bundle re-analysis: no new Roobet-owned hosts (FastTrack config is 3P).
+
+## 2026-09-04 22:18:36 UTC
+- NEW roobet.com/_api/admin/users: 401 Unauthorized confirmed (admin endpoint on low-gate surface, not behind Cloudflare bot-gate)
+- NEW roobet.com/_api/admin/stats: 401 Unauthorized confirmed (admin endpoint on low-gate surface)
+- NEW roobet.com/_api/affiliate/get: 401 Unauthorized confirmed; parameter tests (?user_id, ?affiliate_code) also return 401 (not 404)
+- NEW roobet.com/_api/auth/logout: 302 Found → / (reveals Express.js session cookies: connect.sid HttpOnly + userId non-HttpOnly + twofactorRequired)
+- NEW roobet.com/_api/settings/get: input reflection NEGATIVE — X-Forwarded-For, ?sessionId, Referer, Cookie:sessionId all inert (ip=server-observed egress, sessionId rotates per-request)
+- NEW api.roobet.com WS: raw TLS upgrade to wss://api.roobet.com/graphql on 443 AND 8443 → HTTP 403 (Cloudflare edge blocks WS upgrades); admin port 8088 unreachable
+- NEW crash-gs.roobet.com: TLS WS upgrade to /socket.io/?EIO=3&transport=websocket stays open (no 4xx) then app-layer timeout = live Socket.IO server
+- NEW roobet.com/pusher/auth + /pusher/user-auth: POST→405 (live route), GET→200 SPA shell; POST-only auth endpoints requiring valid session + exact body
+- CHANGED roobet.com/_api/* surface: full enumeration complete — 40 candidates tested, exactly 6 live routes (settings/get 200, tp-games/essentials 200, admin/users 401, admin/stats 401, affiliate/get 401, auth
+- CHANGED _api/settings/get reflection tests: all negative — no session fixation or cross-user data reflection vector
+- CHANGED api.roobet.com GraphQL: remains 403 bot-gated even with Origin/Referer; WS ports 8087/8088 TCP-refused at edge
+- CHANGED auth.roobet.com/account.roobet.com/admin.roobet.com + 14 others: confirmed non-resolving/internal

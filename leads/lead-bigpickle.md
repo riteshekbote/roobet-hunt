@@ -885,3 +885,4 @@ testability: AUTH_HELPED
 [LEARN] ACCEPTED OTHER @ roobet.com /pusher/auth + /pusher/user-auth: POST⇒405 (live), GET⇒200 SPA shell; POST-only auth endpoints, need session.
 [LEARN] ACCEPTED OTHER @ api.roobet.com bundle: no new Roobet-owned subdomains/routes; FastTrack config URL is 3P (out of scope).
 [RISK] roobet: 66 — Passive surface fully enumerated and bounded: 6 `_api/*` routes; HTTP+WS bot-gates 403 on api.roobet.com both ports; no input reflection/fixation; 3P configs excluded. Single unresolved high-value line is the admin/affiliate 401→200 vertical priv-esc, solvable only with a live session (engagement constraints: no customer/auth-data exposure, account_creation restricted). No confirmed reportable vuln; ≤1 rps, GET-only, no writes, no auth-bypass on live data; compliance intact.
+## 2026-09-04 22:15:48 UTC [target] (model bigpickle)

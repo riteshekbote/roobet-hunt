@@ -100,3 +100,11 @@ https://roobet.com/_api/affiliate/get?user_id=<other_id -> HTTP 401
 https://roobet.com/_api/affiliate/get?affiliate_code=<other_code -> HTTP 401
 https://roobet.com/_api/settings/get -> 200 len=1764
 https://roobet.com/_api/admin/users` -> HTTP 404
+
+## 2026-09-04 22:18:44 UTC
+https://roobet.com/_api/admin/users -> HTTP 401
+https://roobet.com/_api/admin/stats -> HTTP 401
+https://roobet.com/_api/affiliate/get -> HTTP 401
+https://roobet.com/_api/affiliate/get?user_id=<other_id -> HTTP 401
+https://roobet.com/_api/affiliate/get?affiliate_code=<other_code -> HTTP 401
+https://roobet.com/pusher/auth -> 200 len=?
