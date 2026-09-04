@@ -1,49 +1,39 @@
-## 2026-09-04 09:52:15 UTC [target] (model bigpickle)
-[NEW] `_api/admin/users` → 401 Unauthorized (exists, auth-gated, admin endpoint on low-gate surface)
-[NEW] `_api/admin/stats` → 401 Unauthorized (exists, auth-gated, admin endpoint on low-gate surface)
-[NEW] `_api/affiliate/get` → 401 Unauthorized (exists, auth-gated, affiliate data endpoint)
-[NEW] `_api/auth/logout` → 302 Found → `/` (exists, auth-redirect)
-[CHANGED] `_api/*` surface now 5 live routes confirmed (up from 2): settings/get (200), tp-games/essentials (200), admin/users (401), admin/stats (401), affiliate/get (401)
-[CHANGED] `_api/settings/get` full dump: exposes client IP (`64.236.169.100`), per-request 64-hex `sessionId`, `countryCode`/`regionCountryCode`, full `restrictedCountries` map (33 entries), `restrictedRegion: true`, `globalStats.allTimeNumBets`, `features: {}`, all `disabled*Withdraw` flags (22 crypto chains)
-[PRIO] roobet.com/_api/admin+affiliate,6.8,UNDOCUMENTED_AUTHENTICATED_ROUTES,PASSIVE
+## 2026-09-04 14:07:19 UTC [target] (model bigpickle)
+[PRIO] roobet.com/_api/admin/*,6.8,UNDOCUMENTED_AUTHENTICATED_ROUTES,PASSIVE
+[PRIO] roobet.com/_api/affiliate/get,6.5,IDOR_AUTH_HELPED,AUTH_HELPED
 [PRIO] roobet.com/_api/settings/get,6.2,INTERNAL_CONFIG_LEAK,PASSIVE
-[PRIO] api.roobet.com,7.85,GRAPHQL_ADMIN_WSPORTS,AUTH_HELPED
-[PRIO] crash-gs.roobet.com,5.95,SOCKETIO_GAMESERVER,HUMAN_ONLY
-[HYP] Admin API surface accessible on low-gate roobet.com/_api/* bypasses Cloudflare bot-management
-class: MISCONFIG
-asset: roobet.com/_api/admin/*
-confidence: 62
-reasoning: `_api/admin/users` and `_api/admin/stats` return 401 "Unauthorized" on the same roobet.com server that serves `_api/settings/get` (200, no auth). This proves admin API routes are registered on the low-gate Remix server — NOT behind the Cloudflare bot-management 403 that blocks api.roobet.com. The 401 response is a generic 12-byte "Unauthorized" string with no challenge body, suggesting a simple token/cookie auth check. If the auth mechanism uses the same session cookie issued to all visitors (or if admin auth is validated client-side only), unauthenticated/low-privilege access to admin user listing/stats is possible. The Remix server does NOT differentiate `_api/admin/*` from `_api/settings/*` at the routing layer — only at the handler-level auth check.
-evidence_needed: (1) A 200 response from `_api/admin/users` or `_api/admin/stats` using any valid session/cookie from a normal user account, proving privilege escalation. (2) Or a response to `_api/admin/users` with a manipulated cookie/header that bypasses the 401 check (e.g., empty auth, different cookie name, Bearer vs cookie confusion).
-verify_steps: (1) Sign up for a normal Roobet account → obtain session cookie → GET `https://roobet.com/_api/admin/users` with that cookie → observe 200 with user list vs continued 401. (2) Test auth confusion: GET with `Authorization: Bearer ` (empty), GET with various cookie names (`token`, `auth`, `jwt`, `session`), GET with `X-Auth-Token` header. Read-only GET, <1 rps.
-impact: Admin user listing/stats disclosure without admin credentials => HIGH (PII of all users, platform stats). If admin mutations also exist on this surface, could lead to ATO/privilege escalation => CRITICAL.
+[HYP] Admin API privilege escalation via normal user session
+class: AUTH
+asset: roobet.com/_api/admin/users
+confidence: 55
+reasoning: `_api/admin/*` routes exist on low-gate Remix server (not Cloudflare-bot-gated), return 401 with `connect.sid` Express session auth. If any valid `connect.sid` from a normal user account is accepted (admin check missing at route level), privilege escalation to user listing/stats occurs. Auth mechanism is standard Express session — no client-side-only validation suspected but unconfirmed.
+evidence_needed: 200 response from `_api/admin/users` using a normal user's `connect.sid` cookie proving admin access without admin role.
+verify_steps: HUMAN: Sign up → obtain `connect.sid` → GET `roobet.com/_api/admin/users` with cookie → observe 200 with user list vs continued 401. Read-only GET.
+impact: Admin user listing (PII of all users) + platform stats disclosure → HIGH severity.
 testability: AUTH_HELPED
-[HYP] Affiliate data endpoint exposed on low-gate surface enables cross-user affiliate data access
+[HYP] Affiliate data IDOR via user_id parameter
 class: IDOR
 asset: roobet.com/_api/affiliate/get
-confidence: 52
-reasoning: `_api/affiliate/get` returns 401 on GET — exists on the low-gate surface. Affiliate data typically contains user IDs, referral codes, earnings, and commission structures. If the endpoint accepts a user session cookie and returns affiliate data for that user (rather than requiring admin auth), any authenticated user could potentially access other users' affiliate data by modifying a user ID parameter. The endpoint name `/get` (not `/me` or `/self`) suggests it may accept an ID parameter.
-evidence_needed: (1) 200 response from `_api/affiliate/get` with a normal user session showing affiliate data. (2) Any query parameter (user_id, id, uid) that modifies the response.
-verify_steps: (1) Normal user session: GET `https://roobet.com/_api/affiliate/get` with session cookie → observe 200 with affiliate data. (2) Test param influence: GET `https://roobet.com/_api/affiliate/get?user_id=123` and `?id=456` → observe if response changes. Read-only GET, <1 rps.
-impact: Cross-user affiliate data exposure (referral codes, earnings, user associations) => MEDIUM-HIGH. If affiliate data includes payout info, could enable financial attacks.
+confidence: 45
+reasoning: `_api/affiliate/get` exists on low-gate surface, 401 auth-gated. Affiliate data typically contains referral codes, earnings, user associations. Endpoint name `/get` (not `/me` or `/self`) suggests it may accept an ID parameter. Requires valid `connect.sid` to test — cannot verify without auth.
+evidence_needed: 200 response showing affiliate data with a user_id parameter that returns different users' data.
+verify_steps: HUMAN: Sign up → GET `roobet.com/_api/affiliate/get` with session → test `?user_id=X` variants. Read-only GET.
+impact: Cross-user affiliate data exposure (referral codes, earnings) → MEDIUM-HIGH.
 testability: AUTH_HELPED
-[HYP] Internal config endpoint leaks operational intelligence
-class: OTHER
+[HYP] Session fixation via settings/get sessionId
+class: AUTH
 asset: roobet.com/_api/settings/get
-confidence: 48
-reasoning: `_api/settings/get` returns full internal config including: (1) client IP reflected from server-side request, (2) per-request 64-hex sessionId (session fixation vector?), (3) complete restrictedCountries map with 33 entries (operational geo-compliance data), (4) 22 `disabled*Withdraw` flags revealing all supported crypto chains, (5) `regionCountryCode` geo-inference. The IP reflection confirms server-side processing of client request; the sessionId format suggests server-generated tokens. While no customer data is leaked, the operational intelligence (withdrawal chain status, geo-compliance, server session format) could aid targeted attacks on withdrawal flows.
-evidence_needed: (1) Confirmation that sessionId is used as an auth token (test: use the reflected sessionId as a cookie/token in subsequent requests). (2) Any parameter on settings/get that influences the response (e.g., `?sessionId=X` reflects back).
-verify_steps: (1) GET `_api/settings/get` → capture sessionId → use as cookie in GET `_api/admin/users` → observe if 401 bypasses. (2) GET `_api/settings/get?custom=test` → observe if custom param reflected in response. Read-only GET, <1 rps.
-impact: Operational intelligence for targeting withdrawal/bonus flows; potential session fixation if sessionId is used as auth token. Severity LOW-MEDIUM.
+confidence: 35
+reasoning: `settings/get` returns a per-request 64-hex `sessionId` in the response body. However, the actual auth cookie is `connect.sid` (separate from this sessionId). The `sessionId` in the response is likely a request-scoped tracking ID, not an auth token. Low probability of session fixation.
+evidence_needed: Confirmation that the `sessionId` from `settings/get` is accepted as an auth token on any authenticated endpoint.
+verify_steps: GET `_api/settings/get` → capture sessionId → use as `connect.sid` cookie in GET `_api/admin/users` → observe if 401 bypasses.
+impact: Session fixation → account takeover → CRITICAL (but very low confidence).
 testability: PASSIVE
-[PARKED] Affiliate IDOR: confidence 52 — requires valid user session to confirm if `/get` accepts user ID param; cannot verify without auth. Held as AUTH_HELPED.
-[PARKED] Settings/get operational intel: confidence 48 — the leaked data (IP, restricted countries, withdraw flags) is likely public-facing config; sessionId format is server-generated and rotates per-request. Low standalone impact. Held but deprioritized.
-[FINAL] 1. Admin API surface on low-gate (6.8, PASSIVE, 62) — most impactful: admin routes exist on un-bot-gated surface, 401 auth check unknown strength.
-[FINAL] 2. Affiliate IDOR (AUTH_HELPED, 52) — requires user session.
-[FINAL] 3. Settings/get config leak (PASSIVE, 48) — low standalone impact.
-[NEXT] HUMAN: Test `_api/admin/users` and `_api/admin/stats` with a valid Roobet user session cookie to determine if normal-user auth grants admin access (privilege escalation). Requires browser sign-up → obtain session → GET the 401 admin routes. If 200 with user data, this is CRITICAL.
-[LEARN] ACCEPTED MISCONFIG @ roobet.com/_api/admin/*: admin routes (admin/users, admin/stats) exist on low-gate surface; return 401 Unauthorized; not behind Cloudflare bot-management; auth mechanism unknown — requires live session to test.
-[LEARN] ACCEPTED OTHER @ roobet.com/_api/affiliate/get: affiliate endpoint exists on low-gate surface; 401 auth-gated; potential IDOR target.
-[LEARN] ACCEPTED OTHER @ roobet.com/_api/settings/get: full internal config dump (IP, sessionId, restricted countries, withdraw flags, geo inference) — operational intelligence, low standalone severity.
-[LEARN] ACCEPTED OTHER @ roobet.com/_api/tp-games/essentials: 9MB game catalog dump; internal S3 bucket reference; low severity.
-[RISK] roobet: 67 — Surface has expanded: 5 live `_api/*` routes on low-gate roobet.com (2 public + 3 auth-gated admin/affiliate). The critical question is whether admin API auth on the Remix server is correctly enforced or can be bypassed with a normal user session. If yes, this bypasses the Cloudflare bot-management that protects api.roobet.com and grants admin access to user listing/stats. Main API (api.roobet.com) remains Cloudflare-gated; auth/account/admin subdomains unresponsive. No confirmed reportable vuln yet; engagement rules (≤1 rps, read-only GET, no data mutation) fully respected.
+[PARKED] Affiliate IDOR: confidence 45 — requires valid user session to test. Cannot verify without auth.
+[PARKED] Session fixation via sessionId: confidence 35 — `sessionId` appears to be a tracking ID, not an auth token. `connect.sid` is the actual session cookie. Very low probability.
+[FINAL] 1. Admin privilege escalation (55, AUTH_HELPED) — most impactful, requires live session.
+[NEXT] HUMAN: Test `_api/admin/users` with a valid Roobet user session cookie (`connect.sid`) to determine if normal-user auth grants admin access. Requires: (1) sign up at roobet.com, (2) capture `connect.sid` from browser DevTools, (3) `curl -b 'connect.sid=<value>' https://roobet.com/_api/admin/users`. If 200 with user data → CRITICAL privilege escalation. If continued 401 → admin auth is correctly role-gated. Read-only GET.
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/*: Full enumeration complete — 40 route candidates tested, exactly 6 live routes confirmed (settings/get 200, tp-games/essentials 200, admin/users 401, admin/stats 401, affiliate/get 401, auth/logout 302). Surface is small and well-defined.
+[LEARN] ACCEPTED OTHER @ roobet.com auth/logout: Auth mechanism revealed — Express.js session cookies (`connect.sid` HttpOnly + `userId` non-HttpOnly + `twofactorRequired`). Standard session-based auth; no bypass without valid session.
+[LEARN] REJECTED OTHER @ roobet.com/_api/*: 34 of 40 candidates returned 404 SPA shell. Route family is not large — only 6 registered routes exist.
+[RISK] roobet: 65 — Surface fully enumerated: 6 live `_api/*` routes (2 public config, 3 auth-gated admin/affiliate, 1 auth-redirect). The critical question remains: does normal user `connect.sid` grant admin access? This requires a live session to test. Main API (api.roobet.com) Cloudflare-gated; auth/account/admin subdomains unresponsive. No confirmed reportable vuln; engagement rules fully respected. Program explicitly excludes exposure of customer/auth data during testing — cannot escalate admin route test without live session.

@@ -135,3 +135,24 @@
 - LEARN: ACCEPTED OTHER @ roobet.com/_api/affiliate/get: affiliate endpoint exists on low-gate surface; 401 auth-gated; potential IDOR target.
 - LEARN: ACCEPTED OTHER @ roobet.com/_api/settings/get: full internal config dump (IP, sessionId, restricted countries, withdraw flags, geo inference) — operational inte
 - LEARN: ACCEPTED OTHER @ roobet.com/_api/tp-games/essentials: 9MB game catalog dump; internal S3 bucket reference; low severity.
+
+## RANKED HYPOTHESES 2026-09-04 14:20:04 UTC
+- [70] roobet.com/_api/admin/*: Admin API Surface Accessible via Low-Gate _api/* Routes (from art/lead_nemotron3.txt)
+- [55] roobet.com/_api/admin/users: Admin API privilege escalation via normal user session (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): HUMAN: Test `_api/admin/users` with a valid Roobet user session cookie (`connect.sid`) to determine if normal-user auth grants admin access. Requires: (1) sign 
+- NEXT(hypotheses-nemotron3.txt): PROBE: GET https://roobet.com/_api/admin/users && GET https://roobet.com/_api/admin/stats && GET https://roobet.com/_api/affiliate/get (1 rps each) with valid R
+- LEARN: ACCEPTED OTHER @ roobet.com/_api/*: Full enumeration complete — 40 route candidates tested, exactly 6 live routes confirmed (settings/get 200, tp-games/essentia
+- LEARN: ACCEPTED OTHER @ roobet.com auth/logout: Auth mechanism revealed — Express.js session cookies (`connect.sid` HttpOnly + `userId` non-HttpOnly + `twofactorRequir
+- LEARN: REJECTED OTHER @ roobet.com/_api/*: 34 of 40 candidates returned 404 SPA shell. Route family is not large — only 6 registered routes exist.
+- LEARN: ACCEPTED MISCONFIG @ roobet.com/_api/admin/*: admin routes (admin/users, admin/stats) exist on low-gate surface; return 401 Unauthorized; not behind Cloudflare 
+- LEARN: ACCEPTED OTHER @ roobet.com/_api/affiliate/get: affiliate endpoint exists on low-gate surface; 401 auth-gated; potential IDOR target
+- LEARN: ACCEPTED OTHER @ roobet.com/_api/settings/get: full internal config dump (IP, sessionId, restricted countries, withdraw flags, geo inference) — operational inte
+- LEARN: ACCEPTED OTHER @ roobet.com/_api/tp-games/essentials: 9MB game catalog dump; internal S3 bucket reference; low severity
+- LEARN: REJECTED MISCONFIG @ roobet.com: OAuth metadata endpoints return SPA shell (catch-all route), not JSON configuration
+- LEARN: REJECTED MISCONFIG @ fs.roobet.com: GCS bucket ?list-type=2 redirects to fullstory.com; no object enumeration possible
+- LEARN: REJECTED OTHER @ api.roobet.com: GraphQL endpoint blocked by Cloudflare bot management (403) without valid Origin/Referer/browser session
+- LEARN: ACCEPTED MISCONFIG @ roobet.com: Remix catch-all route masks potential API endpoints under /api/* paths
+- LEARN: ACCEPTED OTHER @ roobet.com _api/: two undocumented live server routes confirmed reachable past Cloudflare bot-gate (settings/get, tp-games/essentials); new low
+- LEARN: PARKED api.roobet.com Cloudflare bypass: requires valid browser headers/session/turnstile to test
+- LEARN: PARKED auth.roobet.com/account.roobet.com/admin.roobet.com: subdomains unresponsive; no attack surface confirmed
+- LEARN: PARKED crash-gs.roobet.com unauthenticated socket: requires browser/WS tooling, HUMAN_ONLY

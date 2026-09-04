@@ -156,3 +156,15 @@ www.roobet.com
 - NEW `_api/auth/logout` → 302 Found → `/` (exists, auth-redirect)
 - CHANGED `_api/*` surface now 5 live routes confirmed (up from 2): settings/get (200), tp-games/essentials (200), admin/users (401), admin/stats (401), affiliate/get (401)
 - CHANGED `_api/settings/get` full dump: exposes client IP (`64.236.169.100`), per-request 64-hex `sessionId`, `countryCode`/`regionCountryCode`, full `restrictedCountries` map (33 entries), `restrictedRegion: 
+
+## 2026-09-04 14:20:04 UTC
+- NEW roobet.com/_api/admin/users → 401 Unauthorized (admin endpoint exists on low-gate surface, auth-gated)
+- NEW roobet.com/_api/admin/stats → 401 Unauthorized (admin endpoint exists on low-gate surface, auth-gated)
+- NEW roobet.com/_api/affiliate/get → 401 Unauthorized (affiliate endpoint exists on low-gate surface, auth-gated)
+- NEW roobet.com/_api/auth/logout → 302 Found → `/` (auth redirect endpoint exists)
+- CHANGED roobet.com/_api/* surface now 5 live routes confirmed (up from 2): settings/get (200), tp-games/essentials (200), admin/users (401), admin/stats (401), affiliate/get (401)
+- CHANGED roobet.com/_api/settings/get full dump exposes client IP, per-request 64-hex sessionId, countryCode/regionCountryCode, full restrictedCountries map (33 entries), restrictedRegion flags, withdraw flags
+- CHANGED api.roobet.com GraphQL POST remains 403 (Cloudflare bot-gate intact even with Origin/Referer)
+- CHANGED auth.roobet.com, account.roobet.com, admin.roobet.com + 14 others: no HTTP response (confirmed non-resolving/internal)
+- CHANGED fs.roobet.com/?list-type=2 returns 301 → fullstory.com; GCS bucket serves only FullStory
+- CHANGED roobet.com/.well-known/oauth-authorization-server + openid-configuration return SPA shell (catch-all), not OAuth metadata

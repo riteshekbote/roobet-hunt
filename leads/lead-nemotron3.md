@@ -315,3 +315,66 @@ testability: HUMAN_ONLY
 [LEARN] PARKED auth.roobet.com/account.roobet.com/admin.roobet.com: subdomains unresponsive; no attack surface confirmed
 [LEARN] PARKED crash-gs.roobet.com unauthenticated socket: requires browser/WS tooling, HUMAN_ONLY
 [RISK] roobet: 63 — Main API (api.roobet.com) and all auth/account subdomains remain gated by Cloudflare bot-management or unresponsive; GraphQL admin (8088) and Crash WS (crash-gs.roobet.com) only reachable via browser. New low-gate surface: _api/* routes on roobet.com (confirmed live, not bot-gated) and confirmed-live Crash WS host. No confirmed reportable vuln; no scanner POC; engagement rules (≤1 rps, read-only GET, no data mutation, no auth-bypass on live customer data) fully respected.
+## 2026-09-04 14:19:53 UTC [target] (model nemotron3)
+[NEW] roobet.com/_api/admin/users → 401 Unauthorized (admin endpoint exists on low-gate surface, auth-gated)
+[NEW] roobet.com/_api/admin/stats → 401 Unauthorized (admin endpoint exists on low-gate surface, auth-gated)
+[NEW] roobet.com/_api/affiliate/get → 401 Unauthorized (affiliate endpoint exists on low-gate surface, auth-gated)
+[NEW] roobet.com/_api/auth/logout → 302 Found → `/` (auth redirect endpoint exists)
+[CHANGED] roobet.com/_api/* surface now 5 live routes confirmed (up from 2): settings/get (200), tp-games/essentials (200), admin/users (401), admin/stats (401), affiliate/get (401)
+[CHANGED] roobet.com/_api/settings/get full dump exposes client IP, per-request 64-hex sessionId, countryCode/regionCountryCode, full restrictedCountries map (33 entries), restrictedRegion flags, withdraw flags, geo inference
+[CHANGED] api.roobet.com GraphQL POST remains 403 (Cloudflare bot-gate intact even with Origin/Referer)
+[CHANGED] auth.roobet.com, account.roobet.com, admin.roobet.com + 14 others: no HTTP response (confirmed non-resolving/internal)
+[CHANGED] fs.roobet.com/?list-type=2 returns 301 → fullstory.com; GCS bucket serves only FullStory
+[CHANGED] roobet.com/.well-known/oauth-authorization-server + openid-configuration return SPA shell (catch-all), not OAuth metadata
+[PRIO] roobet.com/_api/*,8.15,attack_surface=9,business_value=8,tech_exposure=8,gate_ease=9,cloud_surface=6,freshness=10
+[PRIO] roobet.com/_api/admin/*,7.60,attack_surface=8,business_value=9,tech_exposure=7,gate_ease=8,cloud_surface=6,freshness=10
+[PRIO] api.roobet.com/graphql,6.10,attack_surface=9,business_value=9,tech_exposure=9,gate_ease=2,cloud_surface=8,freshness=8
+[PRIO] crash-gs.roobet.com,6.40,attack_surface=7,business_value=7,tech_exposure=8,gate_ease=3,cloud_surface=7,freshness=10
+[PRIO] roobet.com,5.95,attack_surface=7,business_value=7,tech_exposure=6,gate_ease=8,cloud_surface=5,freshness=10
+[PRIO] fs.roobet.com,3.20,attack_surface=3,business_value=2,tech_exposure=3,gate_ease=10,cloud_surface=5,freshness=8
+[HYP] Admin API Surface Accessible via Low-Gate _api/* Routes
+class: IDOR
+asset: roobet.com/_api/admin/*
+confidence: 70
+reasoning: _api/admin/users and _api/admin/stats return 401 (not 404), confirming admin endpoints exist on the low-gate _api/* surface that bypasses Cloudflare bot-management. Auth mechanism unknown — may accept standard session cookies or be vulnerable to auth bypass. Admin routes on unauthenticated surface = high-risk IDOR/privilege escalation target.
+evidence_needed: 200 JSON response from _api/admin/users or _api/admin/stats with valid session cookie, or 200 without auth (auth bypass)
+verify_steps: GET https://roobet.com/_api/admin/users -H "Cookie: <valid_session>" (1 rps); GET https://roobet.com/_api/admin/stats -H "Cookie: <valid_session>"; test unauthenticated GET to confirm 401 vs 200. Read-only GET.
+impact: Admin user enumeration, stats disclosure, potential privilege escalation to admin functions (wallet/bonus/user management) → HIGH-CRITICAL if auth bypass or weak session validation
+testability: AUTH_HELPED
+[HYP] Affiliate Endpoint IDOR on Low-Gate Surface
+class: IDOR
+asset: roobet.com/_api/affiliate/get
+confidence: 65
+reasoning: _api/affiliate/get returns 401 (not 404), confirming endpoint exists on low-gate surface. Affiliate endpoints typically accept user_id/affiliate_code parameters — potential IDOR/BOLA to access other affiliates' revenue/data. Auth mechanism unknown; may reflect affiliate data via parameter.
+evidence_needed: 200 JSON response with affiliate data (commissions, referrals, revenue) for another user's ID via parameter manipulation, or auth bypass yielding 200 without session
+verify_steps: GET https://roobet.com/_api/affiliate/get -H "Cookie: <valid_session>" (baseline); GET https://roobet.com/_api/affiliate/get?user_id=<other_id> (IDOR test); GET https://roobet.com/_api/affiliate/get?affiliate_code=<other_code> (parameter test). Read-only GET, 1 rps.
+impact: Cross-affiliate revenue/referral data disclosure → MEDIUM-HIGH; potential chain to wallet/billing data if affiliate linked to financials
+testability: AUTH_HELPED
+[HYP] Session/Config Reflection via _api/settings/get Input Manipulation
+class: OTHER
+asset: roobet.com/_api/settings/get
+confidence: 55
+reasoning: _api/settings/get returns per-request 64-hex sessionId, client IP, countryCode, restrictedCountries map, serverTime — all server-generated. If any field reflects untrusted input (headers, query params, cookies), could leak other users' session/config data or enable session fixation/fingerprinting.
+evidence_needed: Response body change when sending custom headers (X-Forwarded-For, Cookie with sessionId, Referer) or query params (?sessionId=, ?ip=) showing reflection of attacker-controlled values or another user's data
+verify_steps: GET https://roobet.com/_api/settings/get (baseline); GET with X-Forwarded-For: 1.2.3.4; GET with Cookie: sessionId=test; GET with ?sessionId=deadbeef; GET with Referer: https://evil.com. Compare sessionId, IP, countryCode fields. Read-only GET, 1 rps.
+impact: Session/config data reflection → session tracking, geo-bypass intel, potential chain to auth bypass → LOW-MEDIUM standalone, HIGH if reflects other user data
+testability: PASSIVE
+[PARKED] GraphQL Admin Schema Exposed Behind Cloudflare Bot-Gate: confidence 55 but bot-gate + closed WS ports make it AUTH_HELPED only; no passive confirmation possible; highest value but blocked
+[PARKED] Unauthenticated State Exposure on Crash Game WebSocket: confidence 42 < 45 threshold; requires browser/WS tooling, HTTP unreachable over curl (Cloudflare WS-gated), HUMAN_ONLY testability — held for browser-phase
+[FINAL] 1. Admin API Surface Accessible via Low-Gate _api/* Routes (70, AUTH_HELPED) — 2 admin endpoints confirmed live on unauthenticated surface
+[FINAL] 2. Affiliate Endpoint IDOR on Low-Gate Surface (65, AUTH_HELPED) — affiliate endpoint confirmed, parameter-based IDOR vector
+[FINAL] 3. Session/Config Reflection via _api/settings/get Input Manipulation (55, PASSIVE) — only fully passive-verifiable hypothesis this cycle
+[NEXT] PROBE: GET https://roobet.com/_api/admin/users && GET https://roobet.com/_api/admin/stats && GET https://roobet.com/_api/affiliate/get (1 rps each) with valid Roobet session cookie to determine if standard user auth grants access (401→200) or if auth mechanism is weaker (e.g., no auth check). Baseline unauthenticated 401 already confirmed.
+[LEARN] ACCEPTED MISCONFIG @ roobet.com/_api/admin/*: admin routes (admin/users, admin/stats) exist on low-gate surface; return 401 Unauthorized; not behind Cloudflare bot-management; auth mechanism unknown — requires live session to test
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/affiliate/get: affiliate endpoint exists on low-gate surface; 401 auth-gated; potential IDOR target
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/settings/get: full internal config dump (IP, sessionId, restricted countries, withdraw flags, geo inference) — operational intelligence, low standalone severity
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/tp-games/essentials: 9MB game catalog dump; internal S3 bucket reference; low severity
+[LEARN] REJECTED MISCONFIG @ roobet.com: OAuth metadata endpoints return SPA shell (catch-all route), not JSON configuration
+[LEARN] REJECTED MISCONFIG @ fs.roobet.com: GCS bucket ?list-type=2 redirects to fullstory.com; no object enumeration possible
+[LEARN] REJECTED OTHER @ api.roobet.com: GraphQL endpoint blocked by Cloudflare bot management (403) without valid Origin/Referer/browser session
+[LEARN] ACCEPTED MISCONFIG @ roobet.com: Remix catch-all route masks potential API endpoints under /api/* paths
+[LEARN] ACCEPTED OTHER @ roobet.com _api/: two undocumented live server routes confirmed reachable past Cloudflare bot-gate (settings/get, tp-games/essentials); new low-gate server surface worth enumerating
+[LEARN] PARKED api.roobet.com Cloudflare bypass: requires valid browser headers/session/turnstile to test
+[LEARN] PARKED auth.roobet.com/account.roobet.com/admin.roobet.com: subdomains unresponsive; no attack surface confirmed
+[LEARN] PARKED crash-gs.roobet.com unauthenticated socket: requires browser/WS tooling, HUMAN_ONLY
+[RISK] roobet: 65 — Main API (api.roobet.com) and all auth/account subdomains remain gated by Cloudflare bot-management or unresponsive. New low-gate surface: _api/* routes on roobet.com (5 live routes confirmed: settings/get, tp-games/essentials, admin/users, admin/stats, affiliate/get) bypass bot-gate entirely. Admin and affiliate endpoints on unauthenticated surface = elevated IDOR/privilege escalation risk. No confirmed reportable vuln; no scanner POC; engagement rules (≤1 rps, read-only GET, no data mutation, no auth-bypass on live customer data) fully respected.
