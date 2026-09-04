@@ -1,4 +1,4 @@
-## 2026-09-03 22:40:40 UTC [target] (model bigpickle)
+## 2026-09-04 00:28:32 UTC [target] (model bigpickle)
 [NEW] `fs.roobet.com` (34.8.116.253, non-Cloudflare GCP/GCS host, 200, serves FullStory `/s/fs.js`) — absent from inventory.
 [NEW] `crash-gs.roobet.com` (Cloudflare, Crash game-server, wss/socket.io) — absent from inventory.
 [CHANGED] `api.roobet.com` confirmed Cloudflare bot-managed: plain curl => 403 block; GraphQL WS ports 8087(product)/8088(admin) embedded in client bundle but NOT externally reachable (Cloudflare exposes only 443/8443).
@@ -303,5 +303,26 @@ testability: HUMAN_ONLY
 [NEXT] PROBE: GET https://roobet.com/_api/{auth,user,wallet,benefits,trivia,promotion,affiliate,notifications,jackpot,leaderboard}/get (and settings-get variants), 1 rps, record 200 vs 404 baseline; then diff each 200 body for non-public fields (session/user ids, balance, flags). Read-only.
 [LEARN] REJECTED MISCONFIG @ roobet-dev-public-images-prod S3: bucket 403-locked on list+location; no public-object exposure.
 [LEARN] REJECTED OATH @ roobet.com: `/.well-known/oauth-authorization-server` + openid-configuration return SPA catch-all HTML, not real OAuth metadata; no issuer/endpoint leak (earlier '200 len' misread).
+[LEARN] ACCEPTED OTHER @ roobet.com `_api/`: two undocumented live server routes confirmed reachable past Cloudflare bot-gate (settings/get, tp-games/essentials); new low-gate server surface worth enumerating.
+[RISK] roobet: 63 — Main API (api.roobet.com) and all auth/account subdomains remain gated by Cloudflare bot-management or unresponsive; GraphQL admin (8088) and Crash WS (crash-gs.roobet.com) only reachable via browser. New low-gate surface: `_api/*` routes on roobet.com (confirmed live, not bot-gated) and confirmed-live Crash WS host. No confirmed reportable vuln; no scanner POC; engagement rules (<=1 rps, read-only GET, no data mutation, no auth-bypass on live customer data) fully respected.
+[PRIO] roobet.com,6.2,UNDOCUMENTED_API_ROUTES,PASSIVE
+[HYP] Undocumented _api/* server routes expose hidden privileged/business-logic surface
+asset: roobet.com /_api/*
+reasoning: _api/settings/get and _api/tp-games/essentials are live JSON server routes on roobet.com NOT gated by the Cloudflare 403 that blocks api.roobet.com; settings/get returns internal config incl. rotating 64-hex sessionId + server flags. Only 2/12 guessed subroutes resolve (rest 404).
+evidence_needed: Additional live _api/<action> subroutes returning non-public data (user/session/wallet/config), or settings/get reflecting an untrusted input with another user's data.
+verify_steps: GET https://roobet.com/_api/{auth,user,wallet,config,benefits,trivia,promotion,affiliate,notifications,jackpot,leaderboard}/get + variants; 1 rps; diff 200 vs 404; check input influence. Read-only GET.
+[FINAL] 1. roobet.com _api/* route enumeration (6.2, PASSIVE, 50) — only newly actionable passive surface (2 live routes confirmed).
+[NEXT] PROBE: GET https://roobet.com/_api/{auth,user,wallet,benefits,trivia,promotion,affiliate,notifications,jackpot,leaderboard}/get (1 rps), record 200 vs 404 baseline; diff 200 bodies for non-public fields (session/user ids, balance, flags). Read-only.
+[LEARN] ACCEPTED OTHER @ roobet.com _api/: two undocumented live server routes confirmed reachable past Cloudflare bot-gate (settings/get, tp-games/essentials); new low-gate server surface.
+[RISK] roobet: 63 — api/auth/account subdomains gated by Cloudflare bot-management or unresponsive; GraphQL admin (8088) + Crash WS (crash-gs.roobet.com) browser-only. New low-gate _api/* surface on roobet.com confirmed live. No confirmed reportable vuln; no scanner POC; compliance maintained (<=1 rps, read-only GET, no data mutation, no auth-bypass on live customer data).
+[NEW] roobet.com `/_api/` server route family: `_api/settings/get` (200 JSON: internal config incl. client IP, per-request sessionId hex, restricted-country/feature flags, serverTime) and `_api/tp-games/essentials` (200 JSON: full game catalog + internal S3 bucket roobet-dev-public-images-prod). Both served on roobet.com and NOT behind the Cloudflare bot-management 403 that blocks api.roobet.com. Only these 2 of 12 candidate `/`_api` subroutes resolve (rest 404).
+[PRIO] roobet.com,6.2,UNDOCUMENTED_API_ROUTES,PASSIVE
+[HYP] Undocumented `_api/*` server routes expose hidden privileged/business-logic surface
+asset: roobet.com `/_api/*`
+reasoning: `_api/settings/get` and `_api/tp-games/essentials` are live JSON server routes on roobet.com NOT gated by the Cloudflare bot-management 403 that blocks api.roobet.com; settings/get returns internal config incl. a rotating 64-hex `sessionId` and server flags. This is a distinct, low-gate server surface whose full route set is unknown (only 2/12 guessed subroutes resolve; rest 404).
+evidence_needed: Additional live `_api/<action>` subroutes returning non-public data (user/session/wallet/config internals) found by enumeration; or settings/get returning data controlled by an untrusted input (e.g. a session/user id param that reflects another user's data).
+verify_steps: GET https://roobet.com/_api/{auth,user,wallet,config,trivia,promotion,affiliate,notifications}/get + variants; compare against 404 baseline; check settings/get for any query/header param influence. Read-only GET, <1 rps.
+[FINAL] 1. roobet.com `_api/*` route-family enumeration (6.2, PASSIVE, 50) — only newly actionable passive surface this run (2 live routes confirmed, not bot-gated).
+[NEXT] PROBE: GET https://roobet.com/_api/{auth,user,wallet,benefits,trivia,promotion,affiliate,notifications,jackpot,leaderboard}/get (and settings-get variants), 1 rps, record 200 vs 404 baseline; then diff each 200 body for non-public fields (session/user ids, balance, flags). Read-only.
 [LEARN] ACCEPTED OTHER @ roobet.com `_api/`: two undocumented live server routes confirmed reachable past Cloudflare bot-gate (settings/get, tp-games/essentials); new low-gate server surface worth enumerating.
 [RISK] roobet: 63 — Main API (api.roobet.com) and all auth/account subdomains remain gated by Cloudflare bot-management or unresponsive; GraphQL admin (8088) and Crash WS (crash-gs.roobet.com) only reachable via browser. New low-gate surface: `_api/*` routes on roobet.com (confirmed live, not bot-gated) and confirmed-live Crash WS host. No confirmed reportable vuln; no scanner POC; engagement rules (<=1 rps, read-only GET, no data mutation, no auth-bypass on live customer data) fully respected.
