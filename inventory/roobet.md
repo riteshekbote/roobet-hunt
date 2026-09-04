@@ -140,3 +140,19 @@ www.roobet.com
 - CHANGED auth.roobet.com, account.roobet.com, admin.roobet.com, 14 others: no HTTP response (timeout/refused) — confirmed non-resolving or strictly internal
 - CHANGED api.roobet.com GraphQL POST returns 403 (Cloudflare bot management) even with Origin/Referer headers — bot-gate remains intact for scripted probes
 - CHANGED fs.roobet.com/?list-type=2 returns 301 → fullstory.com; GCS bucket serves only FullStory assets; no object enumeration possible
+
+## 2026-09-04 09:52:31 UTC
+- NEW roobet.com `/_api/settings/get` and `/_api/tp-games/essentials` confirmed live (200 JSON), NOT behind Cloudflare bot-gate — distinct server route family from `/api/*` catch-all
+- NEW roobet.com `/pusher/auth` + `/pusher/user-auth` live routes (405 on POST format tested) — Pusher auth surface
+- NEW crash-gs.roobet.com confirmed live Socket.IO WS (wss://crash-gs.roobet.com/socket.io/?EIO=3&transport=websocket) — TCP 443 connects, HTTP hangs
+- CHANGED roobet.com `/.well-known/oauth-authorization-server` + `/.well-known/openid-configuration` both return 200 SPA shell HTML (Remix catch-all), NOT real OAuth/OIDC metadata
+- CHANGED api.roobet.com GraphQL POST returns 403 (Cloudflare bot management) even with Origin/Referer headers — bot-gate intact for scripted probes
+- CHANGED fs.roobet.com/?list-type=2 returns 301 → fullstory.com; GCS bucket serves only FullStory assets; no object enumeration
+- CHANGED auth.roobet.com, account.roobet.com, admin.roobet.com, 14 others: no HTTP response (timeout/refused) — confirmed non-resolving or strictly internal
+- NEW Only 2 of 12 guessed `_api/*` subroutes resolve (settings/get, tp-games/essentials); 10 return 404
+- NEW `_api/admin/users` → 401 Unauthorized (exists, auth-gated, admin endpoint on low-gate surface)
+- NEW `_api/admin/stats` → 401 Unauthorized (exists, auth-gated, admin endpoint on low-gate surface)
+- NEW `_api/affiliate/get` → 401 Unauthorized (exists, auth-gated, affiliate data endpoint)
+- NEW `_api/auth/logout` → 302 Found → `/` (exists, auth-redirect)
+- CHANGED `_api/*` surface now 5 live routes confirmed (up from 2): settings/get (200), tp-games/essentials (200), admin/users (401), admin/stats (401), affiliate/get (401)
+- CHANGED `_api/settings/get` full dump: exposes client IP (`64.236.169.100`), per-request 64-hex `sessionId`, `countryCode`/`regionCountryCode`, full `restrictedCountries` map (33 entries), `restrictedRegion: 

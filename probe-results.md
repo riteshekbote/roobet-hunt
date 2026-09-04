@@ -65,3 +65,12 @@ https://roobet.com/_api/{auth,user,wallet,config,benefits,trivia,promotion,affil
 https://api.roobet.com/graphql -> HTTP 403
 https://roobet.com -> 200 len=?
 https://roobet.com/ -> 200 len=?
+
+## 2026-09-04 09:52:39 UTC
+https://roobet.com/_api/{auth,user,wallet,config,benefits,trivia,promotion,affiliate,notifications,jackpot,leaderboard -> HTTP 404
+https://api.roobet.com/graphql -> HTTP 403
+https://roobet.com -> 200 len=?
+https://roobet.com/ -> 200 len=?
+https://roobet.com/_api/admin/users` -> HTTP 404
+https://roobet.com/_api/affiliate/get` -> HTTP 404
+https://roobet.com/_api/affiliate/get?user_id=123` -> HTTP 401
