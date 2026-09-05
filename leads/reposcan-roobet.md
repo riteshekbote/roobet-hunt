@@ -51,3 +51,12 @@ reasoning: cands.txt contains "no org candidates"; scope.yml has github_orgs: no
 impact: N/A
 verify_steps: |
 TARGET_ORG not configured for roobet; skipping public-org deep scan.
+## REPOSCAN 2026-09-05 19:33:02 UTC
+[HYP] No source code to audit — GitHub org ROOBET has zero public repos
+class: OTHER
+asset: github.com/ROOBET (org ID 46298934)
+confidence: 100
+reasoning: |
+impact: N/A — absence of exposed source reduces attack surface but prevents this scan vector
+verify_steps: |
+TARGET_ORG not configured for roobet; skipping public-org deep scan.
