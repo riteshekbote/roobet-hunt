@@ -886,3 +886,47 @@ testability: AUTH_HELPED
 [LEARN] ACCEPTED OTHER @ api.roobet.com bundle: no new Roobet-owned subdomains/routes; FastTrack config URL is 3P (out of scope).
 [RISK] roobet: 66 — Passive surface fully enumerated and bounded: 6 `_api/*` routes; HTTP+WS bot-gates 403 on api.roobet.com both ports; no input reflection/fixation; 3P configs excluded. Single unresolved high-value line is the admin/affiliate 401→200 vertical priv-esc, solvable only with a live session (engagement constraints: no customer/auth-data exposure, account_creation restricted). No confirmed reportable vuln; ≤1 rps, GET-only, no writes, no auth-bypass on live data; compliance intact.
 ## 2026-09-04 22:15:48 UTC [target] (model bigpickle)
+## 2026-09-05 00:12:50 UTC [target] (model bigpickle)
+[PRIO] roobet.com/_api/admin/*,7.6,ADMIN_PRIV_ESC,AUTH_HELPED
+[PRIO] roobet.com/_api/affiliate/get,6.5,AFFILIATE_IDOR,AUTH_HELPED
+[PRIO] api.roobet.com wss/graphql,6.0,GRAPHQL_BOTGATED,AUTH_HELPED
+[PRIO] crash-gs.roobet.com,5.0,SOCKETIO_GAMESRV,HUMAN_ONLY
+[HYP] Admin API privilege escalation via normal user session
+class: AUTH
+asset: roobet.com/_api/admin/users
+confidence: 55
+reasoning: `_api/admin/*` return 401 (not 404) on low-gate roobet.com outside Cloudflare bot-gate; Express connect.sid session auth; route-level admin role check unverifiable passively. `_api/*` surface is exactly 6 routes; no reflection/fixation; api.roobet.com bot-gates intact on 443+8443.
+evidence_needed: 200 JSON from `_api/admin/users` using a normal-user `connect.sid` vs 401 unauth.
+verify_steps: HUMAN: sign up → DevTools-capture `connect.sid` → `curl -b 'connect.sid=<v>' https://roobet.com/_api/admin/users` (read-only GET, 1 rps). 200-with-data ⇒ CRITICAL; sustained 401 ⇒ role-gated.
+impact: Admin user listing (PII) + platform stats ⇒ HIGH.
+testability: AUTH_HELPED
+[HYP] Affiliate data IDOR via user reference params
+class: IDOR
+asset: roobet.com/_api/affiliate/get
+confidence: 45
+reasoning: Live `/get` route, 401 unauth; `?user_id=`/`?affiliate_code=` probes return identical 401 (auth short-circuits before param handling); cross-identity response only observable with a session.
+evidence_needed: 200 responses differing across `?user_id=` values with valid session.
+verify_steps: HUMAN: session → baseline GET → `?user_id=<mine>` → `?user_id=<other>`; diff bodies. Read-only.
+impact: Cross-user referral/revenue data ⇒ MEDIUM-HIGH.
+testability: AUTH_HELPED
+[HYP] GraphQL-over-WS bot-gate gap / introspection
+class: AUTH
+asset: api.roobet.com wss/graphql
+confidence: 40
+reasoning: WS upgrade proven 403 from Cloudflare edge on 443 AND 8443; ports 8087/8088 TCP-refused; only a Turnstile-passing browser session can distinguish edge-gate vs app-layer 401.
+evidence_needed: 101 Upgrade + GraphQL introspection/welcome payload from a real browser session.
+verify_steps: HUMAN: browser DevTools → open App → capture WS frames on `wss://api.roobet.com/graphql`; send introspection query. Read-only.
+impact: full GraphQL schema/mutation surface ⇒ HIGH.
+testability: AUTH_HELPED
+[PARKED] crash-gs.roobet.com socket.io game-state abuse: no EIO=3 protocol frames obtainable passively; curl cannot complete handshake — HUMAN_ONLY, held at 50.
+[PARKED] /pusher/auth + /pusher/user-auth: POST-only, session + exact `socket_id`/`channel_name` body required; any malformed probe returns uniform 405/401 — no passive characterization.
+[FINAL] 1. roobet.com/_api/admin/* admin priv-esc (55, AUTH_HELPED) — no passive alternative.
+[FINAL] 2. roobet.com/_api/affiliate/get IDOR (45, AUTH_HELPED) — session-gated.
+[FINAL] 3. api.roobet.com GraphQL-over-WS (40, AUTH_HELPED) — browser/Turnstile only.
+[NEXT] HUMAN: With a valid Roobet session, read-only GET `https://roobet.com/_api/admin/users` then `/stats` at 1 rps; 200-with-user-list ⇒ CRITICAL vertical priv-esc → snapshot + report bugs.olivermaicher.eu; sustained 401 ⇒ role-gated, close line.
+[LEARN] REJECTED OTHER @ roobet.com/_api/settings/get: XFF/query/Referer/Cookie input NOT reflected (`ip`=server-observed egress, sessionId rotates per-request) — no reflection or session-fixation vector.
+[LEARN] REJECTED MISCONFIG @ api.roobet.com: raw WS upgrade /graphql on 443+8443 ⇒ HTTP 403 (Cloudflare edge); admin port 8088 unreachable — needs Turnstile-passing browser.
+[LEARN] ACCEPTED OTHER @ crash-gs.roobet.com: socket.io TLS upgrade stays open (no 4xx) then app-layer timeout — live Socket.IO game-server, HUMAN_ONLY.
+[LEARN] ACCEPTED OTHER @ roobet.com /pusher/auth + /pusher/user-auth: POST⇒405 (live), GET⇒200 SPA shell; session + exact body required.
+[LEARN] ACCEPTED OTHER @ api.roobet.com bundle: no new Roobet-owned subdomains/routes; FastTrack config is 3P (out of scope).
+[RISK] roobet: 66 — Passive surface fully enumerated and bounded: 6 `_api/*` routes; HTTP+WS bot-gates 403 on both API ports; no input reflection/fixation; 3P configs excluded. Unresolved high-value lines (admin/affiliate priv-esc, GraphQL WS) all require a live session → HUMAN phase, engagement-rule constrained (no customer/auth-data exposure, account_creation restricted). No confirmed reportable vuln; ≤1 rps, GET-only, no writes.

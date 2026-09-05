@@ -73,3 +73,34 @@
 - 2026-09-04 ACCEPTED OTHER @ crash-gs.roobet.com: socket.io TLS upgrade stays open (no 4xx) then app-layer timeout — live Socket.IO server, HUMAN_ONLY.
 - 2026-09-04 ACCEPTED OTHER @ roobet.com /pusher/auth + /pusher/user-auth: POST⇒405 (live), GET⇒200 SPA shell; POST-only auth endpoints, need session.
 - 2026-09-04 ACCEPTED OTHER @ api.roobet.com bundle: no new Roobet-owned subdomains/routes; FastTrack config URL is 3P (out of scope).
+- 2026-09-05 REJECTED OTHER @ roobet.com/_api/settings/get: XFF/query/Referer/Cookie input NOT reflected (`ip`=server-observed egress, sessionId rotates per-request) — no reflection or session-fixation vector.
+- 2026-09-05 REJECTED MISCONFIG @ api.roobet.com: raw WS upgrade /graphql on 443+8443 ⇒ HTTP 403 (Cloudflare edge); admin port 8088 unreachable — needs Turnstile-passing browser.
+- 2026-09-05 ACCEPTED OTHER @ crash-gs.roobet.com: socket.io TLS upgrade stays open (no 4xx) then app-layer timeout — live Socket.IO game-server, HUMAN_ONLY.
+- 2026-09-05 ACCEPTED OTHER @ roobet.com /pusher/auth + /pusher/user-auth: POST⇒405 (live), GET⇒200 SPA shell; session + exact body required.
+- 2026-09-05 ACCEPTED OTHER @ api.roobet.com bundle: no new Roobet-owned subdomains/routes; FastTrack config is 3P (out of scope).
+- 2026-09-05 ACCEPTED MISCONFIG @ roobet.com/_api/admin/*: admin routes (admin/users, admin/stats) exist on low-gate surface; return 401 Unauthorized; not behind Cloudflare bot-management; auth mechanism unknown — requires live session to test
+- 2026-09-05 ACCEPTED OTHER @ roobet.com/_api/affiliate/get: affiliate endpoint exists on low-gate surface; 401 auth-gated; potential IDOR target
+- 2026-09-05 ACCEPTED OTHER @ roobet.com/_api/settings/get: full internal config dump (IP, sessionId, restricted countries, withdraw flags, geo inference) — operational intelligence, low standalone severity
+- 2026-09-05 ACCEPTED OTHER @ roobet.com/_api/tp-games/essentials: 9MB game catalog dump; internal S3 bucket reference; low severity
+- 2026-09-05 ACCEPTED OTHER @ roobet.com/_api/*: Full enumeration complete — 40 route candidates tested, exactly 6 live routes confirmed (settings/get 200, tp-games/essentials 200, admin/users 401, admin/stats 401, affiliate/get 401, auth/logout 302). Surface is small and well-defined.
+- 2026-09-05 ACCEPTED OTHER @ roobet.com auth/logout: Auth mechanism revealed — Express.js session cookies (connect.sid HttpOnly + userId non-HttpOnly + twofactorRequired). Standard session-based auth; no bypass without valid session.
+- 2026-09-05 REJECTED MISCONFIG @ roobet.com: OAuth metadata endpoints return SPA shell (catch-all route), not JSON configuration
+- 2026-09-05 REJECTED MISCONFIG @ fs.roobet.com: GCS bucket ?list-type=2 redirects to fullstory.com; no object enumeration possible
+- 2026-09-05 REJECTED OTHER @ api.roobet.com: GraphQL endpoint blocked by Cloudflare bot management (403) without valid Origin/Referer/browser session
+- 2026-09-05 ACCEPTED MISCONFIG @ roobet.com: Remix catch-all route masks potential API endpoints under /api/* paths
+- 2026-09-05 PARKED api.roobet.com Cloudflare bypass: requires valid browser headers/session/turnstile to test
+- 2026-09-05 PARKED auth.roobet.com/account.roobet.com/admin.roobet.com: subdomains unresponsive; no attack surface confirmed
+- 2026-09-05 PARKED crash-gs.roobet.com unauthenticated socket: requires browser/WS tooling, HUMAN_ONLY
+- 2026-09-05 ACCEPTED MISCONFIG @ roobet.com/_api/admin/*: admin routes (admin/users, admin/stats) exist on low-gate surface; return 401 Unauthorized; not behind Cloudflare bot-management; auth mechanism unknown — requires live session to test
+- 2026-09-05 ACCEPTED OTHER @ roobet.com/_api/affiliate/get: affiliate endpoint exists on low-gate surface; 401 auth-gated; potential IDOR target
+- 2026-09-05 ACCEPTED OTHER @ roobet.com/_api/settings/get: full internal config dump (IP, sessionId, restricted countries, withdraw flags, geo inference) — operational intelligence, low standalone severity
+- 2026-09-05 ACCEPTED OTHER @ roobet.com/_api/tp-games/essentials: 9MB game catalog dump; internal S3 bucket reference; low severity
+- 2026-09-05 ACCEPTED OTHER @ roobet.com/_api/*: Full enumeration complete — 40 route candidates tested, exactly 6 live routes confirmed (settings/get 200, tp-games/essentials 200, admin/users 401, admin/stats 401, affiliate/get 401, auth/logout 302). Surface is small and well-defined.
+- 2026-09-05 ACCEPTED OTHER @ roobet.com auth/logout: Auth mechanism revealed — Express.js session cookies (connect.sid HttpOnly + userId non-HttpOnly + twofactorRequired). Standard session-based auth; no bypass without valid session.
+- 2026-09-05 REJECTED MISCONFIG @ roobet.com: OAuth metadata endpoints return SPA shell (catch-all route), not JSON configuration
+- 2026-09-05 REJECTED MISCONFIG @ fs.roobet.com: GCS bucket ?list-type=2 redirects to fullstory.com; no object enumeration possible
+- 2026-09-05 REJECTED OTHER @ api.roobet.com: GraphQL endpoint blocked by Cloudflare bot management (403) without valid Origin/Referer/browser session
+- 2026-09-05 ACCEPTED MISCONFIG @ roobet.com: Remix catch-all route masks potential API endpoints under /api/* paths
+- 2026-09-05 PARKED api.roobet.com Cloudflare bypass: requires valid browser headers/session/turnstile to test
+- 2026-09-05 PARKED auth.roobet.com/account.roobet.com/admin.roobet.com: subdomains unresponsive; no attack surface confirmed
+- 2026-09-05 PARKED crash-gs.roobet.com unauthenticated socket: requires browser/WS tooling, HUMAN_ONLY
