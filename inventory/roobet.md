@@ -235,3 +235,12 @@ www.roobet.com
 - NEW roobet.com/pusher/auth + /pusher/user-auth: POST→405 (live route), GET→200 SPA shell; POST-only auth endpoints
 - CHANGED roobet.com/_api/* surface: full enumeration complete — 40 candidates tested, exactly 6 live routes (settings/get 200, tp-games/essentials 200, admin/users 401, admin/stats 401, affiliate/get 401, auth
 - CHANGED auth.roobet.com/account.roobet.com/admin.roobet.com/billing.roobet.com/dashboard.roobet.com/sso.roobet.com + others: confirmed non-resolving/internal (000/timeout)
+
+## 2026-09-05 08:41:50 UTC
+- NEW roobet.com/_api/* enumeration confirmed complete: exactly 6 live routes (settings/get 200, tp-games/essentials 200, admin/users 401, admin/stats 401, affiliate/get 401, auth/logout 302); 34 candidates
+- NEW roobet.com/_api/affiliate/get accepts ?user_id and ?affiliate_code parameters (returns 401 not 404) — confirms parameter parsing but auth-gated
+- NEW roobet.com/pusher/auth GET→200 SPA shell, POST→405 (live route, wrong method/body) — Pusher auth is POST-only endpoint requiring valid session + exact socket_id/channel_name
+- CHANGED crash-gs.roobet.com Socket.IO TLS upgrade confirmed live (connection stays open, no 4xx, then app-layer timeout) — HUMAN_ONLY testable
+- CHANGED api.roobet.com GraphQL WS upgrade on 443/8443 returns HTTP 403 (Cloudflare edge blocks WS); admin ports 8087/8088 TCP-refused at edge
+- CHANGED auth.roobet.com/account.roobet.com/admin.roobet.com/billing.roobet.com/dashboard.roobet.com/sso.roobet.com + 13 others: confirmed non-resolving/internal (000/timeout)
+- CHANGED roobet.com/_api/settings/get input reflection NEGATIVE confirmed across XFF, ?sessionId, Referer, Cookie:sessionId — ip=server-observed egress, sessionId rotates per-request, auth cookie=connect.sid

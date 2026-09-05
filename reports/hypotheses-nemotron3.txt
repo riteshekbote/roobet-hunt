@@ -1,14 +1,11 @@
-## 2026-09-05 04:41:17 UTC [target] (model nemotron3)
-[NEW] roobet.com/_api/admin/users: 401 confirmed (low-gate admin endpoint, not behind Cloudflare bot-gate)
-[NEW] roobet.com/_api/admin/stats: 401 confirmed (low-gate admin endpoint)
-[NEW] roobet.com/_api/affiliate/get: 401 confirmed; parameter tests (?user_id, ?affiliate_code) return 401 not 404
-[NEW] roobet.com/_api/auth/logout: 302 reveals Express.js session cookies (connect.sid HttpOnly + userId non-HttpOnly + twofactorRequired)
-[NEW] roobet.com/_api/settings/get: input reflection NEGATIVE — XFF, ?sessionId, Referer, Cookie:sessionId all inert
-[NEW] api.roobet.com GraphQL: remains 403 bot-gated on POST and GET; WS upgrade on 443/8443 returns HTTP 403
-[NEW] crash-gs.roobet.com: TLS WS upgrade to /socket.io stays open (no 4xx) then app-layer timeout = live Socket.IO server
-[NEW] roobet.com/pusher/auth + /pusher/user-auth: POST→405 (live route), GET→200 SPA shell; POST-only auth endpoints
-[CHANGED] roobet.com/_api/* surface: full enumeration complete — 40 candidates tested, exactly 6 live routes (settings/get 200, tp-games/essentials 200, admin/users 401, admin/stats 401, affiliate/get 401, auth/logout 302)
-[CHANGED] auth.roobet.com/account.roobet.com/admin.roobet.com/billing.roobet.com/dashboard.roobet.com/sso.roobet.com + others: confirmed non-resolving/internal (000/timeout)
+## 2026-09-05 08:40:50 UTC [target] (model nemotron3)
+[NEW] roobet.com/_api/* enumeration confirmed complete: exactly 6 live routes (settings/get 200, tp-games/essentials 200, admin/users 401, admin/stats 401, affiliate/get 401, auth/logout 302); 34 candidates return 404 SPA shell
+[NEW] roobet.com/_api/affiliate/get accepts ?user_id and ?affiliate_code parameters (returns 401 not 404) — confirms parameter parsing but auth-gated
+[NEW] roobet.com/pusher/auth GET→200 SPA shell, POST→405 (live route, wrong method/body) — Pusher auth is POST-only endpoint requiring valid session + exact socket_id/channel_name
+[CHANGED] crash-gs.roobet.com Socket.IO TLS upgrade confirmed live (connection stays open, no 4xx, then app-layer timeout) — HUMAN_ONLY testable
+[CHANGED] api.roobet.com GraphQL WS upgrade on 443/8443 returns HTTP 403 (Cloudflare edge blocks WS); admin ports 8087/8088 TCP-refused at edge
+[CHANGED] auth.roobet.com/account.roobet.com/admin.roobet.com/billing.roobet.com/dashboard.roobet.com/sso.roobet.com + 13 others: confirmed non-resolving/internal (000/timeout)
+[CHANGED] roobet.com/_api/settings/get input reflection NEGATIVE confirmed across XFF, ?sessionId, Referer, Cookie:sessionId — ip=server-observed egress, sessionId rotates per-request, auth cookie=connect.sid
 [PRIO] roobet.com/_api/admin/users,8.15,attack_surface=9,business_value=9,tech_exposure=8,gate_ease=9,cloud_surface=6,freshness=10
 [PRIO] roobet.com/_api/admin/stats,8.15,attack_surface=9,business_value=9,tech_exposure=8,gate_ease=9,cloud_surface=6,freshness=10
 [PRIO] roobet.com/_api/affiliate/get,7.30,attack_surface=8,business_value=8,tech_exposure=7,gate_ease=9,cloud_surface=6,freshness=10
@@ -29,7 +26,7 @@ testability: AUTH_HELPED
 class: IDOR
 asset: roobet.com/_api/affiliate/get
 confidence: 65
-reasoning: _api/affiliate/get returns 401 (not 404) on low-gate surface. Affiliate endpoints typically accept user_id/affiliate_code parameters. Probe with ?user_id=<other_id> and ?affiliate_code=<other_code> returned 401 (not 404/200), confirming parameter acceptance but auth-gated. Auth mechanism unknown; may reflect affiliate data via parameter if session validates.
+reasoning: _api/affiliate/get returns 401 (not 404) on low-gate surface. Parameter tests with ?user_id=<other_id> and ?affiliate_code=<other_code> return 401 (not 404/200), confirming parameter acceptance but auth-gated. Auth mechanism unknown; may reflect affiliate data via parameter if session validates.
 evidence_needed: 200 JSON with affiliate data (commissions, referrals, revenue) for another user's ID via parameter manipulation with valid session, or auth bypass yielding 200 without session
 verify_steps: GET https://roobet.com/_api/affiliate/get -H "Cookie: connect.sid=<valid_session>" (baseline); GET https://roobet.com/_api/affiliate/get?user_id=<other_id>; GET https://roobet.com/_api/affiliate/get?affiliate_code=<other_code>. Read-only GET, 1 rps.
 impact: Cross-affiliate revenue/referral data disclosure → MEDIUM-HIGH; potential chain to wallet/billing data if affiliate linked to financials

@@ -1808,3 +1808,159 @@ testability: AUTH_HELPED
 
 ### STEP 7 — RISK
 [RISK] roobet: 65 — Main API (api.roobet.com) and all auth/account subdomains remain gated by Cloudflare bot-management or unresponsive. New low-gate surface: _api/* routes on roobet.com (6 live routes confirmed) bypass bot-gate entirely. Admin and affiliate endpoints on unauthenticated surface = elevated IDOR/privilege escalation risk. Auth mechanism is standard Express.js session cookies; no bypass without valid session. No confirmed reportable vuln; no scanner POC; engagement rules (≤1 rps, read-only GET, no data mutation, no auth-bypass on live customer data) fully respected.
+===== ANALYST nemotron3 2026-09-05 08:41:50 UTC =====
+[0m
+> build · nemotron-3-ultra-free
+[0m
+[0m$ [0mls -la
+total 208
+drwxr-xr-x 12 runner runner  4096 Sep  5 08:37 .
+drwxr-xr-x  3 runner runner  4096 Sep  5 08:37 ..
+drwxr-xr-x  7 runner runner  4096 Sep  5 08:37 .git
+drwxr-xr-x  3 runner runner  4096 Sep  5 08:37 .github
+-rw-r--r--  1 runner runner  1724 Sep  5 08:37 README.md
+-rw-r--r--  1 runner runner    43 Sep  5 08:37 analyst-out.txt
+-rw-r--r--  1 runner runner 59357 Sep  5 08:37 analyst-prompt.txt
+-rw-r--r--  1 runner runner 55574 Sep  5 08:37 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Sep  5 08:37 inventory
+drwxr-xr-x  2 runner runner  4096 Sep  5 08:37 knowledge
+drwxr-xr-x  2 runner runner  4096 Sep  5 08:37 leads
+-rw-r--r--  1 runner runner  5626 Sep  5 08:37 probe-results.md
+drwxr-xr-x  2 runner runner  4096 Sep  5 08:37 recon-notes
+drwxr-xr-x  2 runner runner  4096 Sep  5 08:37 reports
+drwxr-xr-x  2 runner runner  4096 Sep  5 08:37 reposcan-raw
+-rw-r--r--  1 runner runner  3196 Sep  5 08:37 scope.yml
+drwxr-xr-x  2 runner runner  4096 Sep  5 08:37 scripts
+-rw-r--r--  1 runner runner    33 Sep  5 08:37 state_bigpickle.json
+-rw-r--r--  1 runner runner    33 Sep  5 08:37 state_laguna.json
+-rw-r--r--  1 runner runner    33 Sep  5 08:37 state_ling3.json
+-rw-r--r--  1 runner runner    33 Sep  5 08:37 state_longcat.json
+-rw-r--r--  1 runner runner    33 Sep  5 08:37 state_mimo.json
+-rw-r--r--  1 runner runner    33 Sep  5 08:37 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Sep  5 08:37 triage
+[0m
+[0m→ [0mRead analyst-out.txt
+[0m
+[0m$ [0mls -la /home/runner/work/roobet-hunt/roobet-hunt/knowledge/
+total 28
+drwxr-xr-x  2 runner runner  4096 Sep  5 08:37 .
+drwxr-xr-x 12 runner runner  4096 Sep  5 08:37 ..
+-rw-r--r--  1 runner runner 16679 Sep  5 08:37 index.md
+[0m
+[0m→ [0mRead knowledge/index.md
+[0m
+[0m$ [0mls -la /home/runner/work/roobet-hunt/roobet-hunt/leads/
+total 244
+drwxr-xr-x  2 runner runner   4096 Sep  5 08:37 .
+drwxr-xr-x 12 runner runner   4096 Sep  5 08:37 ..
+-rw-r--r--  1 runner runner 114351 Sep  5 08:37 lead-bigpickle.md
+-rw-r--r--  1 runner runner    612 Sep  5 08:37 lead-laguna.md
+-rw-r--r--  1 runner runner    600 Sep  5 08:37 lead-ling3.md
+-rw-r--r--  1 runner runner    624 Sep  5 08:37 lead-longcat.md
+-rw-r--r--  1 runner runner     18 Sep  5 08:37 lead-mimo.md
+-rw-r--r--  1 runner runner 105438 Sep  5 08:37 lead-nemotron3.md
+-rw-r--r--  1 runner runner   1547 Sep  5 08:37 reposcan-roobet.md
+[0m
+[0m→ [0mRead probe-results.md
+Now I have full context. Let me execute the 8-step analysis.
+
+---
+
+**STEP 1 — DELTA**
+
+[NEW] roobet.com/_api/* enumeration confirmed complete: exactly 6 live routes (settings/get 200, tp-games/essentials 200, admin/users 401, admin/stats 401, affiliate/get 401, auth/logout 302); 34 candidates return 404 SPA shell
+[NEW] roobet.com/_api/affiliate/get accepts ?user_id and ?affiliate_code parameters (returns 401 not 404) — confirms parameter parsing but auth-gated
+[NEW] roobet.com/pusher/auth GET→200 SPA shell, POST→405 (live route, wrong method/body) — Pusher auth is POST-only endpoint requiring valid session + exact socket_id/channel_name
+[CHANGED] crash-gs.roobet.com Socket.IO TLS upgrade confirmed live (connection stays open, no 4xx, then app-layer timeout) — HUMAN_ONLY testable
+[CHANGED] api.roobet.com GraphQL WS upgrade on 443/8443 returns HTTP 403 (Cloudflare edge blocks WS); admin ports 8087/8088 TCP-refused at edge
+[CHANGED] auth.roobet.com/account.roobet.com/admin.roobet.com/billing.roobet.com/dashboard.roobet.com/sso.roobet.com + 13 others: confirmed non-resolving/internal (000/timeout)
+[CHANGED] roobet.com/_api/settings/get input reflection NEGATIVE confirmed across XFF, ?sessionId, Referer, Cookie:sessionId — ip=server-observed egress, sessionId rotates per-request, auth cookie=connect.sid
+[NO_DELTA] roobet.com OAuth metadata endpoints return SPA shell (catch-all), not JSON
+[NO_DELTA] fs.roobet.com GCS bucket ?list-type=2 redirects to fullstory.com; no object enumeration
+
+---
+
+**STEP 2 — PRIORITIZE**
+
+[PRIO] roobet.com/_api/admin/users,8.15,attack_surface=9,business_value=9,tech_exposure=8,gate_ease=9,cloud_surface=6,freshness=10
+[PRIO] roobet.com/_api/admin/stats,8.15,attack_surface=9,business_value=9,tech_exposure=8,gate_ease=9,cloud_surface=6,freshness=10
+[PRIO] roobet.com/_api/affiliate/get,7.30,attack_surface=8,business_value=8,tech_exposure=7,gate_ease=9,cloud_surface=6,freshness=10
+[PRIO] roobet.com/_api/settings/get,6.85,attack_surface=7,business_value=6,tech_exposure=8,gate_ease=9,cloud_surface=6,freshness=10
+[PRIO] crash-gs.roobet.com/socket.io,6.40,attack_surface=7,business_value=7,tech_exposure=8,gate_ease=3,cloud_surface=7,freshness=9
+[PRIO] roobet.com/pusher/auth,5.80,attack_surface=6,business_value=7,tech_exposure=7,gate_ease=4,cloud_surface=6,freshness=9
+[PRIO] api.roobet.com/graphql,6.10,attack_surface=9,business_value=9,tech_exposure=9,gate_ease=2,cloud_surface=8,freshness=8
+
+---
+
+**STEP 3 — HYPOTHESES**
+
+[HYP] Admin API Privilege Escalation via Low-Gate _api/* Routes
+class: AUTH
+asset: roobet.com/_api/admin/users
+confidence: 75
+reasoning: _api/admin/users and _api/admin/stats return 401 (not 404) on low-gate surface bypassing Cloudflare bot-management. Auth mechanism is Express.js session cookies (connect.sid HttpOnly + userId non-HttpOnly + twofactorRequired) revealed via /_api/auth/logout. No role validation confirmed; standard user session may grant admin access if authorization checks are missing or weak.
+evidence_needed: 200 JSON from _api/admin/users or _api/admin/stats with valid user session cookie, or 200 without auth (auth bypass)
+verify_steps: GET https://roobet.com/_api/admin/users -H "Cookie: connect.sid=<valid_session>" (1 rps); GET https://roobet.com/_api/admin/stats -H "Cookie: connect.sid=<valid_session>"; unauthenticated GET to confirm 401 baseline. Read-only GET.
+impact: Admin user enumeration, stats disclosure, potential privilege escalation to admin functions (wallet/bonus/user management) → HIGH-CRITICAL if auth bypass or weak session validation
+testability: AUTH_HELPED
+
+[HYP] Affiliate Endpoint IDOR/BOLA on Low-Gate Surface
+class: IDOR
+asset: roobet.com/_api/affiliate/get
+confidence: 65
+reasoning: _api/affiliate/get returns 401 (not 404) on low-gate surface. Parameter tests with ?user_id=<other_id> and ?affiliate_code=<other_code> return 401 (not 404/200), confirming parameter acceptance but auth-gated. Auth mechanism unknown; may reflect affiliate data via parameter if session validates.
+evidence_needed: 200 JSON with affiliate data (commissions, referrals, revenue) for another user's ID via parameter manipulation with valid session, or auth bypass yielding 200 without session
+verify_steps: GET https://roobet.com/_api/affiliate/get -H "Cookie: connect.sid=<valid_session>" (baseline); GET https://roobet.com/_api/affiliate/get?user_id=<other_id>; GET https://roobet.com/_api/affiliate/get?affiliate_code=<other_code>. Read-only GET, 1 rps.
+impact: Cross-affiliate revenue/referral data disclosure → MEDIUM-HIGH; potential chain to wallet/billing data if affiliate linked to financials
+testability: AUTH_HELPED
+
+[HYP] Pusher Auth Endpoint Session Validation Bypass
+class: AUTH
+asset: roobet.com/pusher/auth
+confidence: 50
+reasoning: /pusher/auth and /pusher/user-auth are live POST-only endpoints (405 on POST format tested, 200 SPA shell on GET). Pusher channel auth typically validates session and returns signed auth token for private/presence channels. If session validation is weak or missing, attacker could obtain channel auth tokens for other users' private channels (chat, notifications, betting events).
+evidence_needed: Valid Pusher auth response (auth token) for a private channel without valid session, or with manipulated socket_id/channel_name parameters yielding another user's channel access
+verify_steps: POST https://roobet.com/pusher/auth -H "Content-Type: application/x-www-form-urlencoded" -d "socket_id=123.456&channel_name=private-user-<other_id>" (baseline unauthenticated); repeat with valid connect.sid cookie; test channel_name traversal (private-*, presence-*). Read-only POST (auth endpoint), 1 rps.
+impact: Unauthorized access to private Pusher channels (user notifications, chat, betting events, wallet updates) → MEDIUM-HIGH; chain to real-time account monitoring
+testability: AUTH_HELPED
+
+---
+
+**STEP 4 — SELF-CRITIQUE**
+
+[PARKED] GraphQL Admin Schema Exposed Behind Cloudflare Bot-Gate: confidence 55 but bot-gate + closed WS ports (8087/8088 TCP-refused) make it AUTH_HELPED only; no passive confirmation possible; highest value but blocked
+[PARKED] Unauthenticated State Exposure on Crash Game WebSocket: confidence 42 < 45 threshold; requires browser/WS tooling, HTTP unreachable over curl (Cloudflare WS-gated), HUMAN_ONLY testability — held for browser-phase
+
+[FINAL] 1. Admin API Privilege Escalation via Low-Gate _api/* Routes (75, AUTH_HELPED)
+[FINAL] 2. Affiliate Endpoint IDOR/BOLA on Low-Gate Surface (65, AUTH_HELPED)
+[FINAL] 3. Pusher Auth Endpoint Session Validation Bypass (50, AUTH_HELPED)
+
+---
+
+**STEP 5 — NEXT ACTION**
+
+[NEXT] PROBE: GET https://roobet.com/_api/admin/users && GET https://roobet.com/_api/admin/stats && GET https://roobet.com/_api/affiliate/get (1 rps each) with valid Roobet session cookie (connect.sid) to determine if standard user auth grants admin/affiliate access (401→200) or if auth mechanism is weaker (e.g., no role check). Baseline unauthenticated 401 already confirmed.
+
+---
+
+**STEP 6 — LEARNING**
+
+[LEARN] ACCEPTED MISCONFIG @ roobet.com/_api/admin/*: admin routes (admin/users, admin/stats) exist on low-gate surface; return 401 Unauthorized; not behind Cloudflare bot-management; auth mechanism unknown — requires live session to test
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/affiliate/get: affiliate endpoint exists on low-gate surface; 401 auth-gated; potential IDOR target
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/settings/get: full internal config dump (IP, sessionId, restricted countries, withdraw flags, geo inference) — operational intelligence, low standalone severity
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/tp-games/essentials: 9MB game catalog dump; internal S3 bucket reference; low severity
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/*: Full enumeration complete — 40 route candidates tested, exactly 6 live routes confirmed (settings/get 200, tp-games/essentials 200, admin/users 401, admin/stats 401, affiliate/get 401, auth/logout 302). Surface is small and well-defined.
+[LEARN] ACCEPTED OTHER @ roobet.com auth/logout: Auth mechanism revealed — Express.js session cookies (connect.sid HttpOnly + userId non-HttpOnly + twofactorRequired). Standard session-based auth; no bypass without valid session.
+[LEARN] REJECTED MISCONFIG @ roobet.com: OAuth metadata endpoints return SPA shell (catch-all route), not JSON configuration
+[LEARN] REJECTED MISCONFIG @ fs.roobet.com: GCS bucket ?list-type=2 redirects to fullstory.com; no object enumeration possible
+[LEARN] REJECTED OTHER @ api.roobet.com: GraphQL endpoint blocked by Cloudflare bot management (403) without valid Origin/Referer/browser session
+[LEARN] ACCEPTED MISCONFIG @ roobet.com: Remix catch-all route masks potential API endpoints under /api/* paths
+[LEARN] PARKED api.roobet.com Cloudflare bypass: requires valid browser headers/session/turnstile to test
+[LEARN] PARKED auth.roobet.com/account.roobet.com/admin.roobet.com: subdomains unresponsive; no attack surface confirmed
+[LEARN] PARKED crash-gs.roobet.com unauthenticated socket: requires browser/WS tooling, HUMAN_ONLY
+
+---
+
+**STEP 7 — RISK**
+
+[RISK] roobet: 65 — Main API (api.roobet.com) and all auth/account subdomains remain gated by Cloudflare bot-management or unresponsive. New low-gate surface: _api/* routes on roobet.com (6 live routes confirmed) bypass bot-gate entirely. Admin and affiliate endpoints on unauthenticated surface = elevated IDOR/privilege escalation risk. Auth mechanism is standard Express.js session cookies; no bypass without valid session. No confirmed reportable vuln; no scanner POC; engagement rules (≤1 rps, read-only GET, no data mutation, no auth-bypass on live customer data) fully respected.
