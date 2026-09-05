@@ -29,3 +29,12 @@ TARGET_ORG not configured for roobet; skipping public-org deep scan.
 TARGET_ORG not configured for roobet; skipping public-org deep scan.
 ## REPOSCAN 2026-09-05 04:41:39 UTC
 TARGET_ORG not configured for roobet; skipping public-org deep scan.
+## REPOSCAN 2026-09-05 08:41:11 UTC
+[HYP] No Roobet GitHub org configured — zero candidate repos to audit
+class: OTHER
+asset: cands.txt / scope.yml
+confidence: 100
+reasoning: |
+impact: N/A — no source code to audit; finding documents absence of configured targets
+verify_steps: |
+TARGET_ORG not configured for roobet; skipping public-org deep scan.
