@@ -8480,3 +8480,17 @@ testability: AUTH_HELPED
 ### STEP 7 — RISK
 
 [RISK] roobet: 55 — Confirmed pre-auth finding (anonymous GraphQL WS transport + full introspection on roobet.com/_api/graphql) now reportable; severity bounded by resolver-level auth (data-plane protected, no PII exfil). Remaining high-value lines (admin/affiliate priv-esc) still session-gated → HUMAN phase. Engagement rules respected: read-only GET/protocol handshake, no mutation execution, no customer-data reads beyond public broadcast feed, ≤1 rps. No confirmed reportable vuln besides the schema disclosure finding.
+===== ANALYST bigpickle 2026-09-05 21:49:28 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mcurl -sS --max-time 15 -A 'Mozilla/5.0' -o /tmp/gql0.body -w '%{http_code} %{content_type} %{size_download}\n' 'https://roobet.com/_api/graphql' && sleep 1 && curl -sS --max-time 15 -A 'Mozilla/5.0' -G 'https://roobet.com/_api/graphql' --data-urlencode 'query={__typename}' -o /tmp/gql1.body -w '%{http_code} %{content_type} %{size_download}\n'
+400 application/json; charset=utf-8 406
+400 application/json; charset=utf-8 406
+[0m
+[93m[1m! [0mpermission requested: external_directory (/tmp/*); auto-rejecting
+[0m✗ [0mRead /tmp/gql0.body failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.
+[93m[1m! [0mpermission requested: external_directory (/tmp/*); auto-rejecting
+[0m✗ [0mRead /tmp/gql1.body failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.

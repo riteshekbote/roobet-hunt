@@ -275,3 +275,14 @@ www.roobet.com
 - CHANGED auth.roobet.com/account.roobet.com/admin.roobet.com/billing.roobet.com/dashboard.roobet.com/sso.roobet.com + 13 others: confirmed non-resolving/internal (000/timeout) — no delta
 - CHANGED roobet.com/_api/settings/get input reflection NEGATIVE confirmed (XFF, ?sessionId, Referer, Cookie:sessionId all inert; ip=server-observed egress, sessionId rotates per-request, auth cookie=connect.si
 - CHANGED roobet.com/_api/* HTTP enumeration complete: exactly 6 live routes stable (settings/get 200, tp-games/essentials 200, admin/users 401, admin/stats 401, affiliate/get 401, auth/logout 302); 34 candidat
+
+## 2026-09-05 21:49:28 UTC
+- NEW roobet.com/_api/graphql — anonymous `graphql-transport-ws` upgrade (101 + `connection_ack` without `socketToken`); full `__schema` introspection succeeds (Query 28 / Mutation 26 / Subscription 7); mon
+- NEW roobet.com/_api/socket.io — engine.io polling handshake (HTTP 200 `0{"sid":...,"upgrades":["websocket"]}`) with only `Origin: https://roobet.com`; anonymous connect to default namespace `/` returns li
+- CHANGED roobet.com/_api/* HTTP enumeration finalized — exactly 6 live routes stable: `settings/get` (200), `tp-games/essentials` (200), `admin/users` (401), `admin/stats` (401), `affiliate/get` (401), `auth/l
+- CHANGED roobet.com/_api/admin/users + /admin/stats — 401 confirmed on low-gate surface (not behind Cloudflare bot-management); Express.js session auth (`connect.sid` HttpOnly + `userId` non-HttpOnly + `twofac
+- CHANGED roobet.com/_api/affiliate/get — 401; parameter tests `?user_id=<id>` and `?affiliate_code=<code>` return 401 (not 404), confirming parameter acceptance but auth-gated.
+- CHANGED roobet.com/_api/settings/get — input reflection NEGATIVE across X-Forwarded-For, `?sessionId`, Referer, Cookie:sessionId; `ip`=server-observed egress, `sessionId` rotates per-request, auth cookie=`con
+- CHANGED api.roobet.com GraphQL — HTTP POST/GET and raw WS upgrade on 443/8443 still return HTTP 403 (Cloudflare edge); admin ports 8087/8088 TCP-refused at edge.
+- CHANGED crash-gs.roobet.com Socket.IO — TLS upgrade stays open (no 4xx) then app-layer timeout; confirmed live but HUMAN_ONLY (browser/WS tooling required).
+- CHANGED auth.roobet.com/account.roobet.com/admin.roobet.com/billing.roobet.com/dashboard.roobet.com/sso.roobet.com + 13 others — confirmed non-resolving/internal (000/timeout).
