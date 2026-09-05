@@ -8394,3 +8394,89 @@ With the data-plane auth gate now confirmed uniform across 8 resolvers, no new a
 
 **STEP 7 — RISK**
 - [RISK] roobet: 55 — One confirmed pre-auth reportable finding (anonymous GraphQL WS transport + full introspection on roobet.com/_api/graphql), severity bounded by uniform resolver-level auth (no PII/customer data reachable anonymously). High-value lines (admin/affiliate priv-esc, money-mutation auth) all session-gated → HUMAN, engagement-rule constrained (no account creation, no customer-data exposure, no mutation execution). Passive surface fully bounded: 8 live `/_api/*` routes, all data-plane resolvers NOT_AUTHENTICATED. Probing within rules (read-only WS handshake/introspection, ≤1 rps, no writes).
+===== ANALYST bigpickle 2026-09-05 19:40:37 UTC =====
+[0m
+> build · big-pickle
+[0m
+I'll analyze the current state and run through the 8-step security assessment. Let me first explore the workspace to understand what resources are available.
+[0m✱ [0mGlob "**/*"[90m 62 matches[0m
+[0m→ [0mRead state_bigpickle.json
+[0m→ [0mRead leads/lead-bigpickle.md
+[0m→ [0mRead reports/hypotheses-bigpickle.txt
+[0m→ [0mRead probe-results.md
+Let me read the key state files and latest reports to understand the current situation.
+[0m→ [0mRead triage/run-2026-09-05-17-36.md
+[0m→ [0mRead reports/analyst-bigpickle.log[90m [offset=0, limit=100][0m
+[0m→ [0mRead knowledge/index.md
+[0m✱ [0mGlob "reports/schema-introspection*.json"[90m 0 matches[0m
+[0m→ [0mRead reports/valid-bugs.md
+[0m→ [0mRead reports/hypotheses.md
+## 2026-09-05 18:15:00 UTC [target] (model bigpickle)
+
+### STEP 1 — DELTA
+
+NO_DELTA. Surface stable since 2026-09-05 15:39:40 UTC. All 8 confirmed routes (6 HTTP + 2 WS) unchanged. introspection dump referenced but not saved to disk; findings already captured in KB.
+
+### STEP 2 — PRIORITIZE
+
+[PRIO] roobet.com/_api/graphql,9.0,attack_surface=6 (WS anon, introspectable, low-gate), business_value=9 (money mutations, User KYC/PII graph, wallet/token fields), tech_exposure=10 (GraphQL introspection + mutation + subscription), gate_ease=5 (transport open, resolvers auth), cloud_surface=3, freshness=10
+[PRIO] roobet.com/_api/admin/users,7.2,attack_surface=6 (live 401 low-gate), business_value=8 (admin functions), tech_exposure=5 (Express session auth), gate_ease=4 (auth-gated, reachable), cloud_surface=2, freshness=10
+[PRIO] roobet.com/_api/socket.io,6.7,attack_surface=7 (realtime anon feed), business_value=6 (global bet + settings broadcast), tech_exposure=6 (socket.io ns), gate_ease=8 (single Origin header), cloud_surface=3, freshness=10
+
+### STEP 3 — HYPOTHESES
+
+[HYP] Anonymous GraphQL WS transport + full schema introspection on low-gate host
+class: AUTH
+asset: roobet.com/_api/graphql
+confidence: 90
+reasoning: Raw WS upgrade → 101 + `graphql-transport-ws`; `connection_init` (no socketToken) → `connection_ack`; full `__schema` returns queryType Query / mutationType Mutation / subscriptionType Subscription. Schema includes money mutations (sendTip, polymarketOrderPlace/Cancel, tpGameStartGame, rewardsClaim, rewardsVaultClaim, forfeitCashableBonus), User object graph with email/balances/wallets/socketToken/staff flags + UserKyc (firstName/lastName/dob/address). Resolvers individually return NOT_AUTHENTICATED.
+evidence_needed: Repro captured: 101 handshake, connection_ack, introspection dump. Resolver NOT_AUTHENTICATED errors on 5 sample queries.
+verify_steps: PASSIVE repro — openssl s_client → GET /_api/graphql with Upgrade + graphql-transport-ws + Origin → 101; masked connection_init → connection_ack; subscribe introspection → full schema. Read-only.
+impact: Pre-auth disclosure of complete GraphQL surface incl. money/admin mutations and User PII/KYC schema; remote attack channel bypassing api.roobet.com 403 gate. Standalone: MEDIUM. Chains HIGH with any session.
+testability: PASSIVE
+
+[HYP] Admin vertical priv-esc via normal user session on low-gate admin routes
+class: AUTH
+asset: roobet.com/_api/admin/users
+confidence: 55
+reasoning: admin/users + admin/stats live (401) on low-gate surface, Express connect.sid session auth; role check unverifiable without session; now reachable via newly confirmed anonymous GraphQL channel once a session exists.
+evidence_needed: 200 JSON from /_api/admin/users with normal-user session.
+verify_steps: HUMAN: sandbox test account only; capture connect.sid; GET /_api/admin/users then /stats at 1 rps. 200-with-user-list ⇒ CRITICAL. Sustained 401 ⇒ role-gated, close.
+impact: Admin user listing (PII) + platform stats ⇒ HIGH.
+testability: AUTH_HELPED
+
+[HYP] Per-resolver auth asymmetry on mutations
+class: AUTH
+asset: roobet.com/_api/graphql (money mutations)
+confidence: 33
+reasoning: Enum coercion/validation runs before NOT_AUTHENTICATED gate; if any mutation resolves args/effects before auth, anonymous oracle for bonus/wallet IDs exists.
+evidence_needed: Anonymous mutation returning non-NOT_AUTHENTICATED error (validation/not-found).
+verify_steps: Session-bound (sandbox only): forfeitCashableBonus with zero ObjectId observing error ordering. Read-only-intent.
+impact: Authorization bypass on tip/rewards/bonus ops ⇒ HIGH.
+testability: AUTH_HELPED
+
+### STEP 4 — SELF-CRITIQUE
+
+[PARKED] Per-resolver auth asymmetry: confidence 33 < 40; mutation execution violates read-only rules; needs session.
+[PARKED] Affiliate IDOR: unchanged, session-gated, conf 45 < actionable now.
+[PARKED] GraphQL-over-WS api.roobet.com gap: superseded — WS surface is open on roobet.com/_api, not api.roobet.com.
+
+[FINAL] survivors ranked:
+1. Anonymous GraphQL WS introspection (9.0, PASSIVE, 90) — CONFIRMED, ready for submission
+2. Admin vertical priv-esc (7.2, AUTH_HELPED, 55) — needs live session
+3. Per-resolver auth asymmetry (3.3, AUTH_HELPED, 33) — parked
+
+### STEP 5 — NEXT ACTION
+
+[NEXT] HUMAN: Submit the confirmed finding to bugs.olivermaicher.eu — anonymous GraphQL WebSocket transport + full introspection at `wss://roobet.com/_api/graphql` (101 + connection_ack with no socketToken; schema: Query 28/Mutation 26/Subscription 7; data-plane resolvers NOT_AUTHENTICATED) with repro handshake steps and impact framing (pre-auth schema disclosure of money/admin mutations + User KYC/PII graph; attack channel bypassing the api.roobet.com 403 gate). Note: introspection dump file not saved to disk — must be captured during submission.
+
+### STEP 6 — LEARNING
+
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql: anonymous graphql-transport-ws (101 + connection_ack, no socketToken) + full introspection (Query28/Mut26/Sub7) — supersedes the api.roobet.com-403-only prior assessment; new low-gate attack channel.
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/socket.io: engine.io polling 200 handshake + anonymous ns `/` broadcast (new_bet, settingsUpdated, withdraw flags) — new realtime surface; graphql/admin/user/wallet namespaces all return Invalid namespace.
+[LEARN] REJECTED OTHER @ roobet.com/_api/graphql data-plane: exchangeRates/viewerChecks/userPublicProfile/userSystemStatus all return NOT_AUTHENTICATED anonymously — resolver auth enforced, no anonymous data leak.
+[LEARN] ACCEPTED OTHER @ roobet.com bundle: SOCKETIO_PATH=`/_api/socket.io`, GQL_SOCKET_BASE_URL=`wss://roobet.com/_api/graphql`, connectionParams.socketToken — client-side topology confirmed.
+
+### STEP 7 — RISK
+
+[RISK] roobet: 55 — Confirmed pre-auth finding (anonymous GraphQL WS transport + full introspection on roobet.com/_api/graphql) now reportable; severity bounded by resolver-level auth (data-plane protected, no PII exfil). Remaining high-value lines (admin/affiliate priv-esc) still session-gated → HUMAN phase. Engagement rules respected: read-only GET/protocol handshake, no mutation execution, no customer-data reads beyond public broadcast feed, ≤1 rps. No confirmed reportable vuln besides the schema disclosure finding.

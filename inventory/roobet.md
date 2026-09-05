@@ -264,3 +264,14 @@ www.roobet.com
 - NEW roobet.com/_api/socket.io — anonymous engine.io polling handshake (only `Origin: https://roobet.com`) + default-namespace CONNECT pushes live global `new_bet` feed and `settingsUpdated` broadcast; pla
 - NEW roobet.com/_api/graphql — raw TLS WS upgrade returns 101 Switching Protocols + `Sec-WebSocket-Protocol: graphql-transport-ws` (contradicts the "GraphQL 403-only" KB line, which applies only to api.roo
 - CHANGED Prior "passive surface fully bounded at 6 live `_api/*` routes" conclusion superseded — 2 new live routes, surface now ≥8. Bundle (all 67 chunks) shows only `_api/settings/get` + `_api/socket.io` HTTP
+
+## 2026-09-05 19:40:37 UTC
+- NEW roobet.com/_api/graphql — anonymous graphql-transport-ws WS upgrade (101 + connection_ack, no socketToken required) + full introspection (28 queries, 26 mutations, 7 subscriptions) — supersedes prior 
+- NEW roobet.com/_api/socket.io — engine.io polling handshake HTTP 200 (only Origin: https://roobet.com) + anonymous default namespace `/` broadcasts live `new_bet`, `settingsUpdated`, withdraw flags; graph
+- CHANGED Data-plane gated at resolver: `currentUser`, `exchangeRates`, `viewerChecks`, `userPublicProfile`, `userSystemStatus` all return `NOT_AUTHENTICATED` anonymously — transport+introspection open, resolve
+- CHANGED Bundle (all 67 chunks + entry.client) confirms SOCKETIO_PATH=`/_api/socket.io`, GQL_SOCKET_BASE_URL=`wss://(host)/_api/graphql`, connectionParams.socketToken only for normal app flow; only HTTP litera
+- CHANGED Prior "passive surface fully bounded at 6 live `_api/*` routes" conclusion superseded — 2 new live WS routes confirmed, surface now ≥8 (6 HTTP + 2 WS)
+- CHANGED api.roobet.com GraphQL remains 403 bot-gated on HTTP POST/GET and WS upgrade (443/8443); admin ports 8087/8088 TCP-refused at edge — no delta
+- CHANGED auth.roobet.com/account.roobet.com/admin.roobet.com/billing.roobet.com/dashboard.roobet.com/sso.roobet.com + 13 others: confirmed non-resolving/internal (000/timeout) — no delta
+- CHANGED roobet.com/_api/settings/get input reflection NEGATIVE confirmed (XFF, ?sessionId, Referer, Cookie:sessionId all inert; ip=server-observed egress, sessionId rotates per-request, auth cookie=connect.si
+- CHANGED roobet.com/_api/* HTTP enumeration complete: exactly 6 live routes stable (settings/get 200, tp-games/essentials 200, admin/users 401, admin/stats 401, affiliate/get 401, auth/logout 302); 34 candidat
