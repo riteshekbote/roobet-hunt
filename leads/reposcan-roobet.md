@@ -60,3 +60,12 @@ reasoning: |
 impact: N/A — absence of exposed source reduces attack surface but prevents this scan vector
 verify_steps: |
 TARGET_ORG not configured for roobet; skipping public-org deep scan.
+## REPOSCAN 2026-09-05 21:43:33 UTC
+[HYP] (none — no candidates)
+class: N/A
+asset: N/A
+confidence: 0
+reasoning: Roobet has zero public GitHub repos. All 122 search hits are third-party community tools, not the org's own code. No source-code secrets, hardcoded creds, or insecure patterns can be identified from org-owned repos.
+impact: N/A
+verify_steps: N/A — no repos to clone/scan
+TARGET_ORG not configured for roobet; skipping public-org deep scan.
