@@ -106,3 +106,5 @@
 - 2026-09-05 PARKED crash-gs.roobet.com unauthenticated socket: requires browser/WS tooling, HUMAN_ONLY
 - 2026-09-05 ACCEPTED OTHER @ roobet.com/_api/*: fresh probe re-confirms 6 live routes (settings/get 200, admin/{users,stats} 401, affiliate/get 401, auth/logout 302); surface stable, no new route/host Δ.
 - 2026-09-05 ACCEPTED OTHER @ roobet.com: all remaining high-value lines are session-gated; passive surface fully bounded, no reportable vuln reachable without a live session per engagement rules.
+- 2026-09-05 ACCEPTED OTHER @ roobet.com/_api/*: Fresh probe re-confirms 6 live routes (settings/get 200, admin/{users,stats} 401, affiliate/get 401, auth/logout 302); surface stable, no new route/host delta.
+- 2026-09-05 ACCEPTED OTHER @ roobet.com: All remaining high-value lines are session-gated; passive surface fully bounded, no reportable vuln reachable without live session per engagement rules.

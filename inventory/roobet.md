@@ -244,3 +244,5 @@ www.roobet.com
 - CHANGED api.roobet.com GraphQL WS upgrade on 443/8443 returns HTTP 403 (Cloudflare edge blocks WS); admin ports 8087/8088 TCP-refused at edge
 - CHANGED auth.roobet.com/account.roobet.com/admin.roobet.com/billing.roobet.com/dashboard.roobet.com/sso.roobet.com + 13 others: confirmed non-resolving/internal (000/timeout)
 - CHANGED roobet.com/_api/settings/get input reflection NEGATIVE confirmed across XFF, ?sessionId, Referer, Cookie:sessionId — ip=server-observed egress, sessionId rotates per-request, auth cookie=connect.sid
+
+## 2026-09-05 12:18:13 UTC
