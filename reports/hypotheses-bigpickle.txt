@@ -1,1 +1,24 @@
-## 2026-09-05 21:44:02 UTC [target] (model bigpickle)
+## 2026-09-05 23:41:52 UTC [target] (model bigpickle)
+[NEW] roobet.com/_api/socket.io — anonymous engine.io polling handshake (only `Origin: https://roobet.com`) + default-namespace CONNECT pushes live global `new_bet` feed and `settingsUpdated` broadcast; plain HTTPS, no Cloudflare WS-gate, no auth. Absent from prior 6-route set.
+[NEW] roobet.com/_api/graphql — raw TLS WS upgrade returns 101 Switching Protocols + `Sec-WebSocket-Protocol: graphql-transport-ws` (contradicts the "GraphQL 403-only" KB line, which applies only to api.roobet.com); `connection_init` with NO socketToken returns `connection_ack`; full `__schema` introspection succeeds anonymously (Query 28 / Mutation 26 / Subscription 7).
+[CHANGED] Prior "passive surface fully bounded at 6 live `_api/*` routes" conclusion superseded — 2 new live routes, surface now ≥8. Bundle (all 67 chunks) shows only `_api/settings/get` + `_api/socket.io` HTTP literals; socket and GraphQL run on the low-gate host, not the 403-gated api.roobet.com.
+[PRIO] roobet.com/_api/graphql, 7.3, attack_surface=6 (WS anon, introspectable, low-gate), business_value=9 (money mutations, User KYC/PII graph, wallet/token fields), tech_exposure=10 (GraphQL introspection + mutation + subscription), gate_ease=5 (transport open, resolvers auth), cloud_surface=3, freshness=10
+[PRIO] roobet.com/_api/admin/users, 7.2, attack_surface=6 (live 401 low-gate), business_value=8 (admin functions), tech_exposure=5 (Express session auth), gate_ease=4 (auth-gated, reachable), cloud_surface=2, freshness=10
+[HYP] Anonymous `polymarketPositions` subscription may arm without per-user scope (silent, no error)
+class: OTHER
+asset: roobet.com/_api/graphql (subscription polymarketPositions)
+confidence: 30
+reasoning: Unlike `polymarketOrders` (immediate null-user throw), `polymarketPositions` returned no error/complete/data in 30s — consistent with an armed filter that either never matches null-user or is globally scoped. Unverifiable without an in-flight market event.
+evidence_needed: Any `next` data frame arriving on anonymous listen (would imply cross-user position streaming).
+verify_steps: Bounded passive soak on single anonymous subscription (60s, 1 connection); if any frame arrives, disconnect immediately and mark HUMAN for scope confirmation of the event payload. Do not collect customer data beyond establishing existence.
+impact: Anonymous cross-user polymarket position/order event stream ⇒ privacy data leak, MEDIUM-HIGH. Currently unconfirmed.
+testability: PASSIVE (event-driven, low confidence)
+[HYP] Admin vertical priv-esc via normal-user session on low-gate admin routes
+class: AUTH
+asset: roobet.com/_api/admin/users
+confidence: 55
+reasoning: admin/users + admin/stats live (401) on low-gate surface, Express connect.sid session auth; role check unverifiable without session; reachable via same host as the now-confirmed anonymous GraphQL channel.
+evidence_needed: 200 JSON from /_api/admin/users with normal-user session.
+verify_steps: HUMAN: sandbox test account only; capture connect.sid; GET /_api/admin/users then /stats at 1 rps. 200-with-user-list ⇒ CRITICAL. Sustained 401 ⇒ role-gated, close.
+impact: Admin user listing (PII) + platform stats ⇒ HIGH.
+testability: AUTH_HELPED

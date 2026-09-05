@@ -176,3 +176,11 @@ https://roobet.com/_api/admin/stats` -> HTTP 404
 https://roobet.com/_api/affiliate/get` -> HTTP 404
 https://roobet.com/_api/affiliate/get?user_id=<other_id>` -> HTTP 401
 https://roobet.com/_api/affiliate/get?affiliate_code=<other_code>` -> HTTP 401
+
+## 2026-09-05 23:42:09 UTC
+https://roobet.com` -> ERR <urlopen error [Errno -2] Name or service not know
+https://roobet.com/_api/admin/users` -> HTTP 404
+https://roobet.com/_api/admin/stats` -> HTTP 404
+https://roobet.com/_api/affiliate/get` -> HTTP 404
+https://roobet.com/_api/affiliate/get?user_id=<other_id>` -> HTTP 401
+https://roobet.com/_api/affiliate/get?affiliate_code=<other_code>` -> HTTP 401

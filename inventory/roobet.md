@@ -286,3 +286,14 @@ www.roobet.com
 - CHANGED api.roobet.com GraphQL — HTTP POST/GET and raw WS upgrade on 443/8443 still return HTTP 403 (Cloudflare edge); admin ports 8087/8088 TCP-refused at edge.
 - CHANGED crash-gs.roobet.com Socket.IO — TLS upgrade stays open (no 4xx) then app-layer timeout; confirmed live but HUMAN_ONLY (browser/WS tooling required).
 - CHANGED auth.roobet.com/account.roobet.com/admin.roobet.com/billing.roobet.com/dashboard.roobet.com/sso.roobet.com + 13 others — confirmed non-resolving/internal (000/timeout).
+
+## 2026-09-05 23:42:02 UTC
+- NEW roobet.com/_api/socket.io — anonymous engine.io polling handshake (only `Origin: https://roobet.com`) + default-namespace CONNECT pushes live global `new_bet` feed and `settingsUpdated` broadcast; pla
+- NEW roobet.com/_api/graphql — raw TLS WS upgrade returns 101 Switching Protocols + `Sec-WebSocket-Protocol: graphql-transport-ws` (contradicts the "GraphQL 403-only" KB line, which applies only to api.roo
+- CHANGED Prior "passive surface fully bounded at 6 live `_api/*` routes" conclusion superseded — 2 new live routes, surface now ≥8. Bundle (all 67 chunks) shows only `_api/settings/get` + `_api/socket.io` HTTP
+- NEW roobet.com/_api/graphql: anonymous `graphql-transport-ws` upgrade (101 + `connection_ack` without `socketToken`); full `__schema` introspection succeeds (Query 28 / Mutation 26 / Subscription 7); muta
+- NEW roobet.com/_api/socket.io: engine.io polling handshake (HTTP 200 `0{"sid":...,"upgrades":["websocket"]}`) with only `Origin: https://roobet.com`; anonymous connect to default namespace `/` returns liv
+- CHANGED roobet.com/_api/* HTTP enumeration finalized — exactly 6 live routes stable: `settings/get` (200), `tp-games/essentials` (200), `admin/users` (401), `admin/stats` (401), `affiliate/get` (401), `auth/l
+- CHANGED api.roobet.com GraphQL — HTTP POST/GET and raw WS upgrade on 443/8443 still return HTTP 403 (Cloudflare edge); admin ports 8087/8088 TCP-refused at edge — no delta.
+- CHANGED crash-gs.roobet.com Socket.IO — TLS upgrade stays open (no 4xx) then app-layer timeout; confirmed live but HUMAN_ONLY (browser/WS tooling required).
+- CHANGED auth.roobet.com/account.roobet.com/admin.roobet.com/billing.roobet.com/dashboard.roobet.com/sso.roobet.com + 13 others — confirmed non-resolving/internal (000/timeout).
