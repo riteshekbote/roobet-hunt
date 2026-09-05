@@ -246,3 +246,12 @@ www.roobet.com
 - CHANGED roobet.com/_api/settings/get input reflection NEGATIVE confirmed across XFF, ?sessionId, Referer, Cookie:sessionId — ip=server-observed egress, sessionId rotates per-request, auth cookie=connect.sid
 
 ## 2026-09-05 12:18:13 UTC
+
+## 2026-09-05 15:39:40 UTC
+- NEW roobet.com /_api/socket.io — engine.io polling handshake LIVE (HTTP 200 `0{"sid":...,"upgrades":["websocket"]}`) with only `Origin: https://roobet.com`; anonymous connect ns `/` returns global `new_be
+- NEW roobet.com /_api/graphql — raw WS upgrade returns 101 Switching Protocols + `Sec-WebSocket-Protocol: graphql-transport-ws` (NOT the 403 that api.roobet.com/graphql gives). `connection_init` accepted w
+- CHANGED Data-plane gated at resolver: `currentUser` returns `code: NOT_AUTHENTICATED`, data null — transport+introspection open anonymously, resolvers enforce auth.
+- CHANGED Bundle strings (all 67 chunks + entry.client) confirm SOCKETIO_PATH=`/_api/socket.io`, GQL_SOCKET_BASE_URL=`wss://(host)/_api/graphql`, connectionParams.socketToken only for App normal flow. Only lite
+- NEW roobet.com/_api/socket.io — anonymous engine.io polling handshake (only `Origin: https://roobet.com`) + default-namespace CONNECT pushes live global `new_bet` feed and `settingsUpdated` broadcast; pla
+- NEW roobet.com/_api/graphql — raw TLS WS upgrade returns 101 Switching Protocols + `Sec-WebSocket-Protocol: graphql-transport-ws` (contradicts the "GraphQL 403-only" KB line, which applies only to api.roo
+- CHANGED Prior "passive surface fully bounded at 6 live `_api/*` routes" conclusion superseded — 2 new live routes, surface now ≥8. Bundle (all 67 chunks) shows only `_api/settings/get` + `_api/socket.io` HTTP

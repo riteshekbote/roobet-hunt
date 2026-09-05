@@ -108,3 +108,7 @@
 - 2026-09-05 ACCEPTED OTHER @ roobet.com: all remaining high-value lines are session-gated; passive surface fully bounded, no reportable vuln reachable without a live session per engagement rules.
 - 2026-09-05 ACCEPTED OTHER @ roobet.com/_api/*: Fresh probe re-confirms 6 live routes (settings/get 200, admin/{users,stats} 401, affiliate/get 401, auth/logout 302); surface stable, no new route/host delta.
 - 2026-09-05 ACCEPTED OTHER @ roobet.com: All remaining high-value lines are session-gated; passive surface fully bounded, no reportable vuln reachable without live session per engagement rules.
+- 2026-09-05 ACCEPTED OTHER @ roobet.com/_api/graphql: anonymous graphql-transport-ws (101 + connection_ack, no socketToken) + full introspection (Query28/Mut26/Sub7) — supersedes the api.roobet.com-403-only prior assessment; new low-gate attack channel.
+- 2026-09-05 ACCEPTED OTHER @ roobet.com/_api/socket.io: engine.io polling 200 handshake + anonymous ns `/` broadcast (new_bet, settingsUpdated, withdraw flags) — new realtime surface; graphql/admin/user/wallet namespaces all return Invalid namespace.
+- 2026-09-05 REJECTED OTHER @ roobet.com/_api/graphql data-plane: exchangeRates/viewerChecks/userPublicProfile/userSystemStatus all return NOT_AUTHENTICATED anonymously — resolver auth enforced, no anonymous data leak.
+- 2026-09-05 ACCEPTED OTHER @ roobet.com bundle: SOCKETIO_PATH=`/_api/socket.io`, GQL_SOCKET_BASE_URL=`wss://roobet.com/_api/graphql`, connectionParams.socketToken — client-side topology confirmed; only HTTP literals settings/get + socket.io.

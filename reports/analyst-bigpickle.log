@@ -6736,3 +6736,1216 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 [RISK] roobet: 66 — Passive surface fully enumerated and re-confirmed bounded: 6 /_api/* routes; HTTP+WS bot-gates 403 on both API ports; no input reflection/fixation; 3P configs excluded. Unresolved high-value lines (admin/affiliate priv-esc, GraphQL WS) all require live session → HUMAN phase, engagement-rule constrained (no customer/auth-data exposure, account_creation restricted). No confirmed reportable vuln; ≤1 rps, GET-only, no writes.
+===== ANALYST bigpickle 2026-09-05 15:39:40 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m✱ [0mGlob "art/*"[90m 0 matches[0m
+[0m→ [0mRead .
+[0m→ [0mRead scope.yml
+[0m→ [0mRead leads
+[0m→ [0mRead inventory
+[0m→ [0mRead probe-results.md
+[0m→ [0mRead recon-notes
+[0m→ [0mRead recon-notes/DEDICATED-DEEP.md
+[0m→ [0mRead state_bigpickle.json
+[0m
+[0m$ [0mls -la leads/ reposcan-raw/ triage/ reports/ knowledge/ scripts/ 2>/dev/null
+knowledge/:
+total 28
+drwxr-xr-x  2 runner runner  4096 Sep  5 15:22 .
+drwxr-xr-x 12 runner runner  4096 Sep  5 15:22 ..
+-rw-r--r--  1 runner runner 17486 Sep  5 15:22 index.md
+
+leads/:
+total 272
+drwxr-xr-x  2 runner runner   4096 Sep  5 15:22 .
+drwxr-xr-x 12 runner runner   4096 Sep  5 15:22 ..
+-rw-r--r--  1 runner runner 124374 Sep  5 15:22 lead-bigpickle.md
+-rw-r--r--  1 runner runner    714 Sep  5 15:22 lead-laguna.md
+-rw-r--r--  1 runner runner    700 Sep  5 15:22 lead-ling3.md
+-rw-r--r--  1 runner runner    728 Sep  5 15:22 lead-longcat.md
+-rw-r--r--  1 runner runner     18 Sep  5 15:22 lead-mimo.md
+-rw-r--r--  1 runner runner 122865 Sep  5 15:22 lead-nemotron3.md
+-rw-r--r--  1 runner runner   2005 Sep  5 15:22 reposcan-roobet.md
+
+reports/:
+total 700
+drwxr-xr-x  2 runner runner   4096 Sep  5 15:22 .
+drwxr-xr-x 12 runner runner   4096 Sep  5 15:22 ..
+-rw-r--r--  1 runner runner 415681 Sep  5 15:22 analyst-bigpickle.log
+-rw-r--r--  1 runner runner   3038 Sep  5 15:22 analyst-laguna.log
+-rw-r--r--  1 runner runner   3024 Sep  5 15:22 analyst-ling3.log
+-rw-r--r--  1 runner runner   3052 Sep  5 15:22 analyst-longcat.log
+-rw-r--r--  1 runner runner 201093 Sep  5 15:22 analyst-nemotron3.log
+-rw-r--r--  1 runner runner   4300 Sep  5 15:22 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner     51 Sep  5 15:22 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner     50 Sep  5 15:22 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner     52 Sep  5 15:22 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner   8116 Sep  5 15:22 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  40223 Sep  5 15:22 hypotheses.md
+-rw-r--r--  1 runner runner     39 Sep  5 15:22 valid-bugs.md
+
+reposcan-raw/:
+total 12
+drwxr-xr-x  2 runner runner 4096 Sep  5 15:22 .
+drwxr-xr-x 12 runner runner 4096 Sep  5 15:22 ..
+-rw-r--r--  1 runner runner   69 Sep  5 15:22 summary.txt
+
+scripts/:
+total 28
+drwxr-xr-x  2 runner runner  4096 Sep  5 15:22 .
+drwxr-xr-x 12 runner runner  4096 Sep  5 15:22 ..
+-rw-r--r--  1 runner runner 16987 Sep  5 15:22 sync-issues.py
+
+triage/:
+total 84
+drwxr-xr-x  2 runner runner 4096 Sep  5 15:22 .
+drwxr-xr-x 12 runner runner 4096 Sep  5 15:22 ..
+-rw-r--r--  1 runner runner    0 Sep  5 15:22 .gitkeep
+-rw-r--r--  1 runner runner  259 Sep  5 15:22 run-2026-09-02-21-54.md
+-rw-r--r--  1 runner runner  161 Sep  5 15:22 run-2026-09-02-23-55.md
+-rw-r--r--  1 runner runner  228 Sep  5 15:22 run-2026-09-03-03-41.md
+-rw-r--r--  1 runner runner  185 Sep  5 15:22 run-2026-09-03-08-44.md
+-rw-r--r--  1 runner runner  144 Sep  5 15:22 run-2026-09-03-13-23.md
+-rw-r--r--  1 runner runner  263 Sep  5 15:22 run-2026-09-03-17-12.md
+-rw-r--r--  1 runner runner  249 Sep  5 15:22 run-2026-09-03-19-56.md
+-rw-r--r--  1 runner runner  212 Sep  5 15:22 run-2026-09-03-22-28.md
+-rw-r--r--  1 runner runner  183 Sep  5 15:22 run-2026-09-04-00-23.md
+-rw-r--r--  1 runner runner  212 Sep  5 15:22 run-2026-09-04-05-06.md
+-rw-r--r--  1 runner runner  350 Sep  5 15:22 run-2026-09-04-09-44.md
+-rw-r--r--  1 runner runner  228 Sep  5 15:22 run-2026-09-04-14-05.md
+-rw-r--r--  1 runner runner  212 Sep  5 15:22 run-2026-09-04-17-39.md
+-rw-r--r--  1 runner runner  223 Sep  5 15:22 run-2026-09-04-19-53.md
+-rw-r--r--  1 runner runner  164 Sep  5 15:22 run-2026-09-04-22-14.md
+-rw-r--r--  1 runner runner  237 Sep  5 15:22 run-2026-09-05-00-11.md
+-rw-r--r--  1 runner runner  299 Sep  5 15:22 run-2026-09-05-04-39.md
+-rw-r--r--  1 runner runner  179 Sep  5 15:22 run-2026-09-05-08-37.md
+-rw-r--r--  1 runner runner  182 Sep  5 15:22 run-2026-09-05-12-04.md
+[0m
+[0m✱ [0mGrep "-gs\.roobet\.com|game-server|gameserver|_gs\b"[90m in . · 100 matches[0m
+[0m→ [0mRead reposcan-raw/summary.txt
+[0m→ [0mRead leads/lead-mimo.md
+[0m→ [0mRead leads/reposcan-roobet.md
+I'll verify current state files, then run a focused passive pass to look for NEW surface rather than re-confirming the bounded set.
+Now a focused passive pass. First: pull the live SPA shell to extract the JS bundle paths (the prior `_api/*` enum was brute-force guessing; the client bundle may contain literal route strings beyond the known 6).
+[0m
+[0m$ [0mcurl -s --max-time 20 -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36" https://roobet.com/ -o /tmp/opencode/roobet_home.html -w "HTTP %{http_code} size=%{size_download}\n"; grep -oE '(src|href)="[^"]*(build|assets|static|js)[^"]*"' /tmp/opencode/roobet_home.html | sort -u | head -60
+HTTP 200 size=16854
+href="/assets/3mV3WY3f.js"
+href="/assets/9wZtfsHQ.js"
+href="/assets/B46r-_rn.js"
+href="/assets/BLer1IM9.js"
+href="/assets/BXT9-H_y.js"
+href="/assets/Bc9LI7XU.js"
+href="/assets/BcE9PbDZ.js"
+href="/assets/BdQsqFMe.js"
+href="/assets/BgKX5-NN.js"
+href="/assets/BjuHWRLJ.js"
+href="/assets/Bo7fnUdb.css"
+href="/assets/BpjuQFtf.js"
+href="/assets/BsxaTaGq.js"
+href="/assets/BvLa0Y4-.js"
+href="/assets/Bw8tGyYU.woff2"
+href="/assets/C-2z1igG.js"
+href="/assets/C3veq_CY.js"
+href="/assets/C4P_JSmJ.js"
+href="/assets/C5tr4bbL.js"
+href="/assets/C6EgtW4K.js"
+href="/assets/CHIWJLa6.js"
+href="/assets/CIKtYGSZ.js"
+href="/assets/CIySChKA.js"
+href="/assets/CJ3djH55.js"
+href="/assets/CNwZExQC.js"
+href="/assets/CPnEMeQL.js"
+href="/assets/CT_T7oCs.js"
+href="/assets/CV1py6od.js"
+href="/assets/CVyiE2_c.js"
+href="/assets/CWvhrLaG.js"
+href="/assets/CYTPBcYj.js"
+href="/assets/CbMV_Ej3.js"
+href="/assets/Cdkk-7aG.js"
+href="/assets/CgSTso_z.js"
+href="/assets/Ck9qYOKM.js"
+href="/assets/Cn5TDKM3.js"
+href="/assets/CxmxS2p4.js"
+href="/assets/D3DocrEv.js"
+href="/assets/D7-E5_45.js"
+href="/assets/D848cBY8.js"
+href="/assets/DA0REL2d.js"
+href="/assets/DBf4-KLM.woff2"
+href="/assets/DDlxRYOk.js"
+href="/assets/DHPaq9Sc.js"
+href="/assets/DIGizqRY.js"
+href="/assets/DLbglf7A.css"
+href="/assets/DRkXvGCg.js"
+href="/assets/DTGC3Ote.js"
+href="/assets/DVTn2m7L.js"
+href="/assets/DbqcIiEy.js"
+href="/assets/Dd-0gBiB.js"
+href="/assets/Dh3F_W_L.woff2"
+href="/assets/DoP7edl6.js"
+href="/assets/DuELQuSp.js"
+href="/assets/GsxGYtLH.js"
+href="/assets/JgJDKtcw.js"
+href="/assets/M6WDLngm.woff2"
+href="/assets/M7ontbCc.js"
+href="/assets/WOMl2rtV.js"
+href="/assets/WaHDMQvB.js"
+[0m
+[0m$ [0mgrep -oE 'href="/assets/[A-Za-z0-9_.-]+\.js"' /tmp/opencode/roobet_home.html | sort -u | sed 's/href="//;s/"//' | wc -l; echo "---entry hints---"; grep -oE '(rel="modulepreload"|src=")[^"]*\.js' /tmp/opencode/roobet_home.html | sort -u | head -30
+67
+---entry hints---
+src="https://cdn.seondf.com/js/v6/agent.umd.js
+[0m
+[0m$ [0mgrep -oE 'href="/assets/[A-Za-z0-9_.-]+\.js"' /tmp/opencode/roobet_home.html | sort -u | sed 's/href="//;s/"//' > /tmp/opencode/roobet_assets.txt; wc -l /tmp/opencode/roobet_assets.txt; echo "---"; grep -oE '"[^"]*\.js"' /tmp/opencode/roobet_home.html | grep -iE 'entry|main|app' | head
+67 /tmp/opencode/roobet_assets.txt
+---
+"/assets/entry.client-DstZRzUD.js"
+"/assets/entry.client-DstZRzUD.js"
+[0m
+[0m$ [0mcd /tmp/opencode && curl -s --max-time 25 -A "Mozilla/5.0" https://roobet.com/assets/entry.client-DstZRzUD.js -o entry.client.js -w "HTTP %{http_code} size=%{size_download}\n"; grep -oE '"/_api/[^"]*"' entry.client.js | sort -u | head -60; echo "=== _api bare ==="; grep -oE '_api[/A-Za-z0-9_-]*' entry.client.js | sort -u | head -60
+HTTP 200 size=297746
+=== _api bare ===
+_api/authenticating_users
+_api/authorizing-users/
+_api_guide/client_events
+[0m
+[0m$ [0mcd /tmp/opencode && echo "=== roobet.com hosts in entry ==="; grep -oE '[a-z0-9-]+\.roobet\.com' entry.client.js | sort | uniq -c | sort -rn | head -30; echo "=== wss/ws ==="; grep -oE 'wss?://[^"'\'' ]+' entry.client.js | sort | uniq -c | sort -rn | head -20; echo "=== path literals /NN/ or api-ish ==="; grep -oE '"/[a-z0-9_/$-]{2,40}"' entry.client.js | sort -u | head -80
+=== roobet.com hosts in entry ===
+      2 fs.roobet.com
+      2 api.roobet.com
+      1 crash-gs.roobet.com
+=== wss/ws ===
+      1 wss://crash-gs.roobet.com/socket.io/?EIO=3&transport=websocket`,ROOBET_DATADOG_SAMPLE_RATE:`1`,ROOBET_THRILLTECH_JACKPOT_BRAND_ID:`roobet:roobet`,ROOBET_NODE_ENV:`production`,ROOBET_FULLSTORY_ORG_ID:`o-77K8-eu1`,ROOBET_ACP_FULLSTORY_HOST:`eu1.fullstory.com`,ROOBET_DATADOG_CLIENT_TOKEN:`pub2f15880848eb3196d92865e0859ad700`,ROOBET_FULLSTORY_SCRIPT:`fs.roobet.com/s/fs.js`,ROOBET_WS_API_URL:`wss://api.roobet.com/`,ROOBET_DATADOG_APP_ID:`42915334-7ce2-4f41-8c28-4f84380027d6`,ROOBET_WS_GQL_ADMIN_PORT:`8088`,ROOBET_CONTENTSTACK_PREVIEW_ENABLE:`false`,ROOBET_RED_TIGER_BASE_URL:`https://gserver-roobet.redtiger.cash/roobet/launcher`}.ROOBET_SEASONAL_THEME;if(e===`halloween`)return
+=== path literals /NN/ or api-ish ===
+[0m
+The entry chunk only inlines env (Red Tiger gserver is 3P/out of scope). The `_api/*` client literals likely live in route chunks. Downloading the 67 SPA chunks (public static assets, read-only) to mine for hidden server-route literals.
+[0m$ [0mcd /tmp/opencode && mkdir -p chunks && n=0; while read -r a; do n=$((n+1)); curl -s --max-time 15 -A "Mozilla/5.0" "https://roobet.com/$a" -o "chunks/$(echo "$a" | tr '/.' '__').js"; sleep 0.7; done < roobet_assets.txt; echo "downloaded $n chunks"; ls chunks | wc -l; du -sh chunks
+downloaded 67 chunks
+67
+4.1M	chunks
+[0m
+[0m$ [0mcd /tmp/opencode/chunks && echo "=== _api/ route literals across all chunks ==="; grep -hoE '(/_api/[A-Za-z0-9_./$?=&{}-]{2,60})' *.js | sort -u | head -80; echo; echo "=== _api prefixed separately ==="; grep -hoE '"_api/[A-Za-z0-9_./$-]+"' *.js | sort -u | head -80
+=== _api/ route literals across all chunks ===
+/_api/settings/get
+/_api/socket.io
+
+=== _api prefixed separately ===
+[0m
+[0m$ [0mcd /tmp/opencode/chunks && echo "=== context around /_api/socket.io ==="; grep -hoE '.{120}/_api/socket\.io.{120}' *.js | head; echo; echo "=== socket.io refs ==="; grep -hoE '.{60}socket\.io.{80}' *.js | grep -vE '^\s*//' | head -20
+=== context around /_api/socket.io ===
+=`wss:`,i=e.host,a=i.split(`.`).slice(-2).join(`.`);n.BASE_URL=`${e}`,n.SOCKETIO_BASE_URL=`${r}//${a}`,n.SOCKETIO_PATH=`/_api/socket.io`,n.GQL_SOCKET_BASE_URL=`${r}//${a}/_api`,n.API_URL=`${e.protocol}//${i}/_api`}catch{}return n})((()=>{let e={};try{e={.
+
+=== socket.io refs ===
+}),this._socket.on(`connect_error`,async()=>{await Ue.get(`/socket.io`).catch()}),this._socket.on(`featureFlagsUpdated`,()=>{clearTimeout(this.deboun
+e}`,n.SOCKETIO_BASE_URL=`${r}//${a}`,n.SOCKETIO_PATH=`/_api/socket.io`,n.GQL_SOCKET_BASE_URL=`${r}//${a}/_api`,n.API_URL=`${e.protocol}//${i}/_api`}c
+roobet.com/`,ROOBET_CRASH_WS_URL:`wss://crash-gs.roobet.com/socket.io/?EIO=3&transport=websocket`,ROOBET_DATADOG_SAMPLE_RATE:`1`,ROOBET_THRILLTECH_JA
+roobet.com/`,ROOBET_CRASH_WS_URL:`wss://crash-gs.roobet.com/socket.io/?EIO=3&transport=websocket`,ROOBET_DATADOG_SAMPLE_RATE:`1`,ROOBET_THRILLTECH_JA
+ndow.localStorage}catch{}}})),a=e(((e,n)=>{var r=t(),a=i()(`socket.io-client:url`);n.exports=o;function o(e,t){var n=e;t||=typeof location<`u`&&locat
+roobet.com/`,ROOBET_CRASH_WS_URL:`wss://crash-gs.roobet.com/socket.io/?EIO=3&transport=websocket`,ROOBET_DATADOG_SAMPLE_RATE:`1`,ROOBET_THRILLTECH_JA
+(e[p],p,e)}var s=0,c=e;o(c),s||r(c)}})),p=e((e=>{var t=c()(`socket.io-parser`),n=l(),r=f(),i=u(),a=d();e.protocol=4,e.types=[`CONNECT`,`DISCONNECT`,`
+roobet.com/`,ROOBET_CRASH_WS_URL:`wss://crash-gs.roobet.com/socket.io/?EIO=3&transport=websocket`,ROOBET_DATADOG_SAMPLE_RATE:`1`,ROOBET_THRILLTECH_JA
+}}})),G=e(((e,t)=>{var n=p(),r=l(),a=H(),o=U(),s=W(),c=i()(`socket.io-client:socket`),u=D(),d=y();t.exports=e=h;var f={connect:1,connect_error:1,conn
+q=e(((e,t)=>{var n=V(),r=G(),a=l(),o=p(),s=U(),c=W(),u=i()(`socket.io-client:manager`),d=z(),f=K(),m=Object.prototype.hasOwnProperty;t.exports=h;func
+&typeof e==`object`&&(t=e,e=void 0),t||={},t.path=t.path||`/socket.io`,this.nsps={},this.subs=[],this.opts=t,this.reconnection(t.reconnection!==!1),t
+reconnect`,e)}})),J=e(((e,t)=>{var n=a(),r=p(),o=q(),s=i()(`socket.io-client`);t.exports=e=l;var c=e.managers={};function l(e,t){typeof e==`object`&&
+roobet.com/`,ROOBET_CRASH_WS_URL:`wss://crash-gs.roobet.com/socket.io/?EIO=3&transport=websocket`,ROOBET_DATADOG_SAMPLE_RATE:`1`,ROOBET_THRILLTECH_JA
+roobet.com/`,ROOBET_CRASH_WS_URL:`wss://crash-gs.roobet.com/socket.io/?EIO=3&transport=websocket`,ROOBET_DATADOG_SAMPLE_RATE:`1`,ROOBET_THRILLTECH_JA
+roobet.com/`,ROOBET_CRASH_WS_URL:`wss://crash-gs.roobet.com/socket.io/?EIO=3&transport=websocket`,ROOBET_DATADOG_SAMPLE_RATE:`1`,ROOBET_THRILLTECH_JA
+roobet.com/`,ROOBET_CRASH_WS_URL:`wss://crash-gs.roobet.com/socket.io/?EIO=3&transport=websocket`,ROOBET_DATADOG_SAMPLE_RATE:`1`,ROOBET_THRILLTECH_JA
+roobet.com/`,ROOBET_CRASH_WS_URL:`wss://crash-gs.roobet.com/socket.io/?EIO=3&transport=websocket`,ROOBET_DATADOG_SAMPLE_RATE:`1`,ROOBET_THRILLTECH_JA
+roobet.com/`,ROOBET_CRASH_WS_URL:`wss://crash-gs.roobet.com/socket.io/?EIO=3&transport=websocket`,ROOBET_DATADOG_SAMPLE_RATE:`1`,ROOBET_THRILLTECH_JA
+roobet.com/`,ROOBET_CRASH_WS_URL:`wss://crash-gs.roobet.com/socket.io/?EIO=3&transport=websocket`,ROOBET_DATADOG_SAMPLE_RATE:`1`,ROOBET_THRILLTECH_JA
+roobet.com/`,ROOBET_CRASH_WS_URL:`wss://crash-gs.roobet.com/socket.io/?EIO=3&transport=websocket`,ROOBET_DATADOG_SAMPLE_RATE:`1`,ROOBET_THRILLTECH_JA
+[0m
+`/_api/socket.io` — a new literal not in the known 6-route set. Pulling context and scanning for socket.io and API base config.
+Major find: the bundle config sets `SOCKETIO_PATH=/ _api/socket.io` and `GQL_SOCKET_BASE_URL=wss://roobet.com/_api` — the main-site socket.io + GraphQL-over-socket run on roobet.com (NOT on the bot-gated api.roobet.com). This was never probed. Testing socket.io long-polling handshake (read-only GET) on the low-gate host.
+[0m$ [0mcd /tmp/opencode && echo "=== EIO=4 polling ==="; curl -s --max-time 15 -A "Mozilla/5.0" "https://roobet.com/_api/socket.io/?EIO=4&transport=polling" -D - | head -40
+=== EIO=4 polling ===
+HTTP/2 403 
+date: Sat, 05 Sep 2026 15:32:23 GMT
+content-type: application/json
+cf-ray: a366494cbc4ba1b9-MSP
+cf-cache-status: DYNAMIC
+server: cloudflare
+set-cookie: _99fc6=ae9874114464a8c3; Path=/; HttpOnly; Secure
+strict-transport-security: max-age=31536000; includeSubDomains; preload
+speculation-rules: "/cdn-cgi/speculation"
+alt-svc: h3=":443"; ma=86400
+
+{"code":4,"message":"disallowed origin"}
+[0m
+403 with `{"code":4,"message":"disallowed origin"}` — that's engine.io **application-level** origin rejection, not Cloudflare. Live socket.io server on the low-gate host. Retrying with legit Origin header.
+[0m$ [0mcd /tmp/opencode && echo "=== with Origin https://roobet.com ==="; curl -s --max-time 15 -A "Mozilla/5.0" -H "Origin: https://roobet.com" "https://roobet.com/_api/socket.io/?EIO=4&transport=polling" -D - | head -40
+=== with Origin https://roobet.com ===
+HTTP/2 200 
+date: Sat, 05 Sep 2026 15:32:27 GMT
+content-type: text/plain; charset=UTF-8
+content-length: 115
+cf-ray: a3664967cdc5a1d1-MSP
+cf-cache-status: DYNAMIC
+server: cloudflare
+set-cookie: _99fc6=53be62ba3af9849d; Path=/; HttpOnly; Secure
+strict-transport-security: max-age=31536000; includeSubDomains; preload
+speculation-rules: "/cdn-cgi/speculation"
+alt-svc: h3=":443"; ma=86400
+
+0{"sid":"rWiaA5mg_dknUv6bAs03","upgrades":["websocket"],"pingInterval":25000,"pingTimeout":20000,"maxPayload":1000}
+[0m
+**Live engine.io handshake on roobet.com** — `0{"sid":...,"upgrades":["websocket"],...}` just needs `Origin: https://roobet.com`. This is a NEW low-gate socket endpoint never probed. Completing the socket.io connect flow (read-only, anonymous) and checking what the open namespace exposes.
+[0m$ [0mcd /tmp/opencode && SID="rWiaA5mg_dknUv6bAs03"; echo "=== POST 40 (connect namespace /) ==="; curl -s --max-time 15 -A "Mozilla/5.0" -H "Origin: https://roobet.com" -X POST -d "40" "https://roobet.com/_api/socket.io/?EIO=4&transport=polling&sid=$SID" -D - | head -20; echo; sleep 1; echo "=== GET poll (events) ==="; curl -s --max-time 15 -A "Mozilla/5.0" -H "Origin: https://roobet.com" "https://roobet.com/_api/socket.io/?EIO=4&transport=polling&sid=$SID" -D - | head -30
+=== POST 40 (connect namespace /) ===
+HTTP/2 400 
+date: Sat, 05 Sep 2026 15:32:44 GMT
+content-type: application/json
+cf-ray: a36649d0ee23ad20-MSP
+cf-cache-status: DYNAMIC
+server: cloudflare
+set-cookie: _99fc6=a237b9c3da0f7783; Path=/; HttpOnly; Secure
+strict-transport-security: max-age=31536000; includeSubDomains; preload
+alt-svc: h3=":443"; ma=86400
+
+{"code":1,"message":"Session ID unknown"}
+=== GET poll (events) ===
+HTTP/2 400 
+date: Sat, 05 Sep 2026 15:32:45 GMT
+content-type: application/json
+cf-ray: a36649d8bebca1d1-MSP
+cf-cache-status: DYNAMIC
+server: cloudflare
+set-cookie: _99fc6=6d0f26708c017888; Path=/; HttpOnly; Secure
+strict-transport-security: max-age=31536000; includeSubDomains; preload
+speculation-rules: "/cdn-cgi/speculation"
+alt-svc: h3=":443"; ma=86400
+
+{"code":1,"message":"Session ID unknown"}
+[0m
+Session bound to a cookie — retrying full flow with a cookie jar and proper content-type.
+[0m$ [0mcd /tmp/opencode && rm -f cj.txt; HDRS=(-A "Mozilla/5.0" -H "Origin: https://roobet.com" -H "Content-Type: text/plain;charset=UTF-8"); echo "=== open ==="; OPEN=$(curl -s --max-time 15 "${HDRS[@]}" -c cj.txt -b cj.txt "https://roobet.com/_api/socket.io/?EIO=4&transport=polling"); echo "$OPEN"; SID=$(echo "$OPEN" | grep -oE '"sid":"[^"]+"' | cut -d'"' -f4); echo "SID=$SID"; sleep 1; echo "=== connect ns / ==="; curl -s --max-time 15 "${HDRS[@]}" -c cj.txt -b cj.txt -X POST -d "40" "https://roobet.com/_api/socket.io/?EIO=4&transport=polling&sid=$SID" -w "\nH%{http_code}\n"; sleep 1; echo "=== poll events ==="; curl -s --max-time 15 "${HDRS[@]}" -c cj.txt -b cj.txt "https://roobet.com/_api/socket.io/?EIO=4&transport=polling&sid=$SID" -w "\nH%{http_code}\n"
+=== open ===
+0{"sid":"BX1smFQHqD64fHwcAYyC","upgrades":["websocket"],"pingInterval":25000,"pingTimeout":20000,"maxPayload":1000}
+SID=BX1smFQHqD64fHwcAYyC
+=== connect ns / ===
+ok
+H200
+=== poll events ===
+40{"sid":"mL7LxVDzQw5Cq7u5AYyE"}42["new_bet",{"_id":"6a9c36252bfce2ee2e323613","balanceType":"eth","betAmount":216.80216802,"gameIdentifier":"pragmatic:vs20swbon2500","gameName":"pragmatic","payoutValue":46.6124661243,"profit":-170.1897018957,"timestamp":"2026-09-05T15:32:53.424Z","won":true,"currency":"usd","game":{"squareImage":"https://roobet-dev-public-images-prod.s3.amazonaws.com/pragmatic:vs20swbon2500-bKETWU2kP.jpeg"},"gameNameDisplay":"Sweet Bonanza 2500","mult":0.215,"rank":12}]42["settingsUpdated",{"globalStats":{"allTimeNumBets":15308581286.742636},"banner":"","bannerLink":"","bannerLinkTitle":"","disabledApp":false,"disabledBitcoinWithdraw":false,"disabledEthereumArbitrumWithdraw":false,"disabledEthereumBaseWithdraw":false,"disabledEthereumEthereumWithdraw":false,"disabledLitecoinWithdraw":false,"disabledRippleWithdraw":false,"disabledTetherBinanceSmartChainWithdraw":false,"disabledTetherEthereumWithdraw":false,"disabledTetherSolanaWithdraw":false,"disabledTetherTronWithdraw":false,"disabledTronWithdraw":false,"disabledDogecoinWithdraw":false,"disabledFiatWithdraw":false,"disabledSolanaWithdraw":false,"disabledSuiWithdraw":false,"disabledBinanceSmartChainWithdraw":false,"disabledUSDCArbitrumWithdraw":false,"disabledUSDCBaseWithdraw":false,"disabledUSDCBinanceSmartChainWithdraw":false,"disabledUSDCEthereumWithdraw":false,"disabledUSDCSolanaWithdraw":false}]
+H200
+[0m
+Authenticated-free socket.io on roobet.com confirmed with a live anonymous event stream. Now probing for the GraphQL-over-socket namespace (`GQL_SOCKET_BASE_URL` points here) — read-only namespace discovery.
+[0m$ [0mcd /tmp/opencode && grep -hoE '.{70}graphql.{70}' chunks/*.js | grep -iE 'socket|nsp|namespace|path|connect' | head -15; echo "=== nsp refs ==="; grep -hoE '(nsp|namespace)[:=]`[^`]*`' chunks/*.js | sort -u | head; echo "=== graphql socket URL building ==="; grep -hoE '.{80}GQL_SOCKET_[A-Z_]*.{40}' chunks/*.js | head -5
+part/mixed;`;C&&w&&globalThis.__DEV__!==!1&&S.warn(53),C?T+=`boundary=graphql;subscriptionSpec=1.0,application/json`:w&&(T+=`deferSpec=20220824,app
+ry(e=>`message`in e)}function Qi(e,t){return e.length<124?e:t}var $i=`graphql-transport-ws`,Q;(function(e){e[e.InternalServerError=4500]=`InternalS
+:`))}},Aa=typeof window<`u`?new Yi(ra({url:`${be.GQL_SOCKET_BASE_URL}/graphql`,connectionParams:()=>({socketToken:xe.getState().user?.socketToken})
+=== nsp refs ===
+nsp=`/`
+=== graphql socket URL building ===
+`$1`),t])),n={...t,API_URL:``,BASE_URL:``,SOCKETIO_BASE_URL:``,SOCKETIO_PATH:``,GQL_SOCKET_BASE_URL:``,DISABLE_IMAGE_RESIZING:t.DISABLE_IMA
+URL=`${e}`,n.SOCKETIO_BASE_URL=`${r}//${a}`,n.SOCKETIO_PATH=`/_api/socket.io`,n.GQL_SOCKET_BASE_URL=`${r}//${a}/_api`,n.API_URL=`${e.protoc
+([r,JSON.stringify(i),n].join(`:`))}},Aa=typeof window<`u`?new Yi(ra({url:`${be.GQL_SOCKET_BASE_URL}/graphql`,connectionParams:()=>({socket
+[0m
+GraphQL-over-WS target is `wss://roobet.com/_api/graphql` using `graphql-transport-ws` — on the **low-gate host**, unlike the 403-gated api.roobet.com. Testing raw TLS WS upgrade (read-only).
+[0m$ [0mcd /tmp/opencode && which openssl nc ncat socat 2>/dev/null; echo "=== WS upgrade to /_api/graphql ==="; timeout 12 openssl s_client -connect roobet.com:443 -servername roobet.com -quiet 2>/dev/null <<'EOF' | head -c 600
+GET /_api/graphql HTTP/1.1
+Host: roobet.com
+Connection: Upgrade
+Upgrade: websocket
+Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==
+Sec-WebSocket-Version: 13
+Sec-WebSocket-Protocol: graphql-transport-ws
+Origin: https://roobet.com
+
+EOF
+echo; echo "=== exit done ==="
+/usr/bin/openssl
+/usr/bin/nc
+=== WS upgrade to /_api/graphql ===
+HTTP/1.1 101 Switching Protocols
+Date: Sat, 05 Sep 2026 15:33:33 GMT
+Connection: upgrade
+Upgrade: websocket
+Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=
+CF-Ray: a3664aff7b6cad20-MSP
+CF-Cache-Status: DYNAMIC
+Server: cloudflare
+Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+Sec-WebSocket-Protocol: graphql-transport-ws
+Speculation-Rules: "/cdn-cgi/speculation"
+Server-Timing: cfCacheStatus;desc="DYNAMIC"
+Server-Timing: cfEdge;dur=13,cfOrigin;dur=0,cfWorker;dur=250
+alt-svc: h3=":443"; ma=86400
+
+�#8Connection initialisation timeout
+=== exit done ===
+[0m
+`101 Switching Protocols` with `graphql-transport-ws` on the low-gate host — the WS path that api.roobet.com blocks with 403 is **open on roobet.com**. Now sending a proper `connection_init` (no socketToken) to see if anonymous GraphQL is accepted.
+[0m$ [0mcat > /tmp/opencode/gqlws.py <<'PY'
+import socket, ssl, base64, os, sys, json, struct, time
+
+def ms_frame(payload):
+    raw = payload.encode()
+    key = os.urandom(4)
+    mask = lambda d: bytes(b ^ key[i % 4] for i, b in enumerate(d))
+    hdr = b"\x81"
+    n = len(raw)
+    if n < 126:
+        hdr += bytes([0x80 | n])
+    else:
+        hdr += bytes([0x80 | 126]) + struct.pack(">H", n)
+    return hdr + key + mask(raw)
+
+def rd_frame(sock, timeout=8):
+    sock.settimeout(timeout)
+    hdr = sock.recv(2)
+    if len(hdr) < 2:
+        return None
+    opcode = hdr[0] & 0x0F
+    ln = hdr[1] & 0x7F
+    if ln == 126:
+        ln = struct.unpack(">H", sock.recv(2))[0]
+    elif ln == 127:
+        ln = struct.unpack(">Q", sock.recv(8))[0]
+    data = b""
+    while len(data) < ln:
+        chunk = sock.recv(ln - len(data))
+        if not chunk:
+            break
+        data += chunk
+    return opcode, data
+
+ctx = ssl.create_default_context()
+s = socket.create_connection(("roobet.com", 443), timeout=10)
+w = ctx.wrap_socket(s, server_hostname="roobet.com")
+key = base64.b64encode(os.urandom(16)).decode()
+req = (
+    "GET /_api/graphql HTTP/1.1\r\n"
+    "Host: roobet.com\r\n"
+    "Connection: Upgrade\r\n"
+    "Upgrade: websocket\r\n"
+    "Sec-WebSocket-Key: " + key + "\r\n"
+    "Sec-WebSocket-Version: 13\r\n"
+    "Sec-WebSocket-Protocol: graphql-transport-ws\r\n"
+    "Origin: https://roobet.com\r\n\r\n"
+)
+w.sendall(req.encode())
+resp = b""
+s.settimeout(8)
+while b"\r\n\r\n" not in resp:
+    chunk = w.recv(4096)
+    if not chunk:
+        break
+    resp += chunk
+print("HTTP:", resp.split(b"\r\n")[0].decode(errors="replace"))
+body = resp.split(b"\r\n\r\n", 1)[1]
+
+def send(msg):
+    w.sendall(ms_frame(json.dumps(msg)))
+    print(">>", json.dumps(msg)[:200])
+
+send({"type": "connection_init"})
+try:
+    op, data = rd_frame(w, 8)
+    print("<< frame opcode=%s data=%s" % (op, data[:300].decode(errors="replace")))
+except Exception as e:
+    print("<< timeout/err:", e)
+
+send({"type": "connection_init", "payload": {"socketToken": ""}})
+try:
+    op, data = rd_frame(w, 8)
+    print("<< frame2 opcode=%s data=%s" % (op, data[:300].decode(errors="replace")))
+except Exception as e:
+    print("<< timeout/err:", e)
+
+try:
+    w.sendall(b"\x88\x80" + os.urandom(4))
+except Exception:
+    pass
+w.close()
+PY
+timeout 40 python3 /tmp/opencode/gqlws.py
+Traceback (most recent call last):
+  File "/tmp/opencode/gqlws.py", line 50, in <module>
+    s.settimeout(8)
+OSError: [Errno 9] Bad file descriptor
+[0m
+[0m$ [0mcd /tmp/opencode && sed -i 's/^s.settimeout(8)$/w.settimeout(8)/' gqlws.py && timeout 40 python3 gqlws.py
+HTTP: HTTP/1.1 101 Switching Protocols
+>> {"type": "connection_init"}
+<< frame opcode=1 data={"type":"connection_ack"}
+>> {"type": "connection_init", "payload": {"socketToken": ""}}
+<< frame2 opcode=8 data=MToo many initialisation requests
+[0m
+`connection_ack` with **no socketToken** — anonymous GraphQL WS accepted. Now testing if queries/introspection are reachable anonymously.
+[0m$ [0mcat > /tmp/opencode/gqlws2.py <<'PY'
+import socket, ssl, base64, os, json, struct, time
+
+def ms_frame(payload):
+    raw = payload.encode()
+    key = os.urandom(4)
+    mask = lambda d: bytes(b ^ key[i % 4] for i, b in enumerate(d))
+    hdr = b"\x81" + bytes([0x80 | 126]) + struct.pack(">H", len(raw))
+    return hdr + key + mask(raw)
+
+def rd_frame(sock, timeout=10):
+    sock.settimeout(timeout)
+    hdr = sock.recv(2)
+    if len(hdr) < 2:
+        return None
+    opcode = hdr[0] & 0x0F
+    ln = hdr[1] & 0x7F
+    if ln == 126:
+        ln = struct.unpack(">H", sock.recv(2))[0]
+    elif ln == 127:
+        ln = struct.unpack(">Q", sock.recv(8))[0]
+    data = b""
+    while len(data) < ln:
+        chunk = sock.recv(ln - len(data))
+        if not chunk:
+            break
+        data += chunk
+    return opcode, data
+
+ctx = ssl.create_default_context()
+s = socket.create_connection(("roobet.com", 443), timeout=10)
+w = ctx.wrap_socket(s, server_hostname="roobet.com")
+key = base64.b64encode(os.urandom(16)).decode()
+req = ("GET /_api/graphql HTTP/1.1\r\nHost: roobet.com\r\nConnection: Upgrade\r\nUpgrade: websocket\r\n"
+       "Sec-WebSocket-Key: " + key + "\r\nSec-WebSocket-Version: 13\r\n"
+       "Sec-WebSocket-Protocol: graphql-transport-ws\r\nOrigin: https://roobet.com\r\n\r\n")
+w.sendall(req.encode())
+resp = b""
+w.settimeout(8)
+while b"\r\n\r\n" not in resp:
+    chunk = w.recv(4096)
+    if not chunk: break
+    resp += chunk
+print("HTTP:", resp.split(b"\r\n")[0].decode(errors="replace"))
+
+def send(msg):
+    w.sendall(ms_frame(json.dumps(msg)))
+
+def recv():
+    try:
+        op, data = rd_frame(w, 12)
+        return op, data.decode(errors="replace") if data else b""
+    except Exception as e:
+        return None, "TMO:" + str(e)
+
+send({"type": "connection_init"})
+op, ack = recv(); print("ACK:", ack[:200])
+
+def sub(qid, query):
+    send({"type": "subscribe", "id": qid, "payload": {"query": query}})
+    parts = []
+    while True:
+        op, data = recv()
+        if op is None:
+            parts.append(data); break
+        if op == 8:
+            parts.append("CLOSE:" + data[:200]); break
+        parts.append(data[:600])
+        if "next" in data and "complete" in data:
+            break
+        # stop if we got at least one next frame
+        if '"type":"next"' in data or '"type": "next"' in data:
+            break
+        if op == 9:
+            break
+    return "".join(parts)
+
+r = sub("1", "query { __typename }")
+print("TYPENAME RESULT:", r[:400])
+
+r2 = sub("2", "{ __schema { queryType { name } mutationType { name } subscriptionType { name } } }")
+print("SCHEMA HEAD:", r2[:500])
+PY
+timeout 60 python3 /tmp/opencode/gqlws2.py
+HTTP: HTTP/1.1 101 Switching Protocols
+ACK: {"type":"connection_ack"}
+TYPENAME RESULT: {"id":"1","type":"next","payload":{"data":{"__typename":"Query"}}}
+SCHEMA HEAD: {"id":"1","type":"complete"}{"id":"2","type":"next","payload":{"data":{"__schema":{"queryType":{"name":"Query"},"mutationType":{"name":"Mutation"},"subscriptionType":{"name":"Subscription"}}}}}
+[0m
+**Confirmed: anonymous GraphQL introspection with full Query/Mutation/Subscription types on the low-gate host.** Dumping the full schema (read-only) for the POC.
+[0m$ [0mcat > /tmp/opencode/gqlschem.py <<'PY'
+import socket, ssl, base64, os, json, struct, time
+
+def ms_frame(payload):
+    raw = payload.encode()
+    key = os.urandom(4)
+    mask = lambda d: bytes(b ^ key[i % 4] for i, b in enumerate(d))
+    hdr = b"\x81" + bytes([0x80 | 126]) + struct.pack(">H", len(raw))
+    return hdr + key + mask(raw)
+
+def rd_msg(sock, timeout=20):
+    # read a single logical websocket message (handling continuation)
+    sock.settimeout(timeout)
+    buf = b""
+    while True:
+        hdr = sock.recv(2)
+        if len(hdr) < 2:
+            return None
+        fin = hdr[0] & 0x80
+        opcode = hdr[0] & 0x0F
+        if opcode in (0x1, 0x0):
+            ln = hdr[1] & 0x7F
+            if ln == 126:
+                ln = struct.unpack(">H", sock.recv(2))[0]
+            elif ln == 127:
+                ln = struct.unpack(">Q", sock.recv(8))[0]
+            data = b""
+            while len(data) < ln:
+                chunk = sock.recv(ln - len(data))
+                if not chunk: break
+                data += chunk
+            buf += data
+            if fin:
+                return opcode, buf
+        else:
+            # control/other: read length and drain
+            ln = hdr[1] & 0x7F
+            if ln == 126:
+                ln = struct.unpack(">H", sock.recv(2))[0]
+            elif ln == 127:
+                ln = struct.unpack(">Q", sock.recv(8))[0]
+            drain = ln
+            while drain > 0:
+                chunk = sock.recv(drain)
+                if not chunk: break
+                drain -= len(chunk)
+            if opcode == 0x8 or opcode == 0x9:
+                return opcode, b"CLOSE"
+
+ctx = ssl.create_default_context()
+s = socket.create_connection(("roobet.com", 443), timeout=10)
+w = ctx.wrap_socket(s, server_hostname="roobet.com")
+key = base64.b64encode(os.urandom(16)).decode()
+req = ("GET /_api/graphql HTTP/1.1\r\nHost: roobet.com\r\nConnection: Upgrade\r\nUpgrade: websocket\r\n"
+       "Sec-WebSocket-Key: " + key + "\r\nSec-WebSocket-Version: 13\r\n"
+       "Sec-WebSocket-Protocol: graphql-transport-ws\r\nOrigin: https://roobet.com\r\n\r\n")
+w.sendall(req.encode())
+resp = b""
+w.settimeout(8)
+while b"\r\n\r\n" not in resp:
+    chunk = w.recv(4096)
+    if not chunk: break
+    resp += chunk
+print("HTTP:", resp.split(b"\r\n")[0].decode(errors="replace"))
+
+def send(o): w.sendall(ms_frame(json.dumps(o)))
+
+send({"type": "connection_init"})
+op, ack = rd_msg(w); print("ACK:", ack[:120])
+
+q = """{ __schema { queryType { name } mutationType { name } subscriptionType { name }
+  types { kind name description
+    fields(includeDeprecated: true) { name description args { name type { kind name ofType { kind name ofType { kind name ofType { kind name } } } } } type { kind name ofType { kind name ofType { kind name ofType { kind name } } } } }
+    inputFields { name type { kind name ofType { kind name ofType { kind name ofType { kind name } } } } }
+    enumValues { name }
+    interfaces { name }
+  } } }"""
+
+send({"type": "subscribe", "id": "s1", "payload": {"query": q}})
+out = open("/tmp/opencode/schema.json", "wb")
+bufn = 0
+while True:
+    op, data = rd_msg(w)
+    if data is None:
+        break
+    if op == 0x8:
+        print("closed by server:", data[:200]); break
+    out.write(data)
+    bufn += len(data)
+    txt = data.decode(errors="replace")
+    if '"type":"complete"' in txt:
+        print("complete frame seen")
+        # wait a moment for any extra, then break on complete id
+        pass
+    # graphql transport: complete ends; keep going until a complete frame for s1 arrives with empty payload
+    try:
+        obj = json.loads(txt)
+        if obj.get("type") == "complete" and obj.get("id") == "s1":
+            break
+    except Exception:
+        pass
+out.close()
+print("schema bytes:", bufn)
+try:
+    w.sendall(b"\x88\x80" + os.urandom(4))
+except Exception:
+    pass
+w.close()
+PY
+timeout 120 python3 /tmp/opencode/gqlschem.py; echo "---"; ls -la /tmp/opencode/schema.json
+HTTP: HTTP/1.1 101 Switching Protocols
+ACK: b'{"type":"connection_ack"}'
+complete frame seen
+schema bytes: 180888
+---
+-rw-r--r-- 1 runner runner 180888 Sep  5 15:34 /tmp/opencode/schema.json
+[0m
+[0m$ [0mcd /tmp/opencode && python3 - <<'PY'
+import json
+raw = open("schema.json").read()
+# strip WS envelope: find first { ... it may be one big message; parse as list of frames concat
+start = 0
+# messages: {"id":"s1","type":"next","payload":{...}} ... last {"id":"s1","type":"complete"}
+# find the payload object
+import re
+objs = []
+dec = json.JSONDecoder()
+i = 0
+txt = raw
+# Concatenated JSON objects — parse sequentially
+while i < len(txt):
+    while i < len(txt) and txt[i] in " \t\r\n":
+        i += 1
+    if i >= len(txt):
+        break
+    try:
+        o, j = dec.raw_decode(txt, i)
+        objs.append(o)
+        i = j
+    except Exception:
+        i += 1
+print("messages:", len(objs))
+schema = None
+for o in objs:
+    if o.get("type") == "next" and "payload" in o and "data" in o.get("payload", {}):
+        schema = o["payload"]["data"].get("__schema")
+if not schema:
+    print("no schema found"); raise SystemExit
+query = next((t["name"] for t in schema["types"] if t["name"] == schema["queryType"]["name"]), None)
+mut = next((t["name"] for t in schema["types"] if t["name"] == schema["mutationType"]["name"]), None)
+sub = next((t["name"] for t in schema["types"] if t["name"] == schema["subscriptionType"]["name"]), None)
+print("Query:", query, "Mutation:", mut, "Subscription:", sub)
+def flds(tn):
+    for t in schema["types"]:
+        if t["name"] == tn:
+            return [f["name"] for f in (t.get("fields") or [])]
+    return []
+q = flds(query); m = flds(mut); s = flds(sub)
+print("\n=== QUERY fields (%d) ===" % len(q))
+print(", ".join(q))
+print("\n=== MUTATION fields (%d) ===" % len(m))
+print(", ".join(m))
+print("\n=== SUBSCRIPTION fields (%d) ===" % len(s))
+print(", ".join(s))
+PY
+messages: 2
+Query: Query Mutation: Mutation Subscription: Subscription
+
+=== QUERY fields (28) ===
+authenticateUser, cashPaymentConfig, cashableBonusContributionConfigs, currentUser, exchangeRates, gameTags, hacksawBetLevels, legalPolicy, notifications, playerTagGet, playerTags, polymarketHistory, polymarketOpenOrders, polymarketPositions, polymarketUserPortfolio, polymarketTradingConfig, slotPotatoActive, thrillTechJackpotConfig, tpGame, tpGamesGetAll, tpGames, userPublicProfile, userSystemStatus, withdrawalNetworkFee, getSportsbookConfig, userTippingEligibility, getUserIsPrivilegedForTipping, viewerChecks
+
+=== MUTATION fields (26) ===
+addressLookup, chatLocaleUpdate, gamingTimeoutUpdate, instantRaffleCreate, liveRTPUpdate, lossLimitUpdate, depositBonusOfferSelectedUpdate, notificationMarkAsRead, playerTagCreate, polymarketOrderPlace, polymarketOrderCancel, praxisInitialize, rankUpBonusesClaim, rewardsClaim, rewardsVaultClaim, sendTip, seonSessionUpdate, specializedRewardsClaim, tpGameStartGame, gameToggleFavorite, acknowledgedBalanceConversion, userCurrencySettings, userJackpotSettings, wagerLimitUpdate, forfeitCashableBonus, depositLimitUpdate
+
+=== SUBSCRIPTION fields (7) ===
+currentUserUpdated, userSystemSettingsUpdated, polymarketOrder, polymarketOrders, polymarketPosition, polymarketPositions, kycUpdated
+[0m
+[0m$ [0mcd /tmp/opencode && python3 - <<'PY'
+import json
+raw = open("schema.json").read()
+objs = []
+dec = json.JSONDecoder(); i = 0
+while i < len(raw):
+    while i < len(raw) and raw[i] in " \t\r\n": i += 1
+    if i >= len(raw): break
+    try:
+        o, j = dec.raw_decode(raw, i); objs.append(o); i = j
+    except Exception: i += 1
+schema = None
+for o in objs:
+    if o.get("type") == "next" and "data" in o.get("payload", {}):
+        schema = o["payload"]["data"].get("__schema")
+tmap = {t["name"]: t for t in schema["types"]}
+def tt(t):
+    seen = []
+    while t:
+        seen.append(t.get("name") or t.get("kind"))
+        t = t.get("ofType")
+    return "".join(x for x in seen if x)[:120]
+def sigs(tn):
+    t = tmap[tn]
+    for f in (t.get("fields") or []):
+        args = ", ".join("%s: %s" % (a["name"], tt(a["type"])) for a in (f.get("args") or []))
+        print("  %s(%s): %s" % (f["name"], args, tt(f["type"])))
+print("=== MUTATION signatures ===")
+sigs(schema["mutationType"]["name"])
+print("=== QUERY (short) ===")
+t = tmap[schema["queryType"]["name"]]
+for f in (t.get("fields") or []):
+    args = ", ".join("%s: %s" % (a["name"], tt(a["type"])) for a in (f.get("args") or []))
+    print("  %s(%s): %s" % (f["name"], args, tt(f["type"])))
+PY
+=== MUTATION signatures ===
+  addressLookup(data: NON_NULLAddressLookupInput): AddressLookup
+  chatLocaleUpdate(data: NON_NULLChatLocaleUpdateInput): NON_NULLUserSystemSettings
+  gamingTimeoutUpdate(data: NON_NULLGamingTimeoutUpdateInput): NON_NULLGamingTimeout
+  instantRaffleCreate(data: NON_NULLInstantRaffleCreateInput): NON_NULLInstantRaffleResult
+  liveRTPUpdate(data: NON_NULLLiveRTPUpdateInput): NON_NULLUserSystemSettings
+  lossLimitUpdate(data: NON_NULLLossLimitUpdateInput): NON_NULLLossLimitWithStats
+  depositBonusOfferSelectedUpdate(data: NON_NULLDepositBonusOfferSelectedUpdateInput): NON_NULLUserSystemSettings
+  notificationMarkAsRead(): NON_NULLLISTNON_NULLNotification
+  playerTagCreate(data: NON_NULLPlayerTagCreateInput): NON_NULLPlayerTag
+  polymarketOrderPlace(input: NON_NULLPolymarketOrderPlaceInput): PolymarketOpenOrder
+  polymarketOrderCancel(orderId: NON_NULLString): Boolean
+  praxisInitialize(data: NON_NULLInitializePraxisArgs): NON_NULLInitializePraxisResult
+  rankUpBonusesClaim(): NON_NULLRewardsRankClaimResult
+  rewardsClaim(data: NON_NULLRewardsClaimInput): NON_NULLRewardsRakebackClaimAmountResultType
+  rewardsVaultClaim(): NON_NULLRewardsVaultClaimResult
+  sendTip(data: NON_NULLTipCreateInput): NON_NULLBoolean
+  seonSessionUpdate(data: NON_NULLSeonSessionInput): NON_NULLBoolean
+  specializedRewardsClaim(data: NON_NULLSpecializedRewardsClaimInput): SpecializedRewardsClaim
+  tpGameStartGame(gameIdentifier: NON_NULLGameIdentifier, mode: GameMode, gameCurrency: String, betId: String): NON_NULLTPGameStartGame
+  gameToggleFavorite(gameIdentifier: NON_NULLGameIdentifier, isFavorite: NON_NULLBoolean): GameToggleFavoritePayload
+  acknowledgedBalanceConversion(data: NON_NULLAcknowledgedBalanceConversionInput): NON_NULLUserSystemSettings
+  userCurrencySettings(data: NON_NULLUserCurrencySettingsInput): NON_NULLCurrencySettings
+  userJackpotSettings(data: NON_NULLUserJackpotSettingsInput): NON_NULLUserSystemSettings
+  wagerLimitUpdate(data: NON_NULLWagerLimitUpdateInput): NON_NULLWagerLimitWithStats
+  forfeitCashableBonus(id: NON_NULLObjectId): NON_NULLCashableBonus
+  depositLimitUpdate(data: NON_NULLDepositLimitUpdateInput): NON_NULLDepositLimitWithStats
+=== QUERY (short) ===
+  authenticateUser(): User
+  cashPaymentConfig(data: NON_NULLCashPaymentConfigQueryInput): NON_NULLLISTNON_NULLCashPaymentConfig
+  cashableBonusContributionConfigs(): NON_NULLLISTNON_NULLCashableBonusContributionConfig
+  currentUser(): User
+  exchangeRates(): ExchangeRates
+  gameTags(): NON_NULLLISTNON_NULLGameTag
+  hacksawBetLevels(gameIdentifier: NON_NULLGameIdentifier): NON_NULLLISTNON_NULLInt
+  legalPolicy(data: NON_NULLLegalPolicyInput): NON_NULLLegalPolicy
+  notifications(): NON_NULLLISTNON_NULLNotification
+  playerTagGet(data: PlayerTagGetInput): PlayerTag
+  playerTags(data: NON_NULLLISTNON_NULLString): NON_NULLLISTNON_NULLPlayerTag
+  polymarketHistory(filter: PolymarketHistoryFilterInput): NON_NULLLISTNON_NULLPolymarketHistoryItem
+  polymarketOpenOrders(filter: PolymarketOrderFilterInput): NON_NULLLISTNON_NULLPolymarketOpenOrder
+  polymarketPositions(filter: PolymarketPositionFilterInput): NON_NULLLISTNON_NULLPolymarketPosition
+  polymarketUserPortfolio(search: String): NON_NULLPolymarketUserPortfolio
+  polymarketTradingConfig(): NON_NULLPolymarketTradingConfig
+  slotPotatoActive(): SlotPotato
+  thrillTechJackpotConfig(): NON_NULLThrillTechJackpotConfig
+  tpGame(gameIdentifier: NON_NULLGameIdentifier, type: String): NON_NULLTPGame
+  tpGamesGetAll(): NON_NULLLISTTPGame
+  tpGames(limit: NON_NULLInt, page: NON_NULLInt, title: String, provider: String, orderBy: String, category: String, device: String, search: String, ascending: Boolean, samples: Int, providers: LISTNON_NULLString, tag: String): NON_NULLLISTNON_NULLTPGame
+  userPublicProfile(userId: NON_NULLUUID): UserPublicProfile
+  userSystemStatus(systemName: NON_NULLString): UserSystemStatus
+  withdrawalNetworkFee(network: NON_NULLBlockchainNetwork, token: NON_NULLCryptoToken): NON_NULLWithdrawalNetworkFee
+  getSportsbookConfig(): sportsbookConfig
+  userTippingEligibility(username: NON_NULLNonEmptyString, amount: Float, spinCount: Int, spinAmount: Float, tipType: String, balanceType: BalanceType, provider: String, gameIdentifier: String): NON_NULLBoolean
+  getUserIsPrivilegedForTipping(): NON_NULLBoolean
+  viewerChecks(): NON_NULLViewerChecks
+[0m
+Anonymous GraphQL exposes money/business-logic mutations (`sendTip`, `rewardsVaultClaim`, `polymarketOrderPlace`, `tpGameStartGame`, `addressLookup`). Extracting argument signatures (read-only schema), then a benign `currentUser` auth-state check.
+[0m$ [0mcd /tmp/opencode && python3 - <<'PY'
+import json
+raw = open("schema.json").read()
+objs=[]
+dec=json.JSONDecoder(); i=0
+while i<len(raw):
+    while i<len(raw) and raw[i] in " \t\r\n": i+=1
+    if i>=len(raw): break
+    try:
+        o,j=dec.raw_decode(raw,i); objs.append(o); i=j
+    except Exception: i+=1
+schema=None
+for o in objs:
+    if o.get("type")=="next" and "data" in o.get("payload",{}):
+        schema=o["payload"]["data"].get("__schema")
+tmap={t["name"]:t for t in schema["types"]}
+def tt(t):
+    out=[]
+    while t:
+        out.append(t.get("name") or t.get("kind")); t=t.get("ofType")
+    return "".join(x for x in out)[:100]
+for name in ["AddressLookupInput","TipCreateInput","UserPublicProfile","PolymarketOrderPlaceInput","TPGameStartGame","InitializePraxisArgs","LiveRTPUpdateInput","User"]:
+    t=tmap.get(name)
+    if not t: print(name,"-> MISSING"); continue
+    print("== %s (kind=%s) ==" % (name, t["kind"]))
+    for f in (t.get("fields") or t.get("inputFields") or []):
+        print("  %s: %s" % (f["name"], tt(f["type"])))
+    if t.get("enumValues"):
+        print("  enums:", ", ".join(e["name"] for e in t["enumValues"]))
+PY
+== AddressLookupInput (kind=INPUT_OBJECT) ==
+  search: NonEmptyString
+  country: NON_NULLNonEmptyString
+  addressId: NonEmptyString
+== TipCreateInput (kind=INPUT_OBJECT) ==
+  type: NON_NULLTipType
+  username: NON_NULLString
+  isPrivate: NON_NULLBoolean
+  balanceType: NON_NULLBalanceType
+  amount: Float
+  provider: TipProvider
+  gameIdentifier: GameIdentifier
+  spinAmount: Float
+  spinCount: Int
+  twoFactorToken: String
+== UserPublicProfile (kind=OBJECT) ==
+  id: NON_NULLUUID
+== PolymarketOrderPlaceInput (kind=INPUT_OBJECT) ==
+  tokenId: NON_NULLString
+  side: NON_NULLPolymarketOrderSide
+  quantity: NON_NULLPositiveFloat
+  conditionId: NON_NULLNonEmptyString
+== TPGameStartGame (kind=OBJECT) ==
+  url: String
+  key: String
+  token: String
+  partnerId: String
+  supportedCurrencies: LISTNON_NULLString
+== InitializePraxisArgs (kind=INPUT_OBJECT) ==
+  currency: NON_NULLDisplayCurrency
+  intent: NON_NULLPraxisCashierIntents
+== LiveRTPUpdateInput (kind=INPUT_OBJECT) ==
+  enabled: NON_NULLBoolean
+== User (kind=OBJECT) ==
+  id: NON_NULLUUID
+  email: NON_NULLString
+  name: NON_NULLString
+  nameLowercase: NON_NULLString
+  countryCode: NON_NULLString
+  staff: Boolean
+  isChatMod: NON_NULLBoolean
+  emailVerified: NON_NULLBoolean
+  locale: String
+  mustSetName: Boolean
+  hiddenTotalWithdrawn: Float
+  hiddenTotalDeposited: Float
+  hiddenTotalDeposits: Int
+  affiliateId: String
+  affiliateUnpaid: Float
+  hasCustomAffiliateCut: Boolean
+  twofactorEnabled: Boolean
+  isPromoBanned: Boolean
+  specialTipSender: Boolean
+  balances: NON_NULLUserBalances
+  lastDeposit: Date
+  lastFingerprint: Date
+  rules: NON_NULLLISTNON_NULLString
+  socketToken: NON_NULLString
+  fasttrackToken: NON_NULLString
+  jackpotToken: NON_NULLString
+  systemSettings: NON_NULLUserSystemSettings
+  security: UserSecurity
+  exchangeRates: NON_NULLFiatExchangeRates
+  mutes: NON_NULLJson
+  matchPromo: UserMatchPromo
+  user_hash: NON_NULLString
+  role: String
+  kyc: UserKyc
+  roles: NON_NULLLISTString
+  isStaff: NON_NULLBoolean
+  raffleEntries: LISTRaffleEntries
+  favoriteGames: NON_NULLLISTNON_NULLTPGame
+  recentGames: NON_NULLLISTNON_NULLTPGame
+  recentCryptoSelections: NON_NULLLISTNON_NULLRecentCryptoSelection
+  lifetimeValue: NON_NULLFloat
+  numFlaggedWithdrawals: NON_NULLInt
+  rippleDestinationTag: RippleDestinationTag
+  tronUserWallet: TronUserWallet
+  solanaUserWallet: SolanaUserWallet
+  binanceSmartChainUserWallet: BinanceSmartChainUserWallet
+  baseUserWallet: BaseUserWallet
+  arbitrumUserWallet: ArbitrumUserWallet
+  suiUserWallet: SuiUserWallet
+  wallets: UserWallets
+  createdAt: NON_NULLDate
+  rakeboost: RakeBoost
+  rewardsRanks: RewardsRank
+  rewardsStats: RewardsStats
+  rewardsVault: RewardsVault
+  rewardsRakebacks: RewardsRakeback
+  specializedRewards: SpecializedRewards
+  rewardsConfig: RetrievableRewardsConfig
+  gamingTimeout: GamingTimeout
+  wagerLimits: LISTWagerLimitWithStats
+  lossLimits: LISTLossLimitWithStats
+  depositLimits: LISTDepositLimitWithStats
+  instantRafflesHistory: InstantRaffleHistoryResult
+  cashableBonuses: LISTNON_NULLCashableBonus
+[0m
+[0m$ [0mcat > /tmp/opencode/gqlprobe.py <<'PY'
+import socket, ssl, base64, os, json, struct
+
+def ms_frame(payload):
+    raw=payload.encode(); key=os.urandom(4)
+    mask=lambda d: bytes(b ^ key[i%4] for i,b in enumerate(d))
+    hdr=b"\x81"+bytes([0x80|126])+struct.pack(">H",len(raw))
+    return hdr+key+mask(raw)
+
+def rd_msg(sock,timeout=12):
+    sock.settimeout(timeout); hdr=sock.recv(2)
+    if len(hdr)<2: return None
+    opcode=hdr[0]&0x0F; ln=hdr[1]&0x7F
+    if ln==126: ln=struct.unpack(">H",sock.recv(2))[0]
+    data=b""
+    while len(data)<ln:
+        c=sock.recv(ln-len(data))
+        if not c: break
+        data+=c
+    return opcode,data
+
+ctx=ssl.create_default_context()
+s=socket.create_connection(("roobet.com",443),timeout=10)
+w=ctx.wrap_socket(s,server_hostname="roobet.com")
+key=base64.b64encode(os.urandom(16)).decode()
+req=("GET /_api/graphql HTTP/1.1\r\nHost: roobet.com\r\nConnection: Upgrade\r\nUpgrade: websocket\r\n"
+     "Sec-WebSocket-Key: "+key+"\r\nSec-WebSocket-Version: 13\r\n"
+     "Sec-WebSocket-Protocol: graphql-transport-ws\r\nOrigin: https://roobet.com\r\n\r\n")
+w.sendall(req.encode()); resp=b""; w.settimeout(8)
+while b"\r\n\r\n" not in resp:
+    c=w.recv(4096)
+    if not c: break
+    resp+=c
+print("HTTP:",resp.split(b"\r\n")[0].decode(errors="replace"))
+def send(o): w.sendall(ms_frame(json.dumps(o)))
+def recv():
+    try:
+        op,d=rd_msg(w); return d.decode(errors="replace") if d else "..."
+    except Exception as e: return "TMO:"+str(e)
+send({"type":"connection_init"}); print("ACK:",recv()[:150])
+send({"type":"subscribe","id":"p1","payload":{"query":"query { currentUser { id email name role staff isStaff } }"}})
+print("currentUser:",recv()[:300])
+send({"type":"subscribe","id":"p2","payload":{"query":"query { userSystemStatus(systemName:\"api\") { systemName status } }"}})
+print("sysstatus:",recv()[:300])
+send({"type":"subscribe","id":"p3","payload":{"query":"query { withdrawalNetworkFee(network: ETH, token: ETH) { network token fee } }"}})
+print("withdrawFee:",recv()[:300])
+try: w.sendall(b"\x88\x80"+os.urandom(4))
+except Exception: pass
+w.close()
+PY
+timeout 60 python3 /tmp/opencode/gqlprobe.py
+HTTP: HTTP/1.1 101 Switching Protocols
+ACK: {"type":"connection_ack"}
+currentUser: {"id":"p1","type":"next","payload":{"errors":[{"message":"Unauthenticated.","locations":[{"line":1,"column":9}],"path":["currentUser"],"extensions":{"code":"NOT_AUTHENTICATED"}}],"data":{"currentUser":null}}}
+sysstatus: {"id":"p1","type":"complete"}
+withdrawFee: {"id":"p2","type":"error","payload":[{"message":"Cannot query field \"systemName\" on type \"UserSystemStatus\".","locations":[{"line":1,"column":46}]},{"message":"Cannot query field \"status\" on type \"UserSystemStatus\".","locations":[{"line":1,"column":57}]}]}
+[0m
+[0m$ [0mcd /home/runner/work/roobet-hunt/roobet-hunt && tail -5 reports/hypotheses-bigpickle.txt; echo "==="; tail -3 reports/analyst-bigpickle.log
+[FINAL] survivors ranked:
+[NEXT] HUMAN: With a valid Roobet session (sandbox only, account_creation restricted), read-only GET https://roobet.com/_api/admin/users then /stats at 1 rps; 200-with-user-list ⇒ CRITICAL vertical priv-esc → snapshot + report bugs.olivermaicher.eu; sustained 401 ⇒ role-gated, close line. Passive probing exhausted — surface unchanged, all endpoints stable.
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/*: Fresh probe re-confirms 6 live routes (settings/get 200, admin/{users,stats} 401, affiliate/get 401, auth/logout 302); surface stable, no new route/host delta.
+[LEARN] ACCEPTED OTHER @ roobet.com: All remaining high-value lines are session-gated; passive surface fully bounded, no reportable vuln reachable without live session per engagement rules.
+[RISK] roobet: 66 — Passive surface fully enumerated and re-confirmed bounded: 6 /_api/* routes; HTTP+WS bot-gates 403 on both API ports; no input reflection/fixation; 3P configs excluded. Unresolved high-value lines (admin/affiliate priv-esc, GraphQL WS) all require live session → HUMAN phase, engagement-rule constrained (no customer/auth-data exposure, account_creation restricted). No confirmed reportable vuln; ≤1 rps, GET-only, no writes.
+===
+
+STEP 7 — RISK
+[RISK] roobet: 66 — Passive surface fully enumerated and re-confirmed bounded: 6 /_api/* routes; HTTP+WS bot-gates 403 on both API ports; no input reflection/fixation; 3P configs excluded. Unresolved high-value lines (admin/affiliate priv-esc, GraphQL WS) all require live session → HUMAN phase, engagement-rule constrained (no customer/auth-data exposure, account_creation restricted). No confirmed reportable vuln; ≤1 rps, GET-only, no writes.
+[0m
+Resolver-level auth confirmed (`currentUser` → `NOT_AUTHENTICATED`), so data-plane is gated — but the anonymous transport + full schema with money mutations is the confirmed, reportable surface. Persisting the discovery to the repo and producing the analysis.
+[0m$ [0mcd /home/runner/work/roobet-hunt/roobet-hunt && cat >> leads/lead-bigpickle.md <<'EOF'
+
+## 2026-09-05 15:34 UTC — NEW low-gate socket surface discovered on roobet.com (fresh)
+[NEW] roobet.com /_api/socket.io — engine.io polling handshake LIVE (HTTP 200 `0{"sid":...,"upgrades":["websocket"]}`) with only `Origin: https://roobet.com`; anonymous connect ns `/` returns global `new_bet` stream + `settingsUpdated` broadcast. No auth, no Cloudflare WS-gate on HTTP polling. Was absent from prior surface.
+[NEW] roobet.com /_api/graphql — raw WS upgrade returns 101 Switching Protocols + `Sec-WebSocket-Protocol: graphql-transport-ws` (NOT the 403 that api.roobet.com/graphql gives). `connection_init` accepted with NO socketToken => `connection_ack`. Full `__schema` introspection succeeds anonymously: Query(28), Mutation(26), Subscription(7). Exposes money mutations (sendTip, polymarketOrderPlace/Cancel, tpGameStartGame, rewardsClaim, rewardsVaultClaim, forfeitCashableBonus), rich User object graph (email, balances, wallets, socketToken, staff flags, kyc), withdrawalNetworkFee, addressLookup, liveRTPUpdate.
+[CHANGED] Data-plane gated at resolver: `currentUser` returns `code: NOT_AUTHENTICATED`, data null — transport+introspection open anonymously, resolvers enforce auth.
+[CHANGED] Bundle strings (all 67 chunks + entry.client) confirm SOCKETIO_PATH=`/_api/socket.io`, GQL_SOCKET_BASE_URL=`wss://(host)/_api/graphql`, connectionParams.socketToken only for App normal flow. Only literal `/_api/*` HTTP routes: settings/get + socket.io.
+EOF
+cat >> inventory/roobet.md <<'EOF'
+## 2026-09-05 15:35 UTC
+- NEW roobet.com `/_api/socket.io`: engine.io polling 200 handshake w/ `Origin: https://roobet.com`; anonymous ns `/` connect -> live global new_bet feed + settingsUpdated broadcast (Express/socket.io on low-gate host, HTTP-accessible)
+- NEW roobet.com `/_api/graphql`: WS 101 + graphql-transport-ws; anonymous connection_ack + full introspection (Query 28 / Mutation 26 / Subscription 7); resolver auth gates data (currentUser => NOT_AUTHENTICATED)
+- CHANGED roobet.com surface now 8 live server routes: settings/get, tp-games/essentials, admin/users(401), admin/stats(401), affiliate/get(401), auth/logout(302), _/api/socket.io, _api/graphql
+EOF
+cp /tmp/opencode/schema.json /home/runner/work/roobet-hunt/roobet-hunt/reports/schema-introspection-roobet-2026-09-05.json && echo persisted; ls -la reports/schema-introspection-roobet-2026-09-05.json
+persisted
+-rw-r--r-- 1 runner runner 180888 Sep  5 15:36 reports/schema-introspection-roobet-2026-09-05.json
+[0m
+[0m$ [0mcd /tmp/opencode && rm -f cj2.txt; H=(-A "Mozilla/5.0" -H "Origin: https://roobet.com" -H "Content-Type: text/plain;charset=UTF-8"); OPEN=$(curl -s --max-time 12 "${H[@]}" -c cj2.txt -b cj2.txt "https://roobet.com/_api/socket.io/?EIO=4&transport=polling"); SID=$(echo "$OPEN"|grep -oE '"sid":"[^"]+"'|cut -d'"' -f4); echo "SID=$SID"; for NS in graphql admin user wallet; do resp=$(curl -s --max-time 10 "${H[@]}" -c cj2.txt -b cj2.txt -X POST -d "40/$NS," "https://roobet.com/_api/socket.io/?EIO=4&transport=polling&sid=$SID"); sleep 0.8; ev=$(curl -s --max-time 10 "${H[@]}" -c cj2.txt -b cj2.txt "https://roobet.com/_api/socket.io/?EIO=4&transport=polling&sid=$SID"); sleep 0.8; echo "ns /$NS => post:"$resp" | events:"${ev:0:160}"; done
+/bin/bash: -c: line 1: unexpected EOF while looking for matching `"'
+[0m
+Quick read-only socket.io namespace probe (connect ack vs invalid-namespace) to close the loop before finalizing.
+[0m$ [0mcd /tmp/opencode && rm -f cj2.txt && UA="Mozilla/5.0" && HC="Origin: https://roobet.com" && CT="Content-Type: text/plain;charset=UTF-8" && OPEN=$(curl -s --max-time 12 -A "$UA" -H "$HC" -H "$CT" -c cj2.txt -b cj2.txt "https://roobet.com/_api/socket.io/?EIO=4&transport=polling") && SID=$(echo "$OPEN" | grep -oE '"sid":"[^"]+"' | cut -d'"' -f4) && echo "SID=$SID" && for NS in graphql admin user wallet; do R=$(curl -s --max-time 10 -A "$UA" -H "$HC" -H "$CT" -c cj2.txt -b cj2.txt -X POST -d "40/$NS," "https://roobet.com/_api/socket.io/?EIO=4&transport=polling&sid=$SID"); sleep 0.8; E=$(curl -s --max-time 10 -A "$UA" -H "$HC" -H "$CT" -c cj2.txt -b cj2.txt "https://roobet.com/_api/socket.io/?EIO=4&transport=polling&sid=$SID"); sleep 0.8; echo "ns /$NS => post:[${R:0:60}] events:[${E:0:160}]"; done
+SID=Cv5AAs2rXQ_waypHAs9w
+ns /graphql => post:[ok] events:[44/graphql,{"message":"Invalid namespace"}]
+ns /admin => post:[ok] events:[44/admin,{"message":"Invalid namespace"}]
+ns /user => post:[ok] events:[44/user,{"message":"Invalid namespace"}]
+ns /wallet => post:[ok] events:[44/wallet,{"message":"Invalid namespace"}]
+[0m
+[0m$ [0mcd /tmp/opencode && python3 - <<'PY'
+import json
+raw=open("schema.json").read()
+objs=[]; dec=json.JSONDecoder(); i=0
+while i<len(raw):
+    while i<len(raw) and raw[i] in " \t\r\n": i+=1
+    if i>=len(raw): break
+    try:
+        o,j=dec.raw_decode(raw,i); objs.append(o); i=j
+    except Exception: i+=1
+schema=None
+for o in objs:
+    if o.get("type")=="next" and "data" in o.get("payload",{}): schema=o["payload"]["data"].get("__schema")
+tmap={t["name"]:t for t in schema["types"]}
+def tt(t):
+    out=[]
+    while t:
+        out.append(t.get("name") or t.get("kind")); t=t.get("ofType")
+    return "".join(x for x in out)[:80]
+for name in ["UserPublicProfile","UserSystemStatus","ViewerChecks","UserKyc","UserBalances","ExchangeRates"]:
+    t=tmap.get(name)
+    if not t: print(name,"MISSING"); continue
+    print("==",name,"==")
+    for f in (t.get("fields") or t.get("inputFields") or [])[:12]:
+        print("  ",f["name"],":",tt(f["type"]))
+PY
+== UserPublicProfile ==
+   id : NON_NULLUUID
+== UserSystemStatus ==
+   enabled : NON_NULLBoolean
+   requiredKycLevel : Int
+== ViewerChecks ==
+   isPrivileged : NON_NULLBoolean
+   tipping : NON_NULLViewerChecksTipping
+== UserKyc ==
+   firstName : NON_NULLString
+   lastName : NON_NULLString
+   dob : NON_NULLString
+   addressLine1 : NON_NULLString
+   addressLine2 : NON_NULLString
+   addressCity : NON_NULLString
+   addressState : NON_NULLString
+   addressPostalCode : NON_NULLString
+   levels : NON_NULLLISTNON_NULLKYCLevelData
+   kycRestrictAccount : NON_NULLBoolean
+   georestricted : NON_NULLBoolean
+   addressCountry : NON_NULLString
+== UserBalances ==
+   selectedBalanceType : NON_NULLSelectedBalance
+   cash : Float
+   eth : Float
+   ltc : Float
+   crypto : Float
+   usdc : Float
+   usdt : Float
+   xrp : Float
+   doge : Float
+   trx : Float
+   sol : Float
+   bnb : Float
+== ExchangeRates ==
+   btc : NON_NULLString
+   eth : NON_NULLString
+   ltc : NON_NULLString
+   doge : NON_NULLString
+[0m
+Namespaces other than `/` are invalid — only the global feed exists on the socket path. Let me characterize which resolvers run anonymously (read-only public-config queries) to bound the finding honestly.
+[0m$ [0mcat > /tmp/opencode/gqlchar.py <<'PY'
+import socket, ssl, base64, os, json, struct
+def ms(p):
+    raw=p.encode(); k=os.urandom(4)
+    mask=lambda d: bytes(b^k[i%4] for i,b in enumerate(d))
+    return b"\x81"+bytes([0x80|126])+struct.pack(">H",len(raw))+k+mask(raw)
+def rd(s,t=10):
+    s.settimeout(t); h=s.recv(2)
+    if len(h)<2: return None
+    op=h[0]&0xF; ln=h[1]&0x7F
+    if ln==126: ln=struct.unpack(">H",s.recv(2))[0]
+    d=b""
+    while len(d)<ln:
+        c=s.recv(ln-len(d))
+        if not c: break
+        d+=c
+    return op,d.decode(errors="replace")
+ctx=ssl.create_default_context(); raws=socket.create_connection(("roobet.com",443),timeout=10)
+w=ctx.wrap_socket(raws,server_hostname="roobet.com")
+key=base64.b64encode(os.urandom(16)).decode()
+req=("GET /_api/graphql HTTP/1.1\r\nHost: roobet.com\r\nConnection: Upgrade\r\nUpgrade: websocket\r\nSec-WebSocket-Key: "+key+"\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Protocol: graphql-transport-ws\r\nOrigin: https://roobet.com\r\n\r\n")
+w.sendall(req.encode()); resp=b""; w.settimeout(8)
+while b"\r\n\r\n" not in resp:
+    c=w.recv(4096)
+    if not c: break
+    resp+=c
+print("HTTP:",resp.split(b"\r\n")[0].decode(errors="replace"))
+def send(o): w.sendall(ms(json.dumps(o)))
+send({"type":"connection_init"}); print("ACK:",rd(w)[1][:120])
+queries = [
+ ('r1','query { exchangeRates { btc } }'),
+ ('r2','query { viewerChecks { isPrivileged } }'),
+ ('r3','query { userPublicProfile(userId: "00000000-0000-0000-0000-000000000000") { id } }'),
+ ('r4','query { withdrawalNetworkFee(network: ETH, token: ETH) { network fee } }'),
+ ('r5','query { userSystemStatus(systemName: "deposit") { enabled } }'),
+]
+for qid,q in queries:
+    send({"type":"subscribe","id":qid,"payload":{"query":q}})
+for _ in range(len(queries)):
+    print("<<",rd(w,10)[1][:260])
+try: w.sendall(b"\x88\x80"+os.urandom(4))
+except Exception: pass
+w.close()
+PY
+timeout 60 python3 /tmp/opencode/gqlchar.py
+HTTP: HTTP/1.1 101 Switching Protocols
+ACK: {"type":"connection_ack"}
+<< {"id":"r4","type":"error","payload":[{"message":"Value \"ETH\" does not exist in \"BlockchainNetwork\" enum.","locations":[{"line":1,"column":39}]},{"message":"Value \"ETH\" does not exist in \"CryptoToken\" enum. Did you mean the enum value \"eth\", \"btc\", 
+<< {"id":"r1","type":"next","payload":{"errors":[{"message":"Unauthenticated.","locations":[{"line":1,"column":9}],"path":["exchangeRates"],"extensions":{"code":"NOT_AUTHENTICATED"}}],"data":{"exchangeRates":null}}}
+<< {"id":"r2","type":"next","payload":{"errors":[{"message":"Unauthenticated.","locations":[{"line":1,"column":9}],"path":["viewerChecks"],"extensions":{"code":"NOT_AUTHENTICATED"}}],"data":null}}
+<< {"id":"r3","type":"next","payload":{"errors":[{"message":"Unauthenticated.","locations":[{"line":1,"column":9}],"path":["userPublicProfile"],"extensions":{"code":"NOT_AUTHENTICATED"}}],"data":{"userPublicProfile":null}}}
+<< {"id":"r5","type":"next","payload":{"errors":[{"message":"Unauthenticated.","locations":[{"line":1,"column":9}],"path":["userSystemStatus"],"extensions":{"code":"NOT_AUTHENTICATED"}}],"data":{"userSystemStatus":null}}}
+[0m
+[0m$ [0mcd /home/runner/work/roobet-hunt/roobet-hunt && cat > state_bigpickle.json <<'EOF'
+{"phase": "REPORT", "target": "roobet.com/_api/graphql", "confirmed": {"transport":"wss://roobet.com/_api/graphql anon connection_ack","introspection":"full schema Query28/Mut26/Sub7 saved","dataplane":"resolvers NOT_AUTHENTICATED"}}
+EOF
+echo done
+done
+[0m
+STEP 1 — DELTA
+[NEW] roobet.com/_api/socket.io — anonymous engine.io polling handshake (only `Origin: https://roobet.com`) + default-namespace CONNECT pushes live global `new_bet` feed and `settingsUpdated` broadcast; plain HTTPS, no Cloudflare WS-gate, no auth. Absent from prior 6-route set.
+[NEW] roobet.com/_api/graphql — raw TLS WS upgrade returns 101 Switching Protocols + `Sec-WebSocket-Protocol: graphql-transport-ws` (contradicts the "GraphQL 403-only" KB line, which applies only to api.roobet.com); `connection_init` with NO socketToken returns `connection_ack`; full `__schema` introspection succeeds anonymously (Query 28 / Mutation 26 / Subscription 7).
+[CHANGED] Prior "passive surface fully bounded at 6 live `_api/*` routes" conclusion superseded — 2 new live routes, surface now ≥8. Bundle (all 67 chunks) shows only `_api/settings/get` + `_api/socket.io` HTTP literals; socket and GraphQL run on the low-gate host, not the 403-gated api.roobet.com.
+
+STEP 2 — PRIORITIZE
+[PRIO] roobet.com/_api/graphql, 7.3, attack_surface=6 (WS anon, introspectable, low-gate), business_value=9 (money mutations, User KYC/PII graph, wallet/token fields), tech_exposure=10 (GraphQL introspection + mutation + subscription), gate_ease=5 (transport open, resolvers auth), cloud_surface=3, freshness=10
+[PRIO] roobet.com/_api/admin/users, 7.2, attack_surface=6 (live 401 low-gate), business_value=8 (admin functions), tech_exposure=5 (Express session auth), gate_ease=4 (auth-gated, reachable), cloud_surface=2, freshness=10
+[PRIO] roobet.com/_api/socket.io, 6.7, attack_surface=7 (realtime anon feed), business_value=6 (global bet + settings broadcast), tech_exposure=6 (socket.io ns), gate_ease=8 (single Origin header), cloud_surface=3, freshness=10
+
+STEP 3 — HYPOTHESES
+[HYP] Anonymous GraphQL WS transport + full schema introspection on low-gate host
+class: AUTH
+asset: roobet.com/_api/graphql
+confidence: 90
+reasoning: Raw WS upgrade → 101 + `graphql-transport-ws`; `connection_init` (no socketToken) → `{"type":"connection_ack"}`; full `__schema` returns queryType Query / mutationType Mutation / subscriptionType Subscription. Schema exposed includes money mutations (sendTip, polymarketOrderPlace/Cancel, tpGameStartGame, rewardsClaim, rewardsVaultClaim, forfeitCashableBonus), admin-adjacent (liveRTPUpdate, userSystemSettings), User object graph with email/balances/wallets/socketToken/staff flags + UserKyc (firstName/lastName/dob/address). Data-plane resolvers individually return `code: NOT_AUTHENTICATED` (currentUser, exchangeRates, viewerChecks, userPublicProfile, userSystemStatus), and enum validation runs before auth (e.g. `BlockchainNetwork` enum error on r4).
+evidence_needed: Repro captured: 101 handshake, connection_ack, 180KB introspection dump saved to reports/schema-introspection-roobet-2026-09-05.json; resolver NOT_AUTHENTICATED errors on 5 sample queries.
+verify_steps: PASSIVE repro — `openssl s_client -connect roobet.com:443 -servername roobet.com` → `GET /_api/graphql HTTP/1.1` with `Upgrade: websocket`, `Sec-WebSocket-Protocol: graphql-transport-ws`, `Origin: https://roobet.com` → 101; send masked text frame `{"type":"connection_init"}` → connection_ack; send `{"type":"subscribe","id":"1","payload":{"query":"{__schema{types{name}}}"}}` → full schema. Read-only.
+impact: Pre-auth disclosure of complete GraphQL surface incl. money/admin mutation names and User PII/KYC schema; gives remote (non-browser) attack channel that bypasses the api.roobet.com Cloudflare 403 gate; chains into HIGH when combined with any session. Standalone severity: MEDIUM.
+testability: PASSIVE
+[HYP] Per-resolver auth asymmetry — input validation/partial execution before auth on mutations
+class: AUTH
+asset: roobet.com/_api/graphql (money mutations)
+confidence: 33
+reasoning: r4 probe showed enum coercion/validation runs before the NOT_AUTHENTICATED gate; if any mutation resolves args then effects before auth (or returns object-existence errors pre-auth), an anonymous oracle for bonus/wallet IDs exists and some mutations could partially execute without a session.
+evidence_needed: Anonymous mutation attempt returning a non-NOT_AUTHENTICATED error (e.g. validation/not-found) proving pre-auth processing.
+verify_steps: Session-bound (sandbox only): `forfeitCashableBonus(id:"000000000000000000000000")` and `polymarketOrderCancel(orderId: ...)` observing error ordering; invalid/zero ObjectId only, no state change. Read-only-intent oracle.
+impact: Authorization bypass on tip/rewards/bonus ops ⇒ HIGH.
+testability: AUTH_HELPED
+[HYP] Admin vertical priv-esc via normal user session on low-gate admin routes
+class: AUTH
+asset: roobet.com/_api/admin/users
+confidence: 55
+reasoning: admin/users + admin/stats live (401) on low-gate surface, Express connect.sid session auth; role check unverifiable without session; now reachable via the newly confirmed anonymous GraphQL channel once a session exists.
+evidence_needed: 200 JSON from /_api/admin/users with normal-user session.
+verify_steps: HUMAN: sandbox test account only; capture connect.sid; GET /_api/admin/users then /stats at 1 rps. 200-with-user-list ⇒ CRITICAL. Sustained 401 ⇒ role-gated, close.
+impact: Admin user listing (PII) + platform stats ⇒ HIGH.
+testability: AUTH_HELPED
+
+STEP 4 — SELF-CRITIQUE
+[PARKED] Per-resolver auth asymmetry: confidence 33 < 40; mutation execution violates read-only rules; needs session.
+[PARKED] Affiliate /_api/affiliate/get IDOR: unchanged, session-gated, conf 45 < actionable now.
+[PARKED] GraphQL-over-WS api.roobet.com gap: superseded — the WS surface is open on roobet.com/_api/data-path, not api.roobet.com.
+[FINAL] survivors ranked:
+1) [90] roobet.com/_api/graphql anonymous transport+introspection — CONFIRMED, reportable, passive-proven.
+2) [55] roobet.com/_api/admin/users priv-esc — session-gated, retained for HUMAN.
+3) [45] roobet.com/_api/affiliate/get IDOR — session-gated, retained for HUMAN.
+
+STEP 5 — NEXT ACTION
+[NEXT] HUMAN: Submit the confirmed finding to bugs.olivermaicher.eu — anonymous GraphQL WebSocket transport + full introspection at `wss://roobet.com/_api/graphql` (101 + connection_ack with no socketToken; schema: Query 28/Mutation 26/Subscription 7; data-plane resolvers NOT_AUTHENTICATED) with repro handshake, saved introspection dump (reports/schema-introspection-roobet-2026-09-05.json), and impact framing (pre-auth schema disclosure of money/admin mutations + User KYC/PII graph; attack channel bypassing the api.roobet.com 403 gate). Optional follow-up: sandbox account REST reads of /_api/admin/users + /stats at 1 rps to test vertical priv-esc.
+
+STEP 6 — LEARNING
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql: anonymous graphql-transport-ws (101 + connection_ack, no socketToken) + full introspection (Query28/Mut26/Sub7) — supersedes the api.roobet.com-403-only prior assessment; new low-gate attack channel.
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/socket.io: engine.io polling 200 handshake + anonymous ns `/` broadcast (new_bet, settingsUpdated, withdraw flags) — new realtime surface; graphql/admin/user/wallet namespaces all return Invalid namespace.
+[LEARN] REJECTED OTHER @ roobet.com/_api/graphql data-plane: exchangeRates/viewerChecks/userPublicProfile/userSystemStatus all return NOT_AUTHENTICATED anonymously — resolver auth enforced, no anonymous data leak.
+[LEARN] ACCEPTED OTHER @ roobet.com bundle: SOCKETIO_PATH=`/_api/socket.io`, GQL_SOCKET_BASE_URL=`wss://roobet.com/_api/graphql`, connectionParams.socketToken — client-side topology confirmed; only HTTP literals settings/get + socket.io.
+
+STEP 7 — RISK
+[RISK] roobet: 55 — Confirmed pre-auth finding (anonymous GraphQL WS transport + full introspection on roobet.com/_api/graphql) now reportable; severity bounded by resolver-level auth (data-plane protected, no PII exfil). Remaining high-value lines (admin/affiliate priv-esc) still session-gated → HUMAN phase. Engagement rules respected: read-only GET/protocol handshake, no mutation execution, no customer-data reads beyond public broadcast feed, ≤1 rps.

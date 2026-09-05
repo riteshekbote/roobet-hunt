@@ -1,11 +1,9 @@
-## 2026-09-05 12:18:01 UTC [target] (model nemotron3)
-[PRIO] roobet.com/_api/admin/users,8.15,attack_surface=9,business_value=9,tech_exposure=8,gate_ease=9,cloud_surface=6,freshness=10  
-[PRIO] roobet.com/_api/admin/stats,8.15,attack_surface=9,business_value=9,tech_exposure=8,gate_ease=9,cloud_surface=6,freshness=10  
-[PRIO] roobet.com/_api/affiliate/get,7.30,attack_surface=8,business_value=8,tech_exposure=7,gate_ease=9,cloud_surface=6,freshness=10  
-[PRIO] roobet.com/_api/settings/get,6.85,attack_surface=7,business_value=6,tech_exposure=8,gate_ease=9,cloud_surface=6,freshness=10  
-[PRIO] crash-gs.roobet.com/socket.io,6.40,attack_surface=7,business_value=7,tech_exposure=8,gate_ease=3,cloud_surface=7,freshness=9  
-[PRIO] roobet.com/pusher/auth,5.80,attack_surface=6,business_value=7,tech_exposure=7,gate_ease=4,cloud_surface=6,freshness=9  
-[PRIO] api.roobet.com/graphql,6.10,attack_surface=9,business_value=9,tech_exposure=9,gate_ease=2,cloud_surface=8,freshness=8  
+## 2026-09-05 15:24:40 UTC [target] (model nemotron3)
+[PRIO] roobet.com/_api/admin/users,8.65,attack_surface=9,business_value=9,tech_exposure=8,gate_ease=9,cloud_surface=6,freshness=10  
+[PRIO] roobet.com/_api/admin/stats,8.65,attack_surface=9,business_value=9,tech_exposure=8,gate_ease=9,cloud_surface=6,freshness=10  
+[PRIO] roobet.com/_api/affiliate/get,8.00,attack_surface=8,business_value=8,tech_exposure=7,gate_ease=9,cloud_surface=6,freshness=10  
+[PRIO] crash-gs.roobet.com/socket.io,6.75,attack_surface=7,business_value=7,tech_exposure=8,gate_ease=3,cloud_surface=7,freshness=9  
+[PRIO] roobet.com/pusher/auth,6.10,attack_surface=6,business_value=7,tech_exposure=7,gate_ease=4,cloud_surface=6,freshness=9  
 [HYP] Admin API Privilege Escalation via Low-Gate _api/* Routes
 class: AUTH
 asset: roobet.com/_api/admin/users
