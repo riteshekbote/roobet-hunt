@@ -1,4 +1,4 @@
-## 2026-09-05 15:39:30 UTC [target] (model bigpickle)
+## 2026-09-05 17:38:25 UTC [target] (model bigpickle)
 [FINAL] survivors ranked:
 [NEXT] HUMAN: With a valid Roobet session (sandbox only, account_creation restricted), read-only GET https://roobet.com/_api/admin/users then /stats at 1 rps; 200-with-user-list ⇒ CRITICAL vertical priv-esc → snapshot + report bugs.olivermaicher.eu; sustained 401 ⇒ role-gated, close line. Passive probing exhausted — surface unchanged, all endpoints stable.
 [LEARN] ACCEPTED OTHER @ roobet.com/_api/*: Fresh probe re-confirms 6 live routes (settings/get 200, admin/{users,stats} 401, affiliate/get 401, auth/logout 302); surface stable, no new route/host delta.

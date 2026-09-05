@@ -112,3 +112,6 @@
 - 2026-09-05 ACCEPTED OTHER @ roobet.com/_api/socket.io: engine.io polling 200 handshake + anonymous ns `/` broadcast (new_bet, settingsUpdated, withdraw flags) — new realtime surface; graphql/admin/user/wallet namespaces all return Invalid namespace.
 - 2026-09-05 REJECTED OTHER @ roobet.com/_api/graphql data-plane: exchangeRates/viewerChecks/userPublicProfile/userSystemStatus all return NOT_AUTHENTICATED anonymously — resolver auth enforced, no anonymous data leak.
 - 2026-09-05 ACCEPTED OTHER @ roobet.com bundle: SOCKETIO_PATH=`/_api/socket.io`, GQL_SOCKET_BASE_URL=`wss://roobet.com/_api/graphql`, connectionParams.socketToken — client-side topology confirmed; only HTTP literals settings/get + socket.io.
+- 2026-09-05 ACCEPTED OTHER @ roobet.com/_api/graphql: anonymous graphql-transport-ws (101 + connection_ack, no socketToken) + full introspection (Query28/Mut26/Sub7) — supersedes api.roobet.com 403-only assessment; new low-gate attack channel
+- 2026-09-05 ACCEPTED OTHER @ roobet.com/_api/socket.io: engine.io polling 200 handshake + anonymous ns `/` broadcast (new_bet, settingsUpdated, withdraw flags) — new realtime surface; graphql/admin/user/wallet namespaces return Invalid namespace
+- 2026-09-05 ACCEPTED OTHER @ roobet.com/_api/*: enumeration updated — 6 HTTP routes + 2 WS routes confirmed; surface small but expanded
