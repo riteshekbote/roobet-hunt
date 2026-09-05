@@ -223,3 +223,15 @@ www.roobet.com
 - CHANGED _api/settings/get reflection tests: all negative — no session fixation or cross-user data reflection vector
 - CHANGED api.roobet.com GraphQL: remains 403 bot-gated even with Origin/Referer; WS ports 8087/8088 TCP-refused at edge
 - CHANGED auth.roobet.com/account.roobet.com/admin.roobet.com + 14 others: confirmed non-resolving/internal
+
+## 2026-09-05 04:41:45 UTC
+- NEW roobet.com/_api/admin/users: 401 confirmed (low-gate admin endpoint, not behind Cloudflare bot-gate)
+- NEW roobet.com/_api/admin/stats: 401 confirmed (low-gate admin endpoint)
+- NEW roobet.com/_api/affiliate/get: 401 confirmed; parameter tests (?user_id, ?affiliate_code) return 401 not 404
+- NEW roobet.com/_api/auth/logout: 302 reveals Express.js session cookies (connect.sid HttpOnly + userId non-HttpOnly + twofactorRequired)
+- NEW roobet.com/_api/settings/get: input reflection NEGATIVE — XFF, ?sessionId, Referer, Cookie:sessionId all inert
+- NEW api.roobet.com GraphQL: remains 403 bot-gated on POST and GET; WS upgrade on 443/8443 returns HTTP 403
+- NEW crash-gs.roobet.com: TLS WS upgrade to /socket.io stays open (no 4xx) then app-layer timeout = live Socket.IO server
+- NEW roobet.com/pusher/auth + /pusher/user-auth: POST→405 (live route), GET→200 SPA shell; POST-only auth endpoints
+- CHANGED roobet.com/_api/* surface: full enumeration complete — 40 candidates tested, exactly 6 live routes (settings/get 200, tp-games/essentials 200, admin/users 401, admin/stats 401, affiliate/get 401, auth
+- CHANGED auth.roobet.com/account.roobet.com/admin.roobet.com/billing.roobet.com/dashboard.roobet.com/sso.roobet.com + others: confirmed non-resolving/internal (000/timeout)

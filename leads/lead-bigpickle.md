@@ -930,3 +930,31 @@ testability: AUTH_HELPED
 [LEARN] ACCEPTED OTHER @ roobet.com /pusher/auth + /pusher/user-auth: POST⇒405 (live), GET⇒200 SPA shell; session + exact body required.
 [LEARN] ACCEPTED OTHER @ api.roobet.com bundle: no new Roobet-owned subdomains/routes; FastTrack config is 3P (out of scope).
 [RISK] roobet: 66 — Passive surface fully enumerated and bounded: 6 `_api/*` routes; HTTP+WS bot-gates 403 on both API ports; no input reflection/fixation; 3P configs excluded. Unresolved high-value lines (admin/affiliate priv-esc, GraphQL WS) all require a live session → HUMAN phase, engagement-rule constrained (no customer/auth-data exposure, account_creation restricted). No confirmed reportable vuln; ≤1 rps, GET-only, no writes.
+## 2026-09-05 04:40:41 UTC [target] (model bigpickle)
+[HYP] Admin API privilege escalation via normal user session
+class: AUTH
+asset: roobet.com/_api/admin/users
+confidence: 55
+reasoning: `_api/admin/*` return 401 (not 404) on low-gate roobet.com outside Cloudflare bot-gate; Express `connect.sid` session auth revealed via logout 302; route-level admin role check unverifiable passively. Surface exactly 6 routes after ~45 candidates.
+evidence_needed: 200 JSON from `_api/admin/users` with a normal-user `connect.sid` vs 401 unauth.
+verify_steps: HUMAN: sign up on sandbox/test only (account_creation restricted) → DevTools-capture `connect.sid` → `curl -b 'connect.sid=<v>' https://roobet.com/_api/admin/users` then `/stats` (read-only GET, 1 rps). 200-with-data ⇒ CRITICAL vertical priv-esc; sustained 401 ⇒ role-gated, close.
+impact: Admin user listing (PII) + platform stats ⇒ HIGH.
+testability: AUTH_HELPED
+[HYP] Affiliate data IDOR via user reference params
+class: IDOR
+asset: roobet.com/_api/affiliate/get
+confidence: 45
+reasoning: Live `/get` route, 401 unauth; `?user_id=`/`?affiliate_code=` return identical 401 (auth short-circuits before param handling); cross-identity response only observable with a session.
+evidence_needed: 200 bodies differing across `?user_id=` values with a valid session.
+verify_steps: HUMAN: session → baseline GET → `?user_id=<mine>` → `?user_id=<other>`; diff bodies. Read-only.
+impact: Cross-user referral/revenue data ⇒ MEDIUM-HIGH.
+testability: AUTH_HELPED
+[HYP] GraphQL-over-WS bot-gate gap / introspection
+class: AUTH
+asset: api.roobet.com wss/graphql
+confidence: 40
+reasoning: WS upgrade proven 403 from Cloudflare edge on 443 AND 8443; ports 8087/8088 TCP-refused; only a Turnstile-passing browser session distinguishes edge-gate vs app-layer 401.
+evidence_needed: 101 Upgrade + GraphQL introspection/welcome payload from a real browser session.
+verify_steps: HUMAN: browser DevTools → open App → capture WS frames on `wss://api.roobet.com/graphql`; send introspection query. Read-only.
+impact: Full GraphQL schema/mutation surface ⇒ HIGH.
+testability: AUTH_HELPED
