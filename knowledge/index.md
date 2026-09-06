@@ -178,3 +178,8 @@
 - 2026-09-06 ACCEPTED OTHER @ roobet.com auth/logout: Auth mechanism revealed — Express.js session cookies (connect.sid HttpOnly + userId non-HttpOnly + twofactorRequired). Standard session-based auth; no bypass without valid session
 - 2026-09-06 REJECTED MISCONFIG @ fs.roobet.com: GCS bucket ?list-type=2 redirects to fullstory.com; no object enumeration possible
 - 2026-09-06 ACCEPTED MISCONFIG @ roobet.com: Remix catch-all route masks potential API endpoints under /api/* paths
+- 2026-09-06 ACCEPTED OTHER @ roobet.com/_api/graphql HTTP GET: Apollo GET transport enabled — CSRF gate bypassable via x-apollo-operation-name header; same attack surface as POST but cacheable URL creates proxy/referrer leakage advantages. Low standalone severity.
+- 2026-09-06 ACCEPTED OTHER @ roobet.com/_api/graphql HTTP POST: mutation liveRTPUpdate → 200 "No user with that id" + INTERNAL_SERVER_ERROR — resolver executes pre-auth on HTTP channel. Earlier "400" observation was a no-body GET artifact.
+- 2026-09-06 ACCEPTED OTHER @ roobet.com/_api/graphql HTTP __type: INTROSPECTION_DISABLED on HTTP channel — `__type(name:"User")` blocked; only WS provides full introspection.
+- 2026-09-06 REJECTED OTHER @ roobet.com/_api/graphql HTTP GET __type with introspection: INTROSPECTION_DISABLED server-side; no partial type introspection via HTTP.
+- 2026-09-06 ACCEPTED OTHER @ roobet.com/_api/*: zero surface delta on HTTP routes (6 live + 2 WS); remaining hypotheses session-gated.

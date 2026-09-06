@@ -1,5 +1,4 @@
-## 2026-09-06 21:44:27 UTC [target] (model nemotron3)
-[PRIO] roobet.com/_api/graphql,8.65,attack_surface=9,business_value=9,tech_exposure=10,gate_ease=10,cloud_surface=8,freshness=9  
+## 2026-09-06 23:39:27 UTC [target] (model nemotron3)
 [PRIO] roobet.com/_api/admin/users,7.10,attack_surface=7,business_value=8,tech_exposure=7,gate_ease=5,cloud_surface=6,freshness=8  
 [PRIO] roobet.com/_api/affiliate/get,6.55,attack_surface=6,business_value=7,tech_exposure=6,gate_ease=5,cloud_surface=5,freshness=8  
 [PRIO] roobet.com/_api/socket.io,6.20,attack_surface=6,business_value=5,tech_exposure=8,gate_ease=10,cloud_surface=5,freshness=8  
@@ -10,6 +9,24 @@ class: OTHER
 asset: roobet.com/_api/graphql  
 confidence: 95  
 reasoning: Anonymous graphql-transport-ws upgrade (101 + connection_ack, no socketToken) + full introspection (Query 28/Mut 26/Sub 7) confirmed. All 26 mutations pass GraphQL validation layer anonymously, returning detailed validation errors that leak exact InputType shapes, required fields, enum values, custom scalar formats. Subscriptions kycUpdated + polymarketOrders return internal JS error `Cannot read properties of null (reading 'user')` confirming resolver accesses session user directly. User type exposes 64 fields incl. KYC PII, financials, auth tokens, role flags. HTTP POST now returns 400 (new channel).  
+evidence_needed: Catalog of mutation validation error responses showing InputType schemas; confirmation that validation errors differ from NOT_AUTHENTICATED resolver errors (proves pre-resolver validation reachability)  
+verify_steps: WS connect wss://roobet.com/_api/graphql (Sec-WebSocket-Protocol: graphql-transport-ws) → send {"type":"connection_init","payload":{}} → send {"type":"start","id":"1","payload":{"query":"mutation { placeBet(input:{}) }"}} → capture validation error structure; repeat for forfeitCashableBonus(id:"000000000000000000000000") and claimBonus(input:{}) to catalog InputType disclosure across mutation surface. Single connection, read-only, 1 rps.  
+impact: Full mutation input schema mapping for targeted IDOR/BOLA/privilege escalation testing; validation error disclosure reduces blind guessing for session-assisted attacks; User type PII/financial/token exposure elevates impact if session compromise achieved. Severity: MEDIUM (pre-auth schema disclosure) → HIGH if any mutation lacks resolver auth guard.  
+testability: PASSIVE  
+[HYP] Admin API Privilege Escalation via Low-Gate _api/admin/* Routes  
+class: AUTH  
+asset: roobet.com/_api/admin/users
+[PRIO] roobet.com/_api/graphql,8.95,attack_surface=9,business_value=8,tech_exposure=9,gate_ease=10,cloud_surface=7,freshness=9  
+[PRIO] roobet.com/_api/admin/users,7.10,attack_surface=7,business_value=8,tech_exposure=7,gate_ease=5,cloud_surface=6,freshness=8  
+[PRIO] roobet.com/_api/affiliate/get,6.55,attack_surface=6,business_value=7,tech_exposure=6,gate_ease=5,cloud_surface=5,freshness=8  
+[PRIO] roobet.com/_api/socket.io,6.20,attack_surface=6,business_value=5,tech_exposure=8,gate_ease=10,cloud_surface=5,freshness=8  
+[PRIO] crash-gs.roobet.com/socket.io,5.95,attack_surface=7,business_value=7,tech_exposure=8,gate_ease=3,cloud_surface=7,freshness=7  
+[PRIO] roobet.com/_api/settings/get,5.60,attack_surface=5,business_value=4,tech_exposure=5,gate_ease=10,cloud_surface=4,freshness=8  
+[HYP] Anonymous GraphQL Mutation Input Validation Disclosure on Low-Gate _api/graphql  
+class: OTHER  
+asset: roobet.com/_api/graphql  
+confidence: 95  
+reasoning: Anonymous graphql-transport-ws upgrade (101 + connection_ack, no socketToken) + full introspection (Query 28/Mut 26/Sub 7) confirmed stable across 5 runs. All 26 mutations pass GraphQL validation layer anonymously, returning detailed validation errors leaking exact InputType shapes, required fields, enum values, custom scalar formats. Subscriptions kycUpdated + polymarketOrders return JS error `Cannot read properties of null (reading 'user')` confirming resolver accesses session user directly. User type exposes 64 fields incl. KYC PII (firstName/lastName/dob/address/phone), financials (balances/withdrawn/deposited/lifetimeValue), auth tokens (socketToken/fasttrackToken/jackpotToken), role flags (staff/isChatMod/isStaff). HTTP POST now returns 400 (new channel).  
 evidence_needed: Catalog of mutation validation error responses showing InputType schemas; confirmation that validation errors differ from NOT_AUTHENTICATED resolver errors (proves pre-resolver validation reachability)  
 verify_steps: WS connect wss://roobet.com/_api/graphql (Sec-WebSocket-Protocol: graphql-transport-ws) → send {"type":"connection_init","payload":{}} → send {"type":"start","id":"1","payload":{"query":"mutation { placeBet(input:{}) }"}} → capture validation error structure; repeat for forfeitCashableBonus(id:"000000000000000000000000") and claimBonus(input:{}) to catalog InputType disclosure across mutation surface. Single connection, read-only, 1 rps.  
 impact: Full mutation input schema mapping for targeted IDOR/BOLA/privilege escalation testing; validation error disclosure reduces blind guessing for session-assisted attacks; User type PII/financial/token exposure elevates impact if session compromise achieved. Severity: MEDIUM (pre-auth schema disclosure) → HIGH if any mutation lacks resolver auth guard.  

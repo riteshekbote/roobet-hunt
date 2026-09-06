@@ -350,3 +350,5 @@ www.roobet.com
 - CHANGED `roobet.com/_api/graphql` anonymous `graphql-transport-ws` (101 + `connection_ack`, no `socketToken`) + full introspection (Query 28/Mut 26/Sub 7) + mutation validation error disclosure + subscription
 
 ## 2026-09-06 21:44:35 UTC
+
+## 2026-09-06 23:39:52 UTC
