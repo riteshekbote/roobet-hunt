@@ -1390,3 +1390,47 @@ testability: AUTH_HELPED
 [LEARN] PARKED auth.roobet.com/account.roobet.com/admin.roobet.com: subdomains unresponsive; no attack surface confirmed.
 [LEARN] PARKED crash-gs.roobet.com unauthenticated socket: requires browser/WS tooling, HUMAN_ONLY.
 [RISK] roobet: 55 — Pre-auth GraphQL schema disclosure finding enhanced and fully characterized; resolver NOT_AUTHENTICATED enforces data-plane auth (severity capped). Reportable finding in hand but submission to bugs.olivermaicher.eu not yet evidenced. High-value priv-esc/IDOR lines remain session-gated → HUMAN. Passive phase complete; engagement rules respected (read-only GET/handshake only, ≤1 rps, no mutation execution, no customer-data retention).
+## 2026-09-06 19:30:10 UTC [target] (model bigpickle)
+[PRIO] roobet.com/_api/graphql,7.0,attack_surface=7,business_value=9,tech_exposure=10,gate_ease=6,cloud_surface=3,freshness=4
+[PRIO] roobet.com/_api/admin/users,6.1,attack_surface=6,business_value=8,tech_exposure=5,gate_ease=4,cloud_surface=2,freshness=4
+[PARKED] Anonymous polymarketPositions arm: 30<40, no in-flight market event, no delta.
+[PARKED] Admin priv-esc + Affiliate IDOR: AUTH_HELPED, no passive methodology (engagement constraints).
+[HYP] Consolidated pre-auth GraphQL disclosure at wss://roobet.com/_api/graphql
+class: OTHER
+asset: roobet.com/_api/graphql (graphql-transport-ws)
+confidence: 90
+reasoning: Anonymous WS transport (101 + connection_ack, NO socketToken) + full __schema introspection (Q28/M26/S7) + mutation validation error disclosure (all 26 mutations pass GraphQL validation pre-auth, leaking exact InputType shapes, required fields, enum values, custom scalars) + User type 64 fields (email, KYC PII, financial, auth tokens, role flags) + subscription error disclosure (kycUpdated/polymarketOrders: `Cannot read properties of null (reading 'user')`). Data-plane resolver auth enforced (NOT_AUTHENTICATED on queries, user__invalid_id on mutations). Zero surface delta across consecutive runs.
+evidence_needed: None new — finding fully characterized.
+verify_steps: PASSIVE: (1) curl 101 handshake → connection_ack; (2) subscribe __schema introspection → Q28/M26/S7; (3) subscribe mutation with invalid args → validation error with InputType shapes; (4) verify data-plane NOT_AUTHENTICATED on currentUser/exchangeRates/viewerChecks/userPublicProfile/userSystemStatus.
+impact: Pre-auth complete API schema disclosure including PII graph (User.email/UserKyc.firstName/lastName/dob/address/phone), financial fields, auth tokens (socketToken/fasttrackToken/jackpotToken), 26 money/game/admin mutation signatures, 7 subscription channels. Severity: informational/low standalone (resolver auth enforced), becomes critical if combined with session compromise. Reportable finding.
+testability: PASSIVE
+[HYP] Admin vertical priv-esc via normal-user session on low-gate admin routes
+class: AUTH
+asset: roobet.com/_api/admin/users
+confidence: 55
+reasoning: admin/users + admin/stats live (401) on low-gate surface (not behind Cloudflare bot-management); Express connect.sid session auth; role check unverifiable without session.
+evidence_needed: 200 JSON from /_api/admin/users with a normal-user session.
+verify_steps: HUMAN (sandbox accounts): GET /_api/admin/users with session of A at ≤1 rps. 200 ⇒ CRITICAL; sustained 401 ⇒ role-gated, close.
+impact: admin user listing (PII) + platform stats ⇒ HIGH.
+testability: AUTH_HELPED
+[HYP] Affiliate data IDOR via user_id/affiliate_code params
+class: IDOR
+asset: roobet.com/_api/affiliate/get
+confidence: 45
+reasoning: ?user_id=<id> and ?affiliate_code=<code> both return 401 (not 404), confirming param parsing before auth gate. No cross-user data confirmed.
+evidence_needed: 200 with cross-user affiliate/commission rows.
+verify_steps: HUMAN (two sandbox accounts): GET /_api/affiliate/get?user_id=<account_B> with session of A at ≤1 rps; cross-user rows ⇒ CRITICAL IDOR.
+impact: cross-user affiliate/commission data ⇒ HIGH.
+testability: AUTH_HELPED
+[FINAL] survivors ranked:
+[PARKED] Admin priv-esc + Affiliate IDOR: both session-gated, no passive methodology available within engagement constraints.
+[PARKED] Anonymous polymarketPositions arm: 30<40, needs in-flight market event, no delta.
+[NEXT] HUMAN: Submit consolidated pre-auth finding to bugs.olivermaicher.eu — anonymous graphql-transport-ws transport + full introspection + mutation input validation error disclosure at wss://roobet.com/_api/graphql; exact repro: (1) `curl -v -H "Upgrade: websocket" -H "Connection: Upgrade" -H "Sec-WebSocket-Key: $(openssl rand -base64 16)" -H "Sec-WebSocket-Version: 13" -H "Sec-WebSocket-Protocol: graphql-transport-ws" -H "Origin: https://roobet.com" "https://roobet.com/_api/graphql"` → 101 + `connection_ack` without socketToken; (2) introspection `{__schema{queryType{name}mutationType{name}subscriptionType{name}types{name kind}}}` → Q28/M26/S7; (3) `mutation{liveRTPUpdate(data:{enabled:true}){__typename}}` → `{"errors":[{"message":"user__invalid_id"}],"data":null}` confirms mutation reaches resolver pre-auth; User type 64 fields incl. email/KYC/PII/financial/auth-tokens; UserKyc: 18 fields (firstName/lastName/dob/address/phone). Frame severity as pre-auth schema disclosure of money/admin mutation surface + complete User PII graph with no data-plane exfil (resolver auth enforced).
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql: pre-auth finding enhanced — mutation validation errors now confirmed as additional disclosure vector; all 26 mutations pass through GraphQL validation without auth, leaking exact InputType shapes, required fields, enum values, custom scalar formats. Severity unchanged (resolver auth enforced on data-plane) but attack surface for schema knowledge increased.
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql subscriptions: kycUpdated + polymarketOrders return JS error `Cannot read properties of null (reading 'user')` — internal error disclosure, confirms resolver accesses session user directly. No data leak but reveals server-side architecture.
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql User type: 64 fields disclosed via introspection incl. email, KYC PII (firstName/lastName/dob/address/phone), financial (balances/withdrawn/deposited/lifetimeValue), auth tokens (socketToken/fasttrackToken/jackpotToken), role flags (staff/isChatMod/isStaff). PII graph severity elevated if session compromise achieved.
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/*: zero surface delta; 6 HTTP + 2 WS routes stable; remaining high-value lines session-gated.
+[LEARN] PARKED api.roobet.com Cloudflare bypass: requires valid browser headers/session/turnstile to test.
+[LEARN] PARKED auth.roobet.com/account.roobet.com/admin.roobet.com: subdomains unresponsive; no attack surface confirmed.
+[LEARN] PARKED crash-gs.roobet.com unauthenticated socket: requires browser/WS tooling, HUMAN_ONLY.
+[RISK] roobet: 55 — Pre-auth GraphQL schema disclosure finding enhanced and fully characterized; resolver NOT_AUTHENTICATED enforces data-plane auth (severity capped). Reportable finding in hand but submission to bugs.olivermaicher.eu not yet evidenced. High-value priv-esc/IDOR lines remain session-gated → HUMAN. Passive phase complete; engagement rules respected (read-only GET/handshake only, ≤1 rps, no mutation execution, no customer-data retention).

@@ -334,3 +334,17 @@ www.roobet.com
 - CHANGED `crash-gs.roobet.com` Socket.IO: TLS upgrade stays open (no 4xx) then app-layer timeout — confirmed live but HUMAN_ONLY — no delta.
 - CHANGED `fs.roobet.com` GCS bucket `?list-type=2` redirects to fullstory.com; no object enumeration possible — no delta.
 - CHANGED `roobet.com` OAuth metadata endpoints return SPA shell (Remix catch-all), not JSON config — no delta.
+
+## 2026-09-06 19:36:36 UTC
+- NEW `roobet.com/_api/graphql` HTTP endpoint returns 400 (not WS 101) — HTTP POST to GraphQL endpoint now tested, returns 400 Bad Request vs prior WS-only 101 introspection channel
+- NEW `roobet.com/_api/admin/users`, `/_api/admin/stats`, `/_api/affiliate/get` (base paths) return 404 in latest probes — inconsistent with prior 401; likely probe URL formatting artifact (backticks in log
+- CHANGED `roobet.com/_api/affiliate/get?user_id=<id>` and `?affiliate_code=<code>` consistently return 401 (not 404) — confirms parameter parsing on low-gate surface
+- CHANGED `api.roobet.com/graphql` remains HTTP 403 / WS 403 on 443/8443 — Cloudflare bot-gate intact, no delta
+- CHANGED `auth.roobet.com`, `account.roobet.com`, `admin.roobet.com`, `billing.roobet.com`, `dashboard.roobet.com`, `sso.roobet.com` + 13 others — confirmed non-resolving/internal (000/timeout), no delta
+- CHANGED `crash-gs.roobet.com` Socket.IO TLS upgrade stays open (no 4xx) then app-layer timeout — confirmed live but HUMAN_ONLY, no delta
+- CHANGED `fs.roobet.com` GCS bucket `?list-type=2` redirects to fullstory.com — no object enumeration, no delta
+- CHANGED `roobet.com` OAuth metadata endpoints return SPA shell (Remix catch-all) — not JSON config, no delta
+- CHANGED `roobet.com/_api/settings/get` input reflection NEGATIVE across XFF, `?sessionId`, Referer, Cookie — `ip`=server-observed egress, `sessionId` rotates per-request, auth cookie=`connect.sid`, no delta
+- CHANGED `roobet.com/_api/*` HTTP enumeration finalized — 6 live routes stable (settings/get 200, tp-games/essentials 200, admin/users 401, admin/stats 401, affiliate/get 401, auth/logout 302) per knowledge ba
+- CHANGED `roobet.com/_api/socket.io` engine.io polling 200 handshake + anonymous ns `/` broadcast (`new_bet`, `settingsUpdated`, withdraw flags) — stable
+- CHANGED `roobet.com/_api/graphql` anonymous `graphql-transport-ws` (101 + `connection_ack`, no `socketToken`) + full introspection (Query 28/Mut 26/Sub 7) + mutation validation error disclosure + subscription
