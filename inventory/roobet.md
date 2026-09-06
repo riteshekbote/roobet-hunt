@@ -348,3 +348,5 @@ www.roobet.com
 - CHANGED `roobet.com/_api/*` HTTP enumeration finalized — 6 live routes stable (settings/get 200, tp-games/essentials 200, admin/users 401, admin/stats 401, affiliate/get 401, auth/logout 302) per knowledge ba
 - CHANGED `roobet.com/_api/socket.io` engine.io polling 200 handshake + anonymous ns `/` broadcast (`new_bet`, `settingsUpdated`, withdraw flags) — stable
 - CHANGED `roobet.com/_api/graphql` anonymous `graphql-transport-ws` (101 + `connection_ack`, no `socketToken`) + full introspection (Query 28/Mut 26/Sub 7) + mutation validation error disclosure + subscription
+
+## 2026-09-06 21:44:35 UTC
