@@ -323,3 +323,14 @@ www.roobet.com
 - CHANGED `crash-gs.roobet.com` Socket.IO TLS upgrade stays open (no 4xx) then app-layer timeout — confirmed live but HUMAN_ONLY (browser/WS tooling required) — no delta.
 - CHANGED `fs.roobet.com` GCS bucket `?list-type=2` redirects to fullstory.com; no object enumeration possible — no delta.
 - CHANGED `roobet.com` OAuth metadata endpoints (`/.well-known/oauth-authorization-server`, `/.well-known/openid-configuration`) return SPA shell (Remix catch-all), not JSON config — no delta.
+
+## 2026-09-06 17:24:34 UTC
+- NEW `roobet.com/_api/graphql`: Mutation validation errors confirmed as additional disclosure vector — all 26 mutations pass GraphQL validation anonymously, leaking exact InputType shapes, required fields,
+- NEW `roobet.com/_api/graphql` subscriptions: `kycUpdated` + `polymarketOrders` return JS error `Cannot read properties of null (reading 'user')` — internal error disclosure confirms resolver accesses sess
+- NEW `roobet.com/_api/graphql` User type: 64 fields disclosed via introspection incl. email, KYC PII (firstName/lastName/dob/address/phone), financial (balances/withdrawn/deposited/lifetimeValue), auth tok
+- CHANGED `roobet.com/_api/*`: Zero surface delta across consecutive runs (6 HTTP + 2 WS routes stable); passive probing exhausted; all remaining verified-value hypotheses are session-gated (AUTH_HELPED/HUMAN_O
+- CHANGED `api.roobet.com` GraphQL: HTTP POST/GET and raw WS upgrade on 443/8443 still HTTP 403 (Cloudflare edge); admin ports 8087/8088 TCP-refused — no delta.
+- CHANGED `auth.roobet.com`/`account.roobet.com`/`admin.roobet.com`/`billing.roobet.com`/`dashboard.roobet.com`/`sso.roobet.com` + 13 others: confirmed non-resolving/internal (000/timeout) — no delta.
+- CHANGED `crash-gs.roobet.com` Socket.IO: TLS upgrade stays open (no 4xx) then app-layer timeout — confirmed live but HUMAN_ONLY — no delta.
+- CHANGED `fs.roobet.com` GCS bucket `?list-type=2` redirects to fullstory.com; no object enumeration possible — no delta.
+- CHANGED `roobet.com` OAuth metadata endpoints return SPA shell (Remix catch-all), not JSON config — no delta.
