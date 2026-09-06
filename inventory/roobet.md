@@ -297,3 +297,5 @@ www.roobet.com
 - CHANGED api.roobet.com GraphQL — HTTP POST/GET and raw WS upgrade on 443/8443 still return HTTP 403 (Cloudflare edge); admin ports 8087/8088 TCP-refused at edge — no delta.
 - CHANGED crash-gs.roobet.com Socket.IO — TLS upgrade stays open (no 4xx) then app-layer timeout; confirmed live but HUMAN_ONLY (browser/WS tooling required).
 - CHANGED auth.roobet.com/account.roobet.com/admin.roobet.com/billing.roobet.com/dashboard.roobet.com/sso.roobet.com + 13 others — confirmed non-resolving/internal (000/timeout).
+
+## 2026-09-06 01:24:35 UTC

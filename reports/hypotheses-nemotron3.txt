@@ -1,10 +1,4 @@
-## 2026-09-05 23:40:27 UTC [target] (model nemotron3)
-[NEW] roobet.com/_api/graphql: anonymous `graphql-transport-ws` upgrade (101 + `connection_ack` without `socketToken`); full `__schema` introspection succeeds (Query 28 / Mutation 26 / Subscription 7); mutations include wallet/betting/bonus/admin/affiliate — new low-gate attack channel superseding api.roobet.com 403-only assessment.
-[NEW] roobet.com/_api/socket.io: engine.io polling handshake (HTTP 200 `0{"sid":...,"upgrades":["websocket"]}`) with only `Origin: https://roobet.com`; anonymous connect to default namespace `/` returns live `new_bet`, `settingsUpdated`, withdraw flags; `graphql`/`admin`/`user`/`wallet` namespaces return `Invalid namespace` — new realtime surface.
-[CHANGED] roobet.com/_api/* HTTP enumeration finalized — exactly 6 live routes stable: `settings/get` (200), `tp-games/essentials` (200), `admin/users` (401), `admin/stats` (401), `affiliate/get` (401), `auth/logout` (302); 34 candidates return 404 SPA shell.
-[CHANGED] api.roobet.com GraphQL — HTTP POST/GET and raw WS upgrade on 443/8443 still return HTTP 403 (Cloudflare edge); admin ports 8087/8088 TCP-refused at edge — no delta.
-[CHANGED] crash-gs.roobet.com Socket.IO — TLS upgrade stays open (no 4xx) then app-layer timeout; confirmed live but HUMAN_ONLY (browser/WS tooling required).
-[CHANGED] auth.roobet.com/account.roobet.com/admin.roobet.com/billing.roobet.com/dashboard.roobet.com/sso.roobet.com + 13 others — confirmed non-resolving/internal (000/timeout).
+## 2026-09-06 01:22:56 UTC [target] (model nemotron3)
 [PRIO] roobet.com/_api/graphql,9.25,attack_surface=10,business_value=9,tech_exposure=10,gate_ease=10,cloud_surface=8,freshness=10
 [PRIO] roobet.com/_api/socket.io,8.50,attack_surface=9,business_value=8,tech_exposure=9,gate_ease=10,cloud_surface=7,freshness=10
 [PRIO] roobet.com/_api/admin/users,8.65,attack_surface=9,business_value=9,tech_exposure=8,gate_ease=9,cloud_surface=6,freshness=9
@@ -42,9 +36,9 @@ testability: AUTH_HELPED
 [PARKED] crash-gs.roobet.com Unauthenticated Socket.IO State Exposure: confidence 42 < 45; requires browser/WS tooling for engine.io protocol completion; HTTP curl insufficient; HUMAN_ONLY.
 [PARKED] api.roobet.com GraphQL Admin Schema: confidence 55 but bot-gate + closed WS ports (8087/8088 TCP-refused) make it AUTH_HELPED only; no passive confirmation possible.
 [PARKED] Pusher Auth Endpoint Session Validation Bypass: confidence 50 < threshold; requires valid session + exact POST body (`socket_id`, `channel_name`); no parameter traversal vector confirmed; HUMAN_ONLY for channel brute-force.
-[FINAL] 1. Anonymous GraphQL Schema + Mutation Enumeration on Low-Gate _api/graphql (90, PASSIVE)
-[FINAL] 2. Admin API Privilege Escalation via Low-Gate _api/admin/* Routes (80, AUTH_HELPED)
-[FINAL] 3. Affiliate Endpoint IDOR/BOLA on Low-Gate Surface (70, AUTH_HELPED)
+[FINAL] 1. roobet.com/_api/graphql: Anonymous GraphQL Schema + Mutation Enumeration on Low-Gate _api/graphql (90, PASSIVE)
+[FINAL] 2. roobet.com/_api/admin/users: Admin API Privilege Escalation via Low-Gate _api/admin/* Routes (80, AUTH_HELPED)
+[FINAL] 3. roobet.com/_api/affiliate/get: Affiliate Endpoint IDOR/BOLA on Low-Gate Surface (70, AUTH_HELPED)
 [NEXT] PROBE: WS connect `wss://roobet.com/_api/graphql` (Sec-WebSocket-Protocol: `graphql-transport-ws`) → send `{"type":"connection_init","payload":{}}` → send introspection query → send sample mutation (e.g., `mutation { forfeitCashableBonus(id:"000000000000000000000000") }`) with empty/invalid variables; capture resolver response codes. Single connection, read-only.
 [LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql: anonymous `graphql-transport-ws` (101 + `connection_ack`, no `socketToken`) + full introspection (Query 28/Mut 26/Sub 7) — supersedes `api.roobet.com` 403-only assessment; new low-gate attack channel.
 [LEARN] ACCEPTED OTHER @ roobet.com/_api/socket.io: engine.io polling 200 handshake + anonymous ns `/` broadcast (`new_bet`, `settingsUpdated`, withdraw flags) — new realtime surface; `graphql`/`admin`/`user`/`wallet` namespaces return Invalid namespace.

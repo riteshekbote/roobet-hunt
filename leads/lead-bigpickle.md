@@ -1235,3 +1235,31 @@ evidence_needed: 200 JSON from /_api/admin/users with normal-user session.
 verify_steps: HUMAN: sandbox test account only; capture connect.sid; GET /_api/admin/users then /stats at 1 rps. 200-with-user-list ⇒ CRITICAL. Sustained 401 ⇒ role-gated, close.
 impact: Admin user listing (PII) + platform stats ⇒ HIGH.
 testability: AUTH_HELPED
+## 2026-09-06 01:24:25 UTC [target] (model bigpickle)
+[HYP] Admin vertical priv-esc via normal-user session on low-gate admin routes
+class: AUTH
+asset: roobet.com/_api/admin/users
+confidence: 55
+reasoning: admin/users + admin/stats live (401) on low-gate surface, Express connect.sid session auth revealed on auth/logout (connect.sid HttpOnly + userId non-HttpOnly); role check unverifiable without a session; same host now carries the confirmed anonymous GraphQL channel.
+evidence_needed: 200 JSON from /_api/admin/users with a normal-user session.
+verify_steps: HUMAN: sandbox test account only; capture connect.sid; GET /_api/admin/users then /stats at 1 rps. 200-with-user-list ⇒ CRITICAL; sustained 401 ⇒ role-gated, close.
+impact: Admin user listing (PII) + platform stats ⇒ HIGH.
+testability: AUTH_HELPED
+[HYP] Affiliate data IDOR via user_id/affiliate_code params
+class: IDOR
+asset: roobet.com/_api/affiliate/get
+confidence: 45
+reasoning: `?user_id=<id>` and `?affiliate_code=<code>` both return 401 (not 404) — parameter acceptance confirmed, auth-gated; IDOR/BOLA primitive if param used as object key after auth.
+evidence_needed: 200 with cross-user affiliate data using a second user_id.
+verify_steps: HUMAN: two sandbox accounts; GET /_api/affiliate/get?user_id=A with session of B at 1 rps; cross-user rows ⇒ CRITICAL IDOR.
+impact: Cross-user affiliate/commission data ⇒ HIGH.
+testability: AUTH_HELPED
+[HYP] Cross-user BOLA on id-gated polymarket subscriptions
+class: IDOR
+asset: roobet.com/_api/graphql (subscriptions polymarketOrder/polymarketPosition)
+confidence: 35
+reasoning: arg-gate runs before auth (`id: String!` required) — same enum/arg-before-auth pattern as queries; if resolver then trusts id without ownership check, any session holder can stream another user's order/position.
+evidence_needed: Authenticated subscribe to polymarketOrder(id:<other-user>) returning non-validation data.
+verify_steps: HUMAN: sandbox accounts; with own session subscribe polymarketOrder(id: otherAccountId) → data vs NOT_AUTHENTICATED vs error; 1 connection, ≤1 rps.
+impact: Cross-user polymarket order/position stream ⇒ MEDIUM-HIGH.
+testability: AUTH_HELPED
