@@ -75,3 +75,12 @@ TARGET_ORG not configured for roobet; skipping public-org deep scan.
 TARGET_ORG not configured for roobet; skipping public-org deep scan.
 ## REPOSCAN 2026-09-06 08:44:28 UTC
 TARGET_ORG not configured for roobet; skipping public-org deep scan.
+## REPOSCAN 2026-09-06 12:47:19 UTC
+[HYP] Reposcan: No public org candidates configured
+class: OTHER
+asset: roobet-hunt/cands.txt
+confidence: 100
+reasoning: cands.txt contains "no org candidates". scope.yml lists github_orgs: [none-configured]. reposcan-raw/summary.txt confirms "TARGET_ORG not configured for roobet; skipping public-org deep scan." No public GitHub repos were cloned, so zero source-code artifacts exist to grep for AKIA, AIza, ghp_, sk_live_, private keys, passwords, api_keys, secrets, tokens, client_secrets, S3 buckets, GCS URLs, or Azure endpoints.
+impact: None (informational)
+verify_steps: 1) Confirm roobet has no public GitHub org at github.com/roobet (or the configured org name). 2) If an org exists, populate cands.txt with repo URLs and re-run reposcan.
+TARGET_ORG not configured for roobet; skipping public-org deep scan.
