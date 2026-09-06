@@ -1300,3 +1300,4 @@ testability: AUTH_HELPED
 [LEARN] PARKED auth.roobet.com/account.roobet.com/admin.roobet.com: subdomains unresponsive; no attack surface confirmed.
 [LEARN] PARKED crash-gs.roobet.com unauthenticated socket: requires browser/WS tooling, HUMAN_ONLY.
 [RISK] roobet: 75 — Main API (`api.roobet.com`) and auth/account/admin subdomains remain gated or unresponsive. Critical delta: `roobet.com/_api/graphql` exposes anonymous GraphQL WS transport + full schema introspection (28Q/26M/7S) bypassing Cloudflare entirely; `_api/socket.io` exposes anonymous realtime feed. Admin/affiliate endpoints on same low-gate surface = elevated IDOR/privilege escalation risk. Auth = Express.js session cookies; no bypass without valid session. No confirmed reportable vuln yet; mutation attack surface fully mapped for session-assisted testing. Engagement rules (≤1 rps, read-only, no auth-bypass on live data) respected.
+## 2026-09-06 11:32:51 UTC [target] (model nemotron3)

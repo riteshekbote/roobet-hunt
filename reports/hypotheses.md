@@ -481,3 +481,8 @@
 - LEARN: PARKED api.roobet.com Cloudflare bypass: requires valid browser headers/session/turnstile to test.
 - LEARN: PARKED auth.roobet.com/account.roobet.com/admin.roobet.com: subdomains unresponsive; no attack surface confirmed.
 - LEARN: PARKED crash-gs.roobet.com unauthenticated socket: requires browser/WS tooling, HUMAN_ONLY.
+
+## RANKED HYPOTHESES 2026-09-06 11:33:02 UTC
+- NEXT(hypotheses-bigpickle.txt): HUMAN: Submit confirmed pre-auth finding to bugs.olivermaicher.eu — anonymous graphql-transport-ws + full introspection at wss://roobet.com/_api/graphql (101 + 
+- LEARN: ACCEPTED OTHER @ roobet.com/_api/graphql: pre-auth finding remains sole robot-side reportable line; resolver NOT_AUTHENTICATED caps severity.
+- LEARN: ACCEPTED OTHER @ roobet.com/_api/*: zero surface delta; passive probing exhausted; remaining value is session-gated.

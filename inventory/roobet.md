@@ -310,3 +310,5 @@ www.roobet.com
 - CHANGED `crash-gs.roobet.com` Socket.IO TLS upgrade stays open (no 4xx) then app-layer timeout — confirmed live but HUMAN_ONLY (browser/WS tooling required).
 - CHANGED `fs.roobet.com` GCS bucket `?list-type=2` redirects to fullstory.com; no object enumeration possible — no delta.
 - CHANGED `roobet.com` OAuth metadata endpoints (`/.well-known/oauth-authorization-server`, `/.well-known/openid-configuration`) return SPA shell (Remix catch-all), not JSON config — no delta.
+
+## 2026-09-06 11:33:02 UTC

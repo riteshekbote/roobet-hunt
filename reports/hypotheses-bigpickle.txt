@@ -1,38 +1,10 @@
-## 2026-09-06 06:31:29 UTC [target] (model bigpickle)
-[PRIO] roobet.com/_api/graphql, 6.6, attack_surface=6 (anon WS transport + free introspection, low gate), business_value=9 (money mutations, User KYC/PII graph), tech_exposure=10 (introspection+mutation+subscription schema), gate_ease=5 (transport open, resolver auth enforced), cloud_surface=3, freshness=3 (fully characterized)
-[PRIO] roobet.com/_api/graphql subscriptions, 6.45, attack_surface=4 (only unresolved arm anomaly), business_value=7 (cross-user position/order events), tech_exposure=7 (id-gated subscription filters), gate_ease=9 (anonymous listen, no socketToken), cloud_surface=3, freshness=10
-[PRIO] roobet.com/_api/admin/users, 6.1, attack_surface=6 (live 401, not bot-gated), business_value=8 (admin user list + platform stats), tech_exposure=5 (Express connect.sid role gating), gate_ease=4 (needs valid session), cloud_surface=2, freshness=10
-[HYP] Admin vertical priv-esc via normal-user session on low-gate admin routes
-class: AUTH
-asset: roobet.com/_api/admin/users
-confidence: 55
-reasoning: admin/users + admin/stats live (401) on low-gate surface; Express connect.sid session auth revealed via /_api/auth/logout (connect.sid HttpOnly, userId non-HttpOnly, twofactorRequired); role check unverifiable without a session; same host as confirmed anonymous GraphQL channel.
-evidence_needed: 200 JSON from /_api/admin/users with a normal-user session.
-verify_steps: HUMAN (sandbox accounts only): after login capture connect.sid; GET /_api/admin/users then /admin/stats at ≤1 rps. 200 with user list ⇒ CRITICAL; sustained 401 ⇒ role-gated, close.
-impact: admin user listing (PII) + platform stats ⇒ HIGH.
-testability: AUTH_HELPED
-[HYP] Affiliate data IDOR via user_id/affiliate_code params
-class: IDOR
-asset: roobet.com/_api/affiliate/get
-confidence: 45
-reasoning: ?user_id=<id> and ?affiliate_code=<code> both return 401 (not 404), confirming param parsing before the auth gate; if the resolver keys data on the param after auth, cross-user read is possible.
-evidence_needed: 200 with cross-user affiliate/commission rows using a second account's user_id.
-verify_steps: HUMAN (two sandbox accounts): GET /_api/affiliate/get?user_id=<account_B> with session of account_A at ≤1 rps; cross-user rows ⇒ CRITICAL IDOR.
-impact: cross-user affiliate/commission data ⇒ HIGH.
-testability: AUTH_HELPED
-[HYP] Anonymous polymarketPositions subscription may arm without per-user scope
-class: OTHER
-asset: roobet.com/_api/graphql (subscription polymarketPositions)
-confidence: 30
-reasoning: polymarketOrders in null-user context returned immediate error/complete; polymarketPositions stayed silent 30s (no data/error/complete) — behavior diverges from sibling resolver, consistent with armed-but-unmatched filter or global scope; not assessable further without an in-flight market event.
-evidence_needed: any `next` data frame with user-owned position data on an anonymous listen.
-verify_steps: single anonymous WS connect (graphql-transport-ws), subscribe polymarketPositions, passive soak 60s, 1 connection, ≤1 rps; disconnect on first frame; no customer-data retention.
-impact: anonymous cross-user position event stream ⇒ privacy leak MEDIUM-HIGH; unconfirmed.
-testability: PASSIVE
-[PARKED] Anonymous polymarketPositions stream: confidence 30 <40; single silent soak is weak evidence and events are required to confirm; re-open only on new behavioral delta.
-[PARKED] Cross-user BOLA on polymarketOrder/PolymarketPosition subscriptions: confidence 35 <40 and AUTH_HELPED; folded into the HUMAN session bucket.
-[FINAL] survivors ranked: 1) roobet.com/_api/admin/users vertical priv-esc (55, AUTH_HELPED); 2) roobet.com/_api/affiliate/get IDOR (45, AUTH_HELPED).
-[NEXT] HUMAN: Submit the confirmed pre-auth finding to bugs.olivermaicher.eu — anonymous graphql-transport-ws transport + full introspection at wss://roobet.com/_api/graphql (101 Switching Protocols + connection_ack with NO socketToken; schema Query 28 / Mutation 26 / Subscription 7; data-plane currentUser/exchangeRates/viewerChecks/userPublicProfile/userSystemStatus all NOT_AUTHENTICATED, so frame severity as pre-auth schema disclosure of money/admin mutation + User KYC/PII graph with no data-plane exfil); include exact repro handshake frames and re-capture the introspection dump during submission (not saved to disk).
-[LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql: pre-auth finding (anon WS + introspection) remains the sole robot-side reportable line; resolver-level NOT_AUTHENTICATED caps severity; submission handoff unchanged.
-[LEARN] ACCEPTED OTHER @ roobet.com/_api/*: zero surface delta across consecutive runs (6 HTTP + 2 WS routes stable); passive probing exhausted; all remaining verified-value hypotheses are session-gated (AUTH_HELPED/HUMAN_ONLY).
-[RISK] roobet: 55 — Confirmed low-severity pre-auth schema-disclosure finding in hand but submission to bugs.olivermaicher.eu not yet evidenced; severity bounded by resolver auth (no data-plane/PII exfil observed). High-value priv-esc/IDOR lines remain session-gated → HUMAN. Passive phase complete; engagement rules respected (read-only GET/handshake only, ≤1 rps, no mutation execution, no customer-data retention).
+## 2026-09-06 11:21:39 UTC [target] (model bigpickle)
+[PRIO] roobet.com/_api/graphql, 6.6, attack_surface=6, business_value=9, tech_exposure=10, gate_ease=5, cloud_surface=3, freshness=3 (fully characterized, already reportable)
+[PRIO] roobet.com/_api/admin/users, 6.1, attack_surface=6, business_value=8, tech_exposure=5, gate_ease=4, cloud_surface=2, freshness=4 (unchanged, session-gated)
+[PARKED] Anonymous polymarketPositions arm anomaly: 30<40, needs in-flight market event, no delta.
+[PARKED] Admin priv-esc + Affiliate IDOR: AUTH_HELPED, no passive methodology (engagement constraints).
+[FINAL] 1) graphql pre-auth schema disclosure (90, REPORTABLE); 2) admin/users priv-esc (55, AUTH_HELPED); 3) affiliate/get IDOR (45, AUTH_HELPED).
+[NEXT] HUMAN: Submit confirmed pre-auth finding to bugs.olivermaicher.eu — anonymous graphql-transport-ws + full introspection at wss://roobet.com/_api/graphql (101 + connection_ack, NO socketToken, schema Q28/M26/S7, data-plane NOT_AUTHENTICATED); include repro frames, re-capture introspection during submission.
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql: pre-auth finding remains sole robot-side reportable line; resolver NOT_AUTHENTICATED caps severity.
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/*: zero surface delta; passive probing exhausted; remaining value is session-gated.
+[RISK] roobet: 55 — Surface frozen, no delta. Reportable finding in hand but submission not yet evidenced; high-value lines session-gated → HUMAN. Rules respected (≤1 rps, GET/handshake only, no mutations, no customer-data retention).

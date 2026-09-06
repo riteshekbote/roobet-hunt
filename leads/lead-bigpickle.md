@@ -1301,3 +1301,13 @@ testability: PASSIVE
 [LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql: pre-auth finding (anon WS + introspection) remains the sole robot-side reportable line; resolver-level NOT_AUTHENTICATED caps severity; submission handoff unchanged.
 [LEARN] ACCEPTED OTHER @ roobet.com/_api/*: zero surface delta across consecutive runs (6 HTTP + 2 WS routes stable); passive probing exhausted; all remaining verified-value hypotheses are session-gated (AUTH_HELPED/HUMAN_ONLY).
 [RISK] roobet: 55 — Confirmed low-severity pre-auth schema-disclosure finding in hand but submission to bugs.olivermaicher.eu not yet evidenced; severity bounded by resolver auth (no data-plane/PII exfil observed). High-value priv-esc/IDOR lines remain session-gated → HUMAN. Passive phase complete; engagement rules respected (read-only GET/handshake only, ≤1 rps, no mutation execution, no customer-data retention).
+## 2026-09-06 11:21:39 UTC [target] (model bigpickle)
+[PRIO] roobet.com/_api/graphql, 6.6, attack_surface=6, business_value=9, tech_exposure=10, gate_ease=5, cloud_surface=3, freshness=3 (fully characterized, already reportable)
+[PRIO] roobet.com/_api/admin/users, 6.1, attack_surface=6, business_value=8, tech_exposure=5, gate_ease=4, cloud_surface=2, freshness=4 (unchanged, session-gated)
+[PARKED] Anonymous polymarketPositions arm anomaly: 30<40, needs in-flight market event, no delta.
+[PARKED] Admin priv-esc + Affiliate IDOR: AUTH_HELPED, no passive methodology (engagement constraints).
+[FINAL] 1) graphql pre-auth schema disclosure (90, REPORTABLE); 2) admin/users priv-esc (55, AUTH_HELPED); 3) affiliate/get IDOR (45, AUTH_HELPED).
+[NEXT] HUMAN: Submit confirmed pre-auth finding to bugs.olivermaicher.eu — anonymous graphql-transport-ws + full introspection at wss://roobet.com/_api/graphql (101 + connection_ack, NO socketToken, schema Q28/M26/S7, data-plane NOT_AUTHENTICATED); include repro frames, re-capture introspection during submission.
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql: pre-auth finding remains sole robot-side reportable line; resolver NOT_AUTHENTICATED caps severity.
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/*: zero surface delta; passive probing exhausted; remaining value is session-gated.
+[RISK] roobet: 55 — Surface frozen, no delta. Reportable finding in hand but submission not yet evidenced; high-value lines session-gated → HUMAN. Rules respected (≤1 rps, GET/handshake only, no mutations, no customer-data retention).

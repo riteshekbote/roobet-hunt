@@ -150,3 +150,5 @@
 - 2026-09-06 PARKED crash-gs.roobet.com unauthenticated socket: requires browser/WS tooling, HUMAN_ONLY.
 - 2026-09-06 ACCEPTED OTHER @ roobet.com/_api/graphql: pre-auth finding (anon WS + introspection) remains the sole robot-side reportable line; resolver-level NOT_AUTHENTICATED caps severity; submission handoff unchanged.
 - 2026-09-06 ACCEPTED OTHER @ roobet.com/_api/*: zero surface delta across consecutive runs (6 HTTP + 2 WS routes stable); passive probing exhausted; all remaining verified-value hypotheses are session-gated (AUTH_HELPED/HUMAN_ONLY).
+- 2026-09-06 ACCEPTED OTHER @ roobet.com/_api/graphql: pre-auth finding remains sole robot-side reportable line; resolver NOT_AUTHENTICATED caps severity.
+- 2026-09-06 ACCEPTED OTHER @ roobet.com/_api/*: zero surface delta; passive probing exhausted; remaining value is session-gated.
