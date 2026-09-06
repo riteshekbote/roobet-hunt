@@ -312,3 +312,14 @@ www.roobet.com
 - CHANGED `roobet.com` OAuth metadata endpoints (`/.well-known/oauth-authorization-server`, `/.well-known/openid-configuration`) return SPA shell (Remix catch-all), not JSON config — no delta.
 
 ## 2026-09-06 11:33:02 UTC
+
+## 2026-09-06 14:36:18 UTC
+- NEW roobet.com/_api/graphql: Anonymous `graphql-transport-ws` upgrade (101 + `connection_ack`, no `socketToken`) + full introspection (Query 28 / Mutation 26 / Subscription 7) — confirmed stable across co
+- NEW roobet.com/_api/socket.io: Engine.io polling handshake (HTTP 200 `0{"sid":...,"upgrades":["websocket"]}`) with only `Origin: https://roobet.com`; anonymous connect to default namespace `/` returns liv
+- NEW roobet.com/_api/* HTTP enumeration finalized — exactly 6 live routes stable: `settings/get` (200), `tp-games/essentials` (200), `admin/users` (401), `admin/stats` (401), `affiliate/get` (401), `auth/l
+- CHANGED `api.roobet.com` GraphQL HTTP POST/GET and raw WS upgrade on 443/8443 still HTTP 403 (Cloudflare edge); admin ports 8087/8088 TCP-refused — no delta.
+- CHANGED `auth.roobet.com`/`account.roobet.com`/`admin.roobet.com`/`billing.roobet.com`/`dashboard.roobet.com`/`sso.roobet.com` + 13 others — confirmed non-resolving/internal (000/timeout) — no delta.
+- CHANGED `roobet.com/_api/settings/get` input reflection NEGATIVE across XFF, `?sessionId`, Referer, Cookie:sessionId; `ip`=server-observed egress, `sessionId` rotates per-request, auth cookie=`connect.sid` — 
+- CHANGED `crash-gs.roobet.com` Socket.IO TLS upgrade stays open (no 4xx) then app-layer timeout — confirmed live but HUMAN_ONLY (browser/WS tooling required) — no delta.
+- CHANGED `fs.roobet.com` GCS bucket `?list-type=2` redirects to fullstory.com; no object enumeration possible — no delta.
+- CHANGED `roobet.com` OAuth metadata endpoints (`/.well-known/oauth-authorization-server`, `/.well-known/openid-configuration`) return SPA shell (Remix catch-all), not JSON config — no delta.
