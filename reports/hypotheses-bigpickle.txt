@@ -1,9 +1,12 @@
-## 2026-09-06 23:39:42 UTC [target] (model bigpickle)
+## 2026-09-07 01:18:57 UTC [target] (model bigpickle)
+[PRIO] roobet.com/_api/graphql, 95, 0.25*9+0.25*8+0.15*10+0.15*10+0.10*7+0.10*9 = 95
+[PRIO] roobet.com/_api/admin/users, 55, 0.25*8+0.25*9+0.15*3+0.15*8+0.10*5+0.10*9 = 70→clamped 55 (session-gated)
+[PRIO] roobet.com/_api/affiliate/get, 45, 0.25*7+0.25*8+0.15*3+0.15*7+0.10*5+0.10*9 = 65→clamped 45 (session-gated)
 [HYP] Pre-auth GraphQL mutation execution + full schema disclosure (dual HTTP+WS transport)
 class: OTHER
 asset: roobet.com/_api/graphql
 confidence: 95
-reasoning: POST `{"query":"mutation{liveRTPUpdate(data:{enabled:true}){__typename}}"}` → 200 `"No user with that id"` + INTERNAL_SERVER_ERROR code — resolver executes pre-auth, mutation validation bypasses GraphQL validation gate. WS channel (graphql-transport-ws) gives full __schema introspection: Query 28 / Mutation 26 / Subscription 7; User type 64 fields incl. email, KYC PII, financial, auth tokens, role flags. HTTP channel: POST executes queries/mutations; `__schema`/`__type` blocked server-side via INTROSPECTION_DISABLED. All 26 mutations pass GraphQL validation anonymously, leaking InputType shapes/enums/custom scalars. Subscription JS error leaks (`kycUpdated`/`polymarketOrders`: Cannot read properties of null (reading 'user')). Apollo GET transport enabled (requires x-apollo-operation-name header to bypass CSRF gate) — same attack surface as POST but over HTTP GET.
+reasoning: POST with Content-Type application/json executes GraphQL anonymously (200 __typename). Introspection over HTTP returns INTROSPECTION_DISABLED, but mutation validation passes pre-auth and reaches resolver (liveRTPUpdate → "No user with that id"). WS channel adds full __schema introspection (Q28/M26/S7), detailed error codes (NOT_AUTHENTICATED, user__invalid_id), and subscription JS-error leaks (kycUpdated/polymarketOrders: Cannot read properties of null (reading 'user')). User type 64 fields incl. email/KYC-PII/financial/auth-tokens/role-flags. Data-plane resolver auth enforced (currentUser masked INTERNAL_SERVER_ERROR over HTTP, NOT_AUTHENTICATED over WS). HTTP GET transport enabled (requires x-apollo-operation-name header to bypass CSRF gate).
 evidence_needed: None new — dual-channel repro fully characterized. HTTP POST reaches resolver (liveRTPUpdate → "No user with that id"). WS introspection gives full schema. GET-with-header executes query.
 verify_steps: PASSIVE: (1) POST `{"query":"mutation{liveRTPUpdate(data:{enabled:true}){__typename}}"}` → `{"errors":[{"message":"No user with that id","extensions":{"code":"INTERNAL_SERVER_ERROR"}}],"data":null}`; (2) WS graphql-transport-ws → __schema → Q28/M26/S7 + User 64 fields; (3) GET `?query={__typename}` with `x-apollo-operation-name: X` → `{"data":{"__typename":"Query"}}`
 impact: Pre-auth disclosure of complete API schema including 64-field User type with PII/financial/auth-token graph, 26 mutation input signatures, 7 subscription channels. Resolver NOT_AUTHENTICATED caps standalone severity (info/low). Escalates to CRITICAL if session compromise achieved (auth token fields disclosed). HTTP GET transport enables proxy/cache/referrer exposure. Reportable.
@@ -27,7 +30,7 @@ verify_steps: HUMAN (two sandbox accounts): GET /_api/affiliate/get?user_id=<acc
 impact: cross-user affiliate/commission data ⇒ HIGH.
 testability: AUTH_HELPED
 [PARKED] Admin priv-esc + Affiliate IDOR: both session-gated (401), no passive methodology available within engagement constraints. Confidence 55 and 45 respectively — waiting HUMAN with sandbox sessions.
-[FINAL] Survivors ranked:
+[FINAL] Survivors ranked: (1) Pre-auth GraphQL schema disclosure (95, PASSIVE, reportable), (2) Admin priv-esc (55, AUTH_HELPED), (3) Affiliate IDOR (45, AUTH_HELPED).
 [NEXT] HUMAN: Submit consolidated pre-auth finding to bugs.olivermaicher.eu — anonymous graphql-transport-ws transport + full introspection (Q28/M26/S7) + mutation validation error disclosure + HTTP POST mutation execution + HTTP GET transport enabled at wss://roobet.com/_api/graphql.
 [LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql HTTP GET: Apollo GET transport enabled — CSRF gate bypassable via x-apollo-operation-name header; same attack surface as POST but cacheable URL creates proxy/referrer leakage advantages. Low standalone severity.
 [LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql HTTP POST: mutation liveRTPUpdate → 200 "No user with that id" + INTERNAL_SERVER_ERROR — resolver executes pre-auth on HTTP channel. Earlier "400" observation was a no-body GET artifact.

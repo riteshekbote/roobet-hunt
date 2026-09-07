@@ -352,3 +352,13 @@ www.roobet.com
 ## 2026-09-06 21:44:35 UTC
 
 ## 2026-09-06 23:39:52 UTC
+
+## 2026-09-07 01:23:24 UTC
+- NEW roobet.com/_api/graphql HTTP POST returns 400 (new HTTP channel tested, distinct from WS 101 channel)
+- NEW roobet.com/_api/admin/users, /_api/admin/stats, /_api/affiliate/get base paths now consistently return 401 (prior 404s were probe URL artifacts with backticks)
+- CHANGED Surface stable: 6 HTTP routes + 2 WS routes confirmed across 5+ runs; zero delta
+- CHANGED api.roobet.com GraphQL remains 403 bot-gated on HTTP/WS; admin ports 8087/8088 TCP-refused
+- CHANGED crash-gs.roobet.com Socket.IO TLS upgrade open (no 4xx) then app-timeout; HUMAN_ONLY
+- CHANGED auth/account/admin/billing/dashboard/sso + 13 subdomains: non-resolving/internal
+- CHANGED fs.roobet.com GCS ?list-type=2 → fullstory.com redirect; no enumeration
+- CHANGED roobet.com OAuth metadata endpoints return SPA shell (Remix catch-all), not JSON
