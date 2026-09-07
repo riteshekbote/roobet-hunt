@@ -381,3 +381,25 @@ www.roobet.com
 - CHANGED auth/account/admin/billing/dashboard/sso + 13 subdomains: non-resolving/internal
 - CHANGED fs.roobet.com GCS ?list-type=2 → fullstory.com redirect; no enumeration
 - CHANGED roobet.com OAuth metadata endpoints return SPA shell (Remix catch-all), not JSON
+
+## 2026-09-07 18:20:43 UTC
+- NEW roobet.com/_api/graphql HTTP GET: Apollo GET transport enabled — CSRF gate bypassable via `x-apollo-operation-name` header; cacheable URL creates proxy/referrer leakage advantages
+- NEW roobet.com/_api/graphql HTTP POST: mutation `liveRTPUpdate` → 200 "No user with that id" + INTERNAL_SERVER_ERROR — resolver executes pre-auth on HTTP channel (distinct from WS 101 channel)
+- NEW roobet.com/_api/graphql HTTP `__type`: INTROSPECTION_DISABLED on HTTP channel — `__type(name:"User")` blocked; only WS provides full introspection
+- CHANGED roobet.com/_api/admin/users, /_api/admin/stats, /_api/affiliate/get base paths now consistently return 401 (prior 404s were probe URL artifacts with backticks)
+- CHANGED Surface stable: 6 HTTP routes + 2 WS routes confirmed across 5+ runs; zero delta
+- CHANGED api.roobet.com GraphQL remains 403 bot-gated on HTTP/WS; admin ports 8087/8088 TCP-refused
+- CHANGED crash-gs.roobet.com Socket.IO TLS upgrade open (no 4xx) then app-timeout; HUMAN_ONLY
+- CHANGED auth/account/admin/billing/dashboard/sso + 13 subdomains: non-resolving/internal
+- CHANGED fs.roobet.com GCS ?list-type=2 → fullstory.com redirect; no enumeration
+- CHANGED roobet.com OAuth metadata endpoints return SPA shell (Remix catch-all), not JSON
+- NEW roobet.com/_api/graphql HTTP GET: Apollo GET transport enabled — CSRF gate bypassable via `x-apollo-operation-name` header; cacheable URL creates proxy/referrer leakage advantages
+- NEW roobet.com/_api/graphql HTTP POST: mutation `liveRTPUpdate` → 200 "No user with that id" + INTERNAL_SERVER_ERROR — resolver executes pre-auth on HTTP channel (distinct from WS 101 channel)
+- NEW roobet.com/_api/graphql HTTP `__type`: INTROSPECTION_DISABLED on HTTP channel — `__type(name:"User")` blocked; only WS provides full introspection
+- CHANGED roobet.com/_api/admin/users, /_api/admin/stats, /_api/affiliate/get base paths now consistently return 401 (prior 404s were probe URL artifacts with backticks)
+- CHANGED Surface stable: 6 HTTP routes + 2 WS routes confirmed across 5+ runs; zero delta
+- CHANGED api.roobet.com GraphQL remains 403 bot-gated on HTTP/WS; admin ports 8087/8088 TCP-refused
+- CHANGED crash-gs.roobet.com Socket.IO TLS upgrade open (no 4xx) then app-timeout; HUMAN_ONLY
+- CHANGED auth/account/admin/billing/dashboard/sso + 13 subdomains: non-resolving/internal
+- CHANGED fs.roobet.com GCS ?list-type=2 → fullstory.com redirect; no enumeration
+- CHANGED roobet.com OAuth metadata endpoints return SPA shell (Remix catch-all), not JSON

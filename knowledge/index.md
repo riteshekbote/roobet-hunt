@@ -210,3 +210,4 @@
 - 2026-09-07 REJECTED OTHER @ roobet.com/_api/graphql HTTP GET __type: INTROSPECTION_DISABLED server-side; no partial type introspection via HTTP.
 - 2026-09-07 ACCEPTED OTHER @ roobet.com/_api/graphql HTTP GET: Apollo GET transport enabled — CSRF gate bypassable via x-apollo-operation-name header; cacheable URL creates proxy/referrer leakage advantages.
 - 2026-09-07 ACCEPTED OTHER @ roobet.com/_api/graphql HTTP __type: INTROSPECTION_DISABLED on HTTP channel — __type(name:"User") blocked; only WS provides full introspection.
+- 2026-09-07 ACCEPTED OTHER @ roobet.com/_api/graphql: Pre-auth finding fully characterized across dual HTTP+WS channels; severity capped low by resolver auth on data-plane; reportable.

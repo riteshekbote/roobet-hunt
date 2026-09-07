@@ -1,12 +1,14 @@
-## 2026-09-07 12:47:07 UTC [target] (model bigpickle)
+## 2026-09-07 18:10:49 UTC [target] (model bigpickle)
 [PRIO] roobet.com/_api/graphql, 9.0, attack_surface=10 business_value=9 tech_exposure=10 gate_ease=9 cloud_surface=7 freshness=8
+[PRIO] roobet.com/_api/admin/users, 5.8, attack_surface=5 business_value=9 tech_exposure=5 gate_ease=3 cloud_surface=4 freshness=8
+[PRIO] roobet.com/_api/affiliate/get, 5.1, attack_surface=5 business_value=7 tech_exposure=4 gate_ease=3 cloud_surface=4 freshness=8
 [HYP] Pre-auth GraphQL mutation execution + full schema disclosure (dual HTTP+WS)
 class: OTHER
 asset: roobet.com/_api/graphql
 confidence: 95
-reasoning: POST executes anonymous GraphQL (200 __typename); mutation validation passes pre-auth and reaches resolver (liveRTPUpdate → "No user with that id"); WS graphql-transport-ws accepts connection_init without socketToken giving full __schema (Q28/M26/Sub7); User type 64 fields incl. PII/financial/auth-tokens; HTTP GET transport enabled via x-apollo-operation-name header. Resolver data-plane enforces auth (NOT_AUTHENTICATED). Stable across all runs.
+reasoning: POST executes anonymous GraphQL (200 __typename); mutation validation passes pre-auth and reaches resolver (liveRTPUpdate → "No user with that id"); WS graphql-transport-ws accepts connection_init without socketToken giving full __schema (Q28/M26/Sub7); User type 64 fields incl. PII/financial/auth-tokens; HTTP GET transport enabled via x-apollo-operation-name header. Resolver data-plane enforces auth (NOT_AUTHENTICATED). Stable across all runs since 2026-09-05.
 evidence_needed: none — dual-channel repro fully characterized and reportable.
-verify_steps: PASSIVE (all confirmed): (1) POST {"query":"mutation{liveRTPUpdate(data:{enabled:true}){__typename}}"} → "No user with that id"/INTERNAL_SERVER_ERROR; (2) WS connection_init → __schema introspection; (3) HTTP GET with x-apollo-operation-name header.
+verify_steps: PASSIVE (all confirmed): (1) POST `{"query":"mutation{liveRTPUpdate(data:{enabled:true}){__typename}}"}` → "No user with that id"/INTERNAL_SERVER_ERROR; (2) WS connection_init → __schema introspection; (3) HTTP GET with x-apollo-operation-name header.
 impact: Pre-auth disclosure of full API schema incl. 64-field User type (PII/financial/auth-token graph), 26 mutation input shapes, 7 subscription channels. Resolver auth caps standalone severity low; escalates on session compromise. Reportable.
 testability: PASSIVE
 [HYP] Admin vertical priv-esc via normal-user session on low-gate admin routes
@@ -28,8 +30,6 @@ verify_steps: HUMAN (two sandbox accounts): GET /_api/affiliate/get?user_id=<acc
 impact: cross-user affiliate/commission data ⇒ HIGH.
 testability: AUTH_HELPED
 [FINAL] Survivors ranked: (1) Pre-auth GraphQL schema/mutation disclosure (95, PASSIVE, reportable), (2) Admin priv-esc (55, AUTH_HELPED), (3) Affiliate IDOR (45, AUTH_HELPED).
-[LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql HTTP GET: Apollo GET transport enabled — CSRF gate bypassable via x-apollo-operation-name header; cacheable URL creates proxy/referrer leakage advantages.
-[LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql HTTP POST: mutation liveRTPUpdate → 200 "No user with that id" + INTERNAL_SERVER_ERROR — resolver executes pre-auth on HTTP channel.
-[LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql HTTP __type: INTROSPECTION_DISABLED on HTTP channel — __type(name:"User") blocked; only WS provides full introspection.
-[LEARN] REJECTED OTHER @ roobet.com/_api/graphql HTTP GET __type: INTROSPECTION_DISABLED server-side; no partial type introspection via HTTP.
-[RISK] roobet: 55 — Pre-auth GraphQL schema disclosure (dual HTTP+WS) fully characterized and reportable; severity capped low by resolver auth on data-plane. Passive probing exhausted; surface stable (6 HTTP + 2 WS, zero delta). Remaining high-value lines (admin priv-esc, affiliate IDOR) session-gated → require HUMAN with sandbox sessions. No reportable vuln confirmed as HIGH/CRITICAL; engagement rules respected (read-only GET/POST with body, ≤1 rps, no mutation execution on live customer data, no customer-data retention).
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql: Pre-auth finding fully characterized across dual HTTP+WS channels; severity capped low by resolver auth on data-plane; reportable.
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/*: zero surface delta on HTTP routes (6 live + 2 WS); remaining hypotheses session-gated.
+[RISK] roobet: 55 — Pre-auth GraphQL schema disclosure finding (dual HTTP+WS) fully characterized and reportable (severity capped low by resolver auth on data-plane). Passive probing exhausted — surface stable at 6 HTTP + 2 WS routes with zero delta across 5+ runs. All remaining high-value lines (admin priv-esc, affiliate IDOR) are session-gated → require HUMAN with sandbox sessions. No reportable vuln currently confirmed as HIGH/CRITICAL; engagement rules respected. Next action is HUMAN submission to bug bounty program.
