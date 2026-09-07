@@ -1,11 +1,16 @@
-## 2026-09-07 06:14:47 UTC [target] (model nemotron3)
-[NEW] roobet.com/_api/graphql HTTP GET: Apollo GET transport enabled — CSRF gate bypassable via x-apollo-operation-name header; cacheable URL creates proxy/referrer leakage advantages
-[NEW] roobet.com/_api/graphql HTTP POST: mutation liveRTPUpdate → 200 "No user with that id" + INTERNAL_SERVER_ERROR — resolver executes pre-auth on HTTP channel (distinct from WS 101 channel)
-[NEW] roobet.com/_api/graphql HTTP __type: INTROSPECTION_DISABLED on HTTP channel — `__type(name:"User")` blocked; only WS provides full introspection
-[NEW] roobet.com/_api/admin/users, /_api/admin/stats, /_api/affiliate/get base paths now consistently return 401 (prior 404s were probe URL artifacts with backticks)
+## 2026-09-07 12:49:56 UTC [target] (model nemotron3)
+[NEW] roobet.com/_api/graphql HTTP GET: Apollo GET transport enabled — CSRF gate bypassable via `x-apollo-operation-name` header; cacheable URL creates proxy/referrer leakage advantages
+[NEW] roobet.com/_api/graphql HTTP POST: mutation `liveRTPUpdate` → 200 "No user with that id" + INTERNAL_SERVER_ERROR — resolver executes pre-auth on HTTP channel (distinct from WS 101 channel)
+[NEW] roobet.com/_api/graphql HTTP `__type`: INTROSPECTION_DISABLED on HTTP channel — `__type(name:"User")` blocked; only WS provides full introspection
+[CHANGED] roobet.com/_api/admin/users, /_api/admin/stats, /_api/affiliate/get base paths now consistently return 401 (prior 404s were probe URL artifacts with backticks)
 [CHANGED] Surface stable: 6 HTTP routes + 2 WS routes confirmed across 5+ runs; zero delta
-[PRIO] roobet.com/_api/graphql,8.15,attack_surface=9,business_value=8,tech_exposure=9,gate_ease=10,cloud_surface=6,freshness=9
-[PRIO] roobet.com/_api/admin/users,7.20,attack_surface=7,business_value=9,tech_exposure=7,gate_ease=5,cloud_surface=5,freshness=8
+[CHANGED] api.roobet.com GraphQL remains 403 bot-gated on HTTP/WS; admin ports 8087/8088 TCP-refused
+[CHANGED] crash-gs.roobet.com Socket.IO TLS upgrade open (no 4xx) then app-timeout; HUMAN_ONLY
+[CHANGED] auth/account/admin/billing/dashboard/sso + 13 subdomains: non-resolving/internal
+[CHANGED] fs.roobet.com GCS ?list-type=2 → fullstory.com redirect; no enumeration
+[CHANGED] roobet.com OAuth metadata endpoints return SPA shell (Remix catch-all), not JSON
+[PRIO] roobet.com/_api/graphql,8.55,attack_surface=9,business_value=9,tech_exposure=10,gate_ease=10,cloud_surface=6,freshness=9
+[PRIO] roobet.com/_api/admin/users,7.45,attack_surface=7,business_value=9,tech_exposure=7,gate_ease=5,cloud_surface=5,freshness=8
 [PRIO] roobet.com/_api/socket.io,6.75,attack_surface=6,business_value=5,tech_exposure=8,gate_ease=10,cloud_surface=5,freshness=8
 [PRIO] roobet.com/_api/affiliate/get,6.20,attack_surface=6,business_value=7,tech_exposure=6,gate_ease=5,cloud_surface=5,freshness=8
 [PRIO] crash-gs.roobet.com/socket.io,6.55,attack_surface=7,business_value=7,tech_exposure=8,gate_ease=3,cloud_surface=7,freshness=7
@@ -13,7 +18,7 @@
 class: OTHER
 asset: roobet.com/_api/graphql
 confidence: 95
-reasoning: Anonymous graphql-transport-ws upgrade (101 + connection_ack, no socketToken) + full introspection (Query 28/Mut 26/Sub 7) confirmed stable across 5+ runs. All 26 mutations pass GraphQL validation layer anonymously on WS, returning detailed validation errors leaking exact InputType shapes, required fields, enum values, custom scalar formats. HTTP POST channel now confirmed live (400/200 responses) with mutation liveRTPUpdate executing pre-auth resolver logic (INTERNAL_SERVER_ERROR). Subscriptions kycUpdated + polymarketOrders return JS error `Cannot read properties of null (reading 'user')` confirming resolver accesses session user directly. User type exposes 64 fields incl. KYC PII (firstName/lastName/dob/address/phone), financials (balances/withdrawn/deposited/lifetimeValue), auth tokens (socketToken/fasttrackToken/jackpotToken), role flags (staff/isChatMod/isStaff). Apollo GET transport enabled via x-apollo-operation-name header.
+reasoning: Anonymous graphql-transport-ws upgrade (101 + connection_ack, no socketToken) + full introspection (Query 28/Mut 26/Sub 7) confirmed stable across 5+ runs. All 26 mutations pass GraphQL validation layer anonymously on WS, returning detailed validation errors leaking exact InputType shapes, required fields, enum values, custom scalar formats. HTTP POST channel now confirmed live with mutation liveRTPUpdate executing pre-auth resolver logic (INTERNAL_SERVER_ERROR). Subscriptions kycUpdated + polymarketOrders return JS error `Cannot read properties of null (reading 'user')` confirming resolver accesses session user directly. User type exposes 64 fields incl. KYC PII (firstName/lastName/dob/address/phone), financials (balances/withdrawn/deposited/lifetimeValue), auth tokens (socketToken/fasttrackToken/jackpotToken), role flags (staff/isChatMod/isStaff). Apollo GET transport enabled via x-apollo-operation-name header.
 evidence_needed: Catalog of mutation validation error responses showing InputType schemas across both WS and HTTP transports; confirmation that validation errors differ from NOT_AUTHENTICATED resolver errors (proves pre-resolver validation reachability)
 verify_steps: WS connect wss://roobet.com/_api/graphql (Sec-WebSocket-Protocol: graphql-transport-ws) → send {"type":"connection_init","payload":{}} → send {"type":"start","id":"1","payload":{"query":"mutation { placeBet(input:{}) }"}} → capture validation error structure; repeat for forfeitCashableBonus(id:"000000000000000000000000") and claimBonus(input:{}) to catalog InputType disclosure. HTTP POST https://roobet.com/_api/graphql -H "Content-Type: application/json" -d '{"query":"mutation { liveRTPUpdate(input:{}) }"}' → capture resolver error. Single connection, read-only, 1 rps.
 impact: Full mutation input schema mapping for targeted IDOR/BOLA/privilege escalation testing; validation error disclosure reduces blind guessing for session-assisted attacks; User type PII/financial/token exposure elevates impact if session compromise achieved. Dual transport (WS+HTTP) expands attack surface. Severity: MEDIUM (pre-auth schema disclosure) → HIGH if any mutation lacks resolver auth guard.
@@ -44,6 +49,11 @@ testability: PASSIVE
 [FINAL] 2. roobet.com/_api/admin/users: Admin API Privilege Escalation via Low-Gate _api/admin/* Routes (80, AUTH_HELPED)
 [FINAL] 3. roobet.com/_api/socket.io: Unauthenticated Realtime Game State Exposure via _api/socket.io (75, PASSIVE)
 [NEXT] PROBE: WS connect wss://roobet.com/_api/graphql (Sec-WebSocket-Protocol: graphql-transport-ws) → send {"type":"connection_init","payload":{}} → send {"type":"start","id":"1","payload":{"query":"mutation { placeBet(input:{}) }"}} → capture validation error structure; repeat for forfeitCashableBonus(id:"000000000000000000000000") and claimBonus(input:{}) to catalog InputType disclosure across mutation surface. Single connection, read-only, 1 rps.
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql HTTP GET: Apollo GET transport enabled — CSRF gate bypassable via x-apollo-operation-name header; same attack surface as POST but cacheable URL creates proxy/referrer leakage advantages. Low standalone severity.
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql HTTP POST: mutation liveRTPUpdate → 200 "No user with that id" + INTERNAL_SERVER_ERROR — resolver executes pre-auth on HTTP channel. Earlier "400" observation was a no-body GET artifact.
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql HTTP __type: INTROSPECTION_DISABLED on HTTP channel — `__type(name:"User")` blocked; only WS provides full introspection.
+[LEARN] REJECTED OTHER @ roobet.com/_api/graphql HTTP GET __type with introspection: INTROSPECTION_DISABLED server-side; no partial type introspection via HTTP.
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/*: zero surface delta on HTTP routes (6 live + 2 WS); remaining hypotheses session-gated.
 [LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql: Anonymous graphql-transport-ws (101 + connection_ack, no socketToken) + full introspection (Query 28/Mut 26/Sub 7) — supersedes api.roobet.com 403-only assessment; new low-gate attack channel
 [LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql: Mutation validation errors confirmed as additional disclosure vector — all 26 mutations pass GraphQL validation anonymously, leaking exact InputType shapes, required fields, enum values, custom scalar formats
 [LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql subscriptions: kycUpdated + polymarketOrders return JS error `Cannot read properties of null (reading 'user')` — internal error disclosure, confirms resolver accesses session user directly

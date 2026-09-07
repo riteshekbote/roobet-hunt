@@ -208,3 +208,5 @@
 - 2026-09-07 PARKED auth.roobet.com/account.roobet.com/admin.roobet.com: Subdomains unresponsive; no attack surface confirmed
 - 2026-09-07 PARKED crash-gs.roobet.com unauthenticated socket: Requires browser/WS tooling, HUMAN_ONLY
 - 2026-09-07 REJECTED OTHER @ roobet.com/_api/graphql HTTP GET __type: INTROSPECTION_DISABLED server-side; no partial type introspection via HTTP.
+- 2026-09-07 ACCEPTED OTHER @ roobet.com/_api/graphql HTTP GET: Apollo GET transport enabled — CSRF gate bypassable via x-apollo-operation-name header; cacheable URL creates proxy/referrer leakage advantages.
+- 2026-09-07 ACCEPTED OTHER @ roobet.com/_api/graphql HTTP __type: INTROSPECTION_DISABLED on HTTP channel — __type(name:"User") blocked; only WS provides full introspection.
