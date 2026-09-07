@@ -211,3 +211,7 @@
 - 2026-09-07 ACCEPTED OTHER @ roobet.com/_api/graphql HTTP GET: Apollo GET transport enabled — CSRF gate bypassable via x-apollo-operation-name header; cacheable URL creates proxy/referrer leakage advantages.
 - 2026-09-07 ACCEPTED OTHER @ roobet.com/_api/graphql HTTP __type: INTROSPECTION_DISABLED on HTTP channel — __type(name:"User") blocked; only WS provides full introspection.
 - 2026-09-07 ACCEPTED OTHER @ roobet.com/_api/graphql: Pre-auth finding fully characterized across dual HTTP+WS channels; severity capped low by resolver auth on data-plane; reportable.
+- 2026-09-07 ACCEPTED OTHER @ roobet.com/_api/*: fresh probes re-confirm 3/3 key routes (settings/get 200, admin/users 401, affiliate/get?user_id=1 401) — surface stable, no delta; 4 new candidates (health/version/graphiql/openapi.json) 404.
+- 2026-09-07 ACCEPTED OTHER @ roobet.com/_api/settings/get: response now includes `globalStats.allTimeNumBets` ~15.3B — live business metric in anonymous config dump; supports low standalone severity (operational intelligence).
+- 2026-09-07 ACCEPTED OTHER @ roobet.com/_api/graphql HTTP POST: `liveRTPUpdate` resolver executes pre-auth against an internal identifier space ("No user with that id") — retained as candidate ID-presence oracle requiring A/B error differentiation before reporting; no state change issued.
+- 2026-09-07 REJECTED OTHER @ roobet.com/_api/*: `health`, `version`, `graphiql`, `openapi.json` all 404 — no new admin/debug/documentation surface exposed under `_api/*`.

@@ -12677,3 +12677,83 @@ STEP 6 — LEARNING
 STEP 7 — RISK
 
 [RISK] roobet: 55 — Pre-auth GraphQL schema disclosure finding (dual HTTP+WS) fully characterized and reportable (severity capped low by resolver auth on data-plane). Passive probing exhausted — surface stable at 6 HTTP + 2 WS routes with zero delta across 5+ runs. All remaining high-value lines (admin priv-esc, affiliate IDOR) are session-gated → require HUMAN with sandbox sessions. No reportable vuln currently confirmed as HIGH/CRITICAL; engagement rules respected. Next action is HUMAN submission to bug bounty program.
+===== ANALYST bigpickle 2026-09-07 21:39:26 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mcurl -s -o /tmp/r1.json -w "%{http_code}" -H "Origin: https://roobet.com" -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)" https://roobet.com/_api/settings/get ; echo ; sleep 1.1 ; curl -s -o /tmp/r2.txt -w "%{http_code}" -H "Origin: https://roobet.com" -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)" https://roobet.com/_api/admin/users ; echo ; sleep 1.1 ; curl -s -o /tmp/r3.txt -w "%{http_code}" -H "Origin: https://roobet.com" -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)" "https://roobet.com/_api/affiliate/get?user_id=1" ; echo
+200
+401
+401
+[0m
+[0m$ [0mhead -c 400 /tmp/r1.json; echo; echo "---admin---"; head -c 200 /tmp/r2.txt; echo; echo "---affiliate---"; head -c 200 /tmp/r3.txt; echo
+{"globalStats":{"allTimeNumBets":15335021927.742636},"banner":"","bannerLink":"","bannerLinkTitle":"","disabledApp":false,"disabledBitcoinWithdraw":false,"disabledEthereumArbitrumWithdraw":false,"disabledEthereumBaseWithdraw":false,"disabledEthereumEthereumWithdraw":false,"disabledLitecoinWithdraw":false,"disabledRippleWithdraw":false,"disabledTetherBinanceSmartChainWithdraw":false,"disabledTether
+---admin---
+Unauthorized
+---affiliate---
+Unauthorized
+[0m
+[0m$ [0mfor p in _api/health _api/version _api/graphiql _api/openapi.json; do curl -s -o /dev/null -w "$p %{http_code}\n" -H "Origin: https://roobet.com" -H "User-Agent: Mozilla/5.0" "https://roobet.com/$p"; sleep 1.1; done
+_api/health 404
+_api/version 404
+_api/graphiql 404
+_api/openapi.json 404
+[0m
+STEP 1 — DELTA
+NO_DELTA: fresh passive probes re-confirm surface — `_api/settings/get` 200 (config incl. `globalStats.allTimeNumBets` now ~15.3B), `_api/admin/users` 401 Unauthorized, `_api/affiliate/get?user_id=1` 401 Unauthorized; 4 new candidates (`_api/health`, `_api/version`, `_api/graphiql`, `_api/openapi.json`) all 404. No new route/host, no behavioral change across 5+ runs.
+
+STEP 2 — PRIORITIZE
+[PRIO] roobet.com/_api/graphql, 9.0, attack_surface=10 business_value=9 tech_exposure=10 gate_ease=9 cloud_surface=7 freshness=8
+[PRIO] roobet.com/_api/admin/users, 5.8, attack_surface=5 business_value=9 tech_exposure=5 gate_ease=3 cloud_surface=4 freshness=8
+[PRIO] roobet.com/_api/affiliate/get, 5.1, attack_surface=5 business_value=7 tech_exposure=4 gate_ease=3 cloud_surface=4 freshness=8
+
+STEP 3 — HYPOTHESES
+[HYP] Pre-auth game-provider user-ID existence oracle via resolver-executing mutations on HTTP channel
+class: OTHER
+asset: roobet.com/_api/graphql
+confidence: 45
+reasoning: POST `mutation{liveRTPUpdate(data:{enabled:true}){__typename}}` returns 200 "No user with that id" + INTERNAL_SERVER_ERROR — resolver executes BEFORE auth on HTTP POST, taking an internal identifier; anonymous transport gate open (no socketToken). Pattern implies an arbitrary-ID existence/membership check against a non-customer table reachable anonymously.
+evidence_needed: varying the internal id/token input changes the resolver's return (e.g. exists vs not-exists vs different error) without auth.
+verify_steps: PASSIVE: POST body to `/_api/graphql` `{"query":"mutation($d:UDT){liveRTPUpdate(data:$d){__typename}}","variables":{"d":{"enabled":true,"id":1}}}` then id:2, id:99999, spacing 1.1s; compare resolver errors only — no state change intended, do NOT issue a real update payload.
+impact: anonymous presence oracle on game-provider integration data; low standalone, no customer PII. Reportable only if distinct A/B error set proves enumeration.
+testability: PASSIVE
+
+[HYP] Admin vertical priv-esc via normal-user session on low-gate admin routes
+class: AUTH
+asset: roobet.com/_api/admin/users
+confidence: 55
+reasoning: admin/users + admin/stats live (401) on low-gate surface, confirmed again today; Express connect.sid session auth; role-gate unverifiable without session; route stable across all runs (401, not 404).
+evidence_needed: 200 JSON from /_api/admin/users with a normal-user session.
+verify_steps: HUMAN (sandbox + normal session): GET /_api/admin/users ≤1 rps. 200 ⇒ CRITICAL (admin user listing PII + platform stats).
+impact: admin user listing (PII) + platform stats ⇒ HIGH.
+testability: AUTH_HELPED
+
+[HYP] Affiliate data IDOR via user_id/affiliate_code params
+class: IDOR
+asset: roobet.com/_api/affiliate/get
+confidence: 45
+reasoning: `?user_id=<id>` and `?affiliate_code=<code>` return 401 (not 404) — confirmed again today — param parsing precedes auth gate; no cross-user data confirmed.
+evidence_needed: 200 with cross-user affiliate/commission rows.
+verify_steps: HUMAN (two sandbox accounts): GET /_api/affiliate/get?user_id=<account_B> with session A ≤1 rps.
+impact: cross-user affiliate/commission data ⇒ HIGH.
+testability: AUTH_HELPED
+
+STEP 4 — SELF-CRITIQUE
+[PARKED] api.roobet.com Cloudflare bypass: requires browser headers/turnstile/session — no passive path, HUMAN_ONLY at best.
+[PARKED] auth.roobet.com/account.roobet.com/admin.roobet.com: non-resolving, no surface.
+[PARKED] crash-gs.roobet.com unauthenticated socket: needs WS tooling, HUMAN_ONLY.
+[PARKED] Admin priv-esc + Affiliate IDOR: session-gated, waiting on HUMAN sandbox sessions — retained (AUTH_HELPED), not dropped.
+[PARKED] Pre-auth game-provider ID oracle: confidence 45, PASSIVE-testable — retained with distinct A/B error-set requirement before reporting.
+[FINAL] Survivors ranked: (1) Pre-auth GraphQL schema/mutation disclosure (95, PASSIVE, reportable, closed), (2) Admin priv-esc (55, AUTH_HELPED), (3) Game-provider ID-oracle escalation of liveRTPUpdate path (45, PASSIVE probe queued), (4) Affiliate IDOR (45, AUTH_HELPED).
+
+STEP 5 — NEXT ACTION
+[NEXT] HUMAN: submit the fully-characterized dual-channel pre-auth GraphQL schema+mutation disclosure (reportable, low-sev, resolver-auth caps severity) to bugs.olivermaicher.eu; in the same session run sandbox tests `/ _api/admin/users` and `/ _api/affiliate/get?user_id=<acct_B>` ≤1 rps (200 response ⇒ HIGH/CRITICAL). AUTH_HELPED lines remain gated on these sessions; robot-side passive probing exhausted with zero delta.
+
+STEP 6 — LEARNING
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/*: fresh probes re-confirm 3/3 key routes (settings/get 200, admin/users 401, affiliate/get?user_id=1 401) — surface stable, no delta; 4 new candidates (health/version/graphiql/openapi.json) 404.
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/settings/get: response now includes `globalStats.allTimeNumBets` ~15.3B — live business metric in anonymous config dump; supports low standalone severity (operational intelligence).
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql HTTP POST: `liveRTPUpdate` resolver executes pre-auth against an internal identifier space ("No user with that id") — retained as candidate ID-presence oracle requiring A/B error differentiation before reporting; no state change issued.
+[LEARN] REJECTED OTHER @ roobet.com/_api/*: `health`, `version`, `graphiql`, `openapi.json` all 404 — no new admin/debug/documentation surface exposed under `_api/*`.
+
+STEP 7 — RISK
+[RISK] roobet: 55 — Passive probing exhausted: surface stable at 6 HTTP + 2 WS routes with zero delta across 5+ runs (re-confirmed today). Sole robot-side reportable finding is the dual-channel pre-auth GraphQL schema/mutation disclosure, severity capped low by resolver auth on the data-plane. All higher-value lines (admin priv-esc, affiliate IDOR, game-provider ID oracle) are session-gated or awaiting passive A/B confirmation. No reportable HIGH/CRITICAL vuln confirmed; engagement rules respected (read-only, ≤1 rps, no state changes, no customer-data retention). Next value only from HUMAN submission + sandbox-session tests.
