@@ -215,3 +215,17 @@
 - 2026-09-07 ACCEPTED OTHER @ roobet.com/_api/settings/get: response now includes `globalStats.allTimeNumBets` ~15.3B — live business metric in anonymous config dump; supports low standalone severity (operational intelligence).
 - 2026-09-07 ACCEPTED OTHER @ roobet.com/_api/graphql HTTP POST: `liveRTPUpdate` resolver executes pre-auth against an internal identifier space ("No user with that id") — retained as candidate ID-presence oracle requiring A/B error differentiation before reporting; no state change issued.
 - 2026-09-07 REJECTED OTHER @ roobet.com/_api/*: `health`, `version`, `graphiql`, `openapi.json` all 404 — no new admin/debug/documentation surface exposed under `_api/*`.
+- 2026-09-07 REJECTED OTHER @ roobet.com/_api/auth/status: 404 — no auth-state/status senstive route on low-gate surface.
+- 2026-09-07 REJECTED OTHER @ roobet.com/_api/user/get: 404 — no user-object GET under _api (user data only reachable via session-gated admin or authenticated GraphQL resolvers).
+- 2026-09-07 REJECTED OTHER @ roobet.com/_api/admin/system: 404 — no system-health/admin-diagnostic route; admin family bounded to users/stats.
+- 2026-09-07 ACCEPTED OTHER @ roobet.com/_api/settings/get: fields stable (68 keys, no new config exposure); allTimeNumBets ~15.3B consistent with prior dump — config surface static.
+- 2026-09-07 ACCEPTED OTHER @ roobet.com/_api/graphql HTTP GET: Apollo GET transport enabled — CSRF gate bypassable via x-apollo-operation-name header; cacheable URL creates proxy/referrer leakage advantages. Low standalone severity.
+- 2026-09-07 ACCEPTED OTHER @ roobet.com/_api/admin/users: base path now consistently returns 401 (prior 404s were probe URL artifacts with backticks).
+- 2026-09-07 ACCEPTED OTHER @ roobet.com/_api/affiliate/get: parameter tests ?user_id/affiliate_code return 401 not 404 — confirms parameter parsing on low-gate surface.
+- 2026-09-07 REJECTED MISCONFIG @ roobet.com: OAuth metadata endpoints return SPA shell (catch-all route), not JSON configuration.
+- 2026-09-07 REJECTED MISCONFIG @ fs.roobet.com: GCS bucket ?list-type=2 redirects to fullstory.com; no object enumeration possible.
+- 2026-09-07 REJECTED OTHER @ api.roobet.com: GraphQL endpoint blocked by Cloudflare bot management (403) without valid Origin/Referer/browser session.
+- 2026-09-07 ACCEPTED MISCONFIG @ roobet.com: Remix catch-all route masks potential API endpoints under /api/* paths.
+- 2026-09-07 PARKED api.roobet.com Cloudflare bypass: Requires valid browser headers/session/turnstile to test.
+- 2026-09-07 PARKED auth.roobet.com/account.roobet.com/admin.roobet.com: Subdomains unresponsive; no attack surface confirmed.
+- 2026-09-07 PARKED crash-gs.roobet.com unauthenticated socket: Requires browser/WS tooling, HUMAN_ONLY.

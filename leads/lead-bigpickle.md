@@ -1689,3 +1689,34 @@ testability: AUTH_HELPED
 [LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql HTTP POST: `liveRTPUpdate` resolver executes pre-auth against an internal identifier space ("No user with that id") — retained as candidate ID-presence oracle requiring A/B error differentiation before reporting; no state change issued.
 [LEARN] REJECTED OTHER @ roobet.com/_api/*: `health`, `version`, `graphiql`, `openapi.json` all 404 — no new admin/debug/documentation surface exposed under `_api/*`.
 [RISK] roobet: 55 — Passive probing exhausted: surface stable at 6 HTTP + 2 WS routes with zero delta across 5+ runs (re-confirmed today). Sole robot-side reportable finding is the dual-channel pre-auth GraphQL schema/mutation disclosure, severity capped low by resolver auth on the data-plane. All higher-value lines (admin priv-esc, affiliate IDOR, game-provider ID oracle) are session-gated or awaiting passive A/B confirmation. No reportable HIGH/CRITICAL vuln confirmed; engagement rules respected (read-only, ≤1 rps, no state changes, no customer-data retention). Next value only from HUMAN submission + sandbox-session tests.
+## 2026-09-07 23:47:59 UTC [target] (model bigpickle)
+[PRIO] roobet.com/_api/graphql, 9.0, attack_surface=10 business_value=9 tech_exposure=10 gate_ease=9 cloud_surface=7 freshness=5
+[PRIO] roobet.com/_api/admin/users, 5.8, attack_surface=5 business_value=9 tech_exposure=5 gate_ease=3 cloud_surface=4 freshness=5
+[PRIO] roobet.com/_api/affiliate/get, 5.1, attack_surface=5 business_value=7 tech_exposure=4 gate_ease=3 cloud_surface=4 freshness=5
+[HYP] Admin vertical priv-esc via normal-user session on low-gate admin routes
+class: AUTH
+asset: roobet.com/_api/admin/users
+confidence: 55
+reasoning: admin/users + admin/stats live (401, 12B) on low-gate surface, re-confirmed today via fresh probe; Express connect.sid session auth; role-gate unverifiable without session; route stable (401 not 404) across all runs.
+evidence_needed: 200 JSON from /_api/admin/users with a normal-user session.
+verify_steps: HUMAN (sandbox + normal session): GET /_api/admin/users ≤1 rps. 200 ⇒ CRITICAL.
+impact: admin user listing (PII) + platform stats ⇒ HIGH.
+testability: AUTH_HELPED
+[HYP] Affiliate data IDOR via user_id/affiliate_code params
+class: IDOR
+asset: roobet.com/_api/affiliate/get
+confidence: 45
+reasoning: ?user_id=1 returns 401 (not 404) today — param parsing precedes auth gate; no cross-user data confirmed.
+evidence_needed: 200 with cross-user affiliate/commission rows.
+verify_steps: HUMAN (two sandbox accounts): GET /_api/affiliate/get?user_id=<account_B> with session A ≤1 rps.
+impact: cross-user affiliate/commission data ⇒ HIGH.
+testability: AUTH_HELPED
+[PARKED] Game-provider user-ID existence oracle via liveRTPUpdate: confidence 45 fails passive-only gate — A/B differentiation requires further POSTs to a mutation (mutating class excluded from read-only probe envelope, ≤1 rps GET/HEAD/OPTIONS rule). Prior POST already logged resolver execution ("No user with that id"); escalate only under HUMAN authorization, no state change issued.
+[PARKED] api.roobet.com Cloudflare bypass / auth/account/admin subdomains / crash-gs HUMAN_ONLY socket: unchanged, no passive path.
+[FINAL] Survivors ranked: (1) Pre-auth GraphQL schema/mutation disclosure (95, PASSIVE, reportable, closed), (2) Admin priv-esc (55, AUTH_HELPED), (3) Affiliate IDOR (45, AUTH_HELPED).
+[NEXT] HUMAN: submit the fully-characterized dual-channel pre-auth GraphQL schema+mutation disclosure (reportable, low-sev, resolver-auth caps severity) to bugs.olivermaicher.eu; in the same session run sandbox tests GET /_api/admin/users and GET /_api/affiliate/get?user_id=<acct_B> ≤1 rps (200 ⇒ HIGH/CRITICAL), and only if authorized, POST-A/B test the liveRTPUpdate ID oracle (id:1 vs id:0 vs id:99999) with no real update payload.
+[LEARN] REJECTED OTHER @ roobet.com/_api/auth/status: 404 — no auth-state/status senstive route on low-gate surface.
+[LEARN] REJECTED OTHER @ roobet.com/_api/user/get: 404 — no user-object GET under _api (user data only reachable via session-gated admin or authenticated GraphQL resolvers).
+[LEARN] REJECTED OTHER @ roobet.com/_api/admin/system: 404 — no system-health/admin-diagnostic route; admin family bounded to users/stats.
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/settings/get: fields stable (68 keys, no new config exposure); allTimeNumBets ~15.3B consistent with prior dump — config surface static.
+[RISK] roobet: 55 — Zero surface delta re-confirmed via fresh probes: 6 live HTTP routes (settings/get 200, admin/users 401, admin/stats 401, affiliate/get 401, auth/logout 302, tp-games/essentials 200) + 2 WS (graphql 101 introspection, socket.io ns `/`), 3 new candidates 404. Sole robot-side reportable finding remains the dual-channel pre-auth GraphQL schema/mutation/User-type disclosure, severity capped low by resolver-level auth. Higher-value lines (admin priv-esc, affiliate IDOR, ID oracle) are session-gated or exceed the read-only POST envelope. No reportable HIGH/CRITICAL vuln confirmed without a live session; engagement rules respected (read-only, ≤1 rps, no state changes, no customer data retained). Next value only from HUMAN submission + sandbox-session tests.

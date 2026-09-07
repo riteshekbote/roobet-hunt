@@ -415,3 +415,8 @@ www.roobet.com
 - CHANGED auth/account/admin/billing/dashboard/sso + 13 subdomains: non-resolving/internal
 - CHANGED fs.roobet.com GCS ?list-type=2 → fullstory.com redirect; no enumeration
 - CHANGED roobet.com OAuth metadata endpoints return SPA shell (Remix catch-all), not JSON
+
+## 2026-09-07 23:48:21 UTC
+- NEW roobet.com/_api/graphql HTTP channel live: POST mutation resolver executes pre-auth (liveRTPUpdate → 200 "No user with that id" + INTERNAL_SERVER_ERROR), GET enables Apollo transport (CSRF bypass via 
+- CHANGED roobet.com/_api/admin/users, /_api/admin/stats, /_api/affiliate/get base paths now consistently return 401 (prior 404s were probe URL artifacts with backticks)
+- CHANGED Surface stable: 6 HTTP routes + 2 WS routes confirmed across 5+ runs; zero delta
