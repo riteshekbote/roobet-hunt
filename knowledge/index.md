@@ -207,3 +207,4 @@
 - 2026-09-07 PARKED api.roobet.com Cloudflare bypass: Requires valid browser headers/session/turnstile to test
 - 2026-09-07 PARKED auth.roobet.com/account.roobet.com/admin.roobet.com: Subdomains unresponsive; no attack surface confirmed
 - 2026-09-07 PARKED crash-gs.roobet.com unauthenticated socket: Requires browser/WS tooling, HUMAN_ONLY
+- 2026-09-07 REJECTED OTHER @ roobet.com/_api/graphql HTTP GET __type: INTROSPECTION_DISABLED server-side; no partial type introspection via HTTP.
