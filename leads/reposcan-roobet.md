@@ -128,3 +128,12 @@ TARGET_ORG not configured for roobet; skipping public-org deep scan.
 TARGET_ORG not configured for roobet; skipping public-org deep scan.
 ## REPOSCAN 2026-09-08 20:19:05 UTC
 TARGET_ORG not configured for roobet; skipping public-org deep scan.
+## REPOSCAN 2026-09-08 22:46:28 UTC
+[HYP] N/A — No org-owned repos found
+class: N/A
+asset: N/A
+confidence: N/A
+reasoning: Roobet has no public GitHub organization. All discovered repos are third-party/unofficial. The bug bounty program at bugs.olivermaicher.eu does not include public source code review as an in-scope attack vector — scope is the live platform.
+impact: N/A
+verify_steps: N/A
+TARGET_ORG not configured for roobet; skipping public-org deep scan.
