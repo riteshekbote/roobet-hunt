@@ -1,11 +1,4 @@
-## 2026-09-08 03:53:49 UTC [target] (model nemotron3)
-[CHANGED] Surface stable across 5+ runs: 6 HTTP routes + 2 WS routes on roobet.com/_api/* confirmed; zero delta in hosts/routes
-[CHANGED] roobet.com/_api/graphql HTTP channel fully characterized: Apollo GET transport (CSRF bypass via x-apollo-operation-name), POST mutation resolver executes pre-auth (liveRTPUpdate → "No user with that id"), __type introspection disabled on HTTP (WS only)
-[CHANGED] roobet.com/_api/admin/users, /_api/admin/stats, /_api/affiliate/base paths consistently return 401 (prior 404s were probe artifacts)
-[CHANGED] api.roobet.com, auth.roobet.com, account.roobet.com, admin.roobet.com, billing.roobet.com, dashboard.roobet.com, sso.roobet.com + 13 others: non-resolving/internal (000/timeout) — no delta
-[CHANGED] crash-gs.roobet.com Socket.IO TLS upgrade open (no 4xx) then app-timeout; HUMAN_ONLY — no delta
-[CHANGED] fs.roobet.com GCS ?list-type=2 → fullstory.com redirect; no enumeration — no delta
-[CHANGED] roobet.com OAuth metadata endpoints return SPA shell (Remix catch-all), not JSON — no delta
+## 2026-09-08 08:49:35 UTC [target] (model nemotron3)
 [PRIO] roobet.com/_api/graphql,8.50,attack_surface=9,business_value=8,tech_exposure=9,gate_ease=10,cloud_surface=5,freshness=9
 [PRIO] roobet.com/_api/admin/users,6.65,attack_surface=7,business_value=9,tech_exposure=6,gate_ease=3,cloud_surface=5,freshness=8
 [PRIO] roobet.com/_api/socket.io,6.60,attack_surface=6,business_value=5,tech_exposure=7,gate_ease=10,cloud_surface=5,freshness=8
