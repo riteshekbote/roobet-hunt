@@ -1860,3 +1860,33 @@ testability: AUTH_HELPED
 [LEARN] REJECTED OTHER @ roobet.com/_api/*: 10 new family candidates all 404 — route families bounded.
 [LEARN] PARKED api.roobet.com Cloudflare bypass / auth/account/admin subdomains / crash-gs HUMAN_ONLY socket: unchanged, no passive path.
 [RISK] roobet: 55 — Surface stable with zero delta across runs. Sole robot-side reportable finding is the dual-channel pre-auth GraphQL schema+mutation disclosure, severity capped low by resolver auth on data-plane. Server patched liveRTPUpdate error message (400 now) but resolver still executes pre-auth. All higher-value lines (admin priv-esc, affiliate IDOR, ID oracle) remain session-gated or exceed read-only POST envelope. No reportable HIGH/CRITICAL without a live session; engagement rules respected (read-only, ≤1 rps, no state changes, no customer data retained). Next value only from HUMAN submission + sandbox-session tests.
+## 2026-09-08 22:46:19 UTC [target] (model bigpickle)
+[HYP] Pre-auth GraphQL schema/mutation/User-type disclosure via dual HTTP+WS channel
+class: OTHER
+asset: roobet.com/_api/graphql
+confidence: 95
+reasoning: Anonymous `graphql-transport-ws` (101 + connection_ack, no socketToken) + full introspection (Query 28/Mut 26/Sub 7) incl. 64-field User type (email, KYC PII, financial, auth tokens, role flags); all 26 mutations pass validation anonymously leaking InputType/enum/scalar shapes; HTTP GET transport enabled (CSRF gate bypassed via `x-apollo-operation-name`); INTROSPECTION_DISABLED on HTTP only; `liveRTPUpdate` resolver executes pre-auth on HTTP (now 400+3×INTERNAL_SERVER_ERROR — server suppressed "No user with that id" message but resolver still runs, not 401/NOT_AUTHENTICATED).
+evidence_needed: None — fully characterized; sole robot-side reportable line.
+verify_steps: HUMAN: submit to bugs.olivermaicher.eu with WS introspection output, HTTP GET CSRF-gate bypass, mutation validation error disclosure, liveRTPUpdate pre-auth execution proof.
+impact: schema/PII-structure disclosure + ID-oracle priming; low standalone severity (resolver auth caps data-plane).
+testability: PASSIVE
+[HYP] Admin vertical priv-esc via normal-user session
+class: AUTH
+asset: roobet.com/_api/admin/users
+confidence: 55
+reasoning: admin/users + admin/stats live at 401 (re-confirmed today); Express connect.sid auth; not behind Cloudflare bot-gate; role-gate unverifiable without session.
+evidence_needed: 200 JSON from /_api/admin/users with normal-user session.
+verify_steps: HUMAN (sandbox+normal session): GET /_api/admin/users ≤1 rps. 200 ⇒ CRITICAL (staff/PII listing + stats).
+impact: admin user listing (PII) + platform stats ⇒ HIGH.
+testability: AUTH_HELPED
+[HYP] Affiliate data IDOR via user_id/affiliate_code params
+class: IDOR
+asset: roobet.com/_api/affiliate/get
+confidence: 45
+reasoning: ?user_id=1 returns 401 not 404 (re-confirmed today) — parameter parsing precedes auth gate; no cross-user data confirmed.
+evidence_needed: 200 with cross-user affiliate/commission rows.
+verify_steps: HUMAN (two sandbox accounts): GET /_api/affiliate/get?user_id=<acct_B> with session A ≤1 rps.
+impact: cross-user affiliate/commission data ⇒ HIGH.
+testability: AUTH_HELPED
+[NEXT] HUMAN: (1) Submit the fully-characterized dual-channel pre-auth GraphQL disclosure to bugs.olivermaicher.eu (WS introspection Query28/Mut26/Sub7 + 64-field User PII graph + mutation validation error disclosure + HTTP GET CSRF-gate bypass via x-apollo-operation-name + liveRTPUpdate pre-auth execution 400+INTERNAL_SERVER_ERROR + INTROSPECTION_DISABLED-on-HTTP asymmetry), severity low. (2) Same session, sandbox tests ≤1 rps: GET /_api/admin/users (200 ⇒ CRITICAL), GET /_api/affiliate/get?user_id=<acct_B> (200 ⇒ HIGH).
+[RISK] roobet: 55 — Surface static across consecutive runs (6 HTTP + 2 WS routes; config dump reduced to 35 keys; liveRTPUpdate message leak patched). Sole robot-side reportable finding is the dual-channel pre-auth GraphQL schema+mutation disclosure, severity capped low by resolver auth. All HIGH/CRITICAL-value lines (admin priv-esc, affiliate IDOR, ID oracle) remain session-gated or exceed the read-only POST envelope. Engagement rules respected (read-only, ≤1 rps, no state changes, no customer data retained). Next value only from HUMAN submission + sandbox-session tests.

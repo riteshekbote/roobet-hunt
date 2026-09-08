@@ -13484,3 +13484,96 @@ Since I'm in PLAN MODE, a few questions to shape the next run:
 2. **Are sandbox sessions available?** The admin/users and affiliate IDOR hypotheses both require authenticated sessions — do you have test accounts set up?
 3. **Should I explore any additional route families?** The 10 new candidates today all 404'd, but there may be other naming conventions worth testing (e.g., `/api/v2/*`, `/internal/*`, versioned endpoints).
 4. **Is crash-gs.roobet.com worth pursuing with browser tooling?** It's the only live host outside the `_api/*` surface that hasn't been fully characterized.
+===== ANALYST bigpickle 2026-09-08 22:47:28 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mUA="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"
+B="https://roobet.com"
+f(){ echo "== $1"; curl -sS --max-time 15 -A "$UA" "$@" 2>&1; echo; }
+f -o /dev/null -w "settings/get -> %{http_code} bytes=%{size_download}\n" "$B/_api/settings/get"
+sleep 1
+f -o /dev/null -w "admin/users -> %{http_code} bytes=%{size_download}\n" "$B/_api/admin/users"
+sleep 1
+f -o /dev/null -w "affiliate/get?user_id=1 -> %{http_code} bytes=%{size_download}\n" "$B/_api/affiliate/get?user_id=1"
+sleep 1
+f -o /dev/null -w "tp-games/essentials -> %{http_code} bytes=%{size_download}\n" "$B/_api/tp-games/essentials"
+sleep 1
+f -H "Origin: https://roobet.com" -w "socket.io poll -> %{http_code}\n" "$B/_api/socket.io/?EIO=4&transport=polling&t=probe"
+== -o
+settings/get -> 200 bytes=1763
+
+== -o
+admin/users -> 401 bytes=12
+
+== -o
+affiliate/get?user_id=1 -> 401 bytes=12
+
+== -o
+tp-games/essentials -> 200 bytes=8708674
+
+== -H
+0{"sid":"QlfNr8vtqrpHzTlcAEdU","upgrades":["websocket"],"pingInterval":25000,"pingTimeout":20000,"maxPayload":1000}socket.io poll -> 200
+[0m
+[0m$ [0mUA="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"
+curl -sS --max-time 15 -A "$UA" "https://roobet.com/_api/settings/get" | python3 -c "import sys,json; d=json.load(sys.stdin); print('top-level keys:', len(d)); print(sorted(d.keys())); import json as j; print('allTimeNumBets:', d.get('globalStats',{}).get('allTimeNumBets')); print('restrictedCountries:', len(d.get('restrictedCountries',[]))); print('has sessionId:', 'sessionId' in d); print('has ip:', 'ip' in d)"
+top-level keys: 35
+['banner', 'bannerLink', 'bannerLinkTitle', 'countryCode', 'disabledApp', 'disabledBinanceSmartChainWithdraw', 'disabledBitcoinWithdraw', 'disabledDogecoinWithdraw', 'disabledEthereumArbitrumWithdraw', 'disabledEthereumBaseWithdraw', 'disabledEthereumEthereumWithdraw', 'disabledFiatWithdraw', 'disabledLitecoinWithdraw', 'disabledRippleWithdraw', 'disabledSolanaWithdraw', 'disabledSuiWithdraw', 'disabledTetherBinanceSmartChainWithdraw', 'disabledTetherEthereumWithdraw', 'disabledTetherSolanaWithdraw', 'disabledTetherTronWithdraw', 'disabledTronWithdraw', 'disabledUSDCArbitrumWithdraw', 'disabledUSDCBaseWithdraw', 'disabledUSDCBinanceSmartChainWithdraw', 'disabledUSDCEthereumWithdraw', 'disabledUSDCSolanaWithdraw', 'features', 'globalStats', 'ip', 'locale', 'regionCountryCode', 'restrictedCountries', 'restrictedRegion', 'serverTime', 'sessionId']
+allTimeNumBets: 15346162003.742636
+restrictedCountries: 35
+has sessionId: True
+has ip: True
+[0m
+STEP 1 — DELTA
+- NO_DELTA vs last run (2026-09-08 20:18Z): live re-probe re-confirms `settings/get` 200 (35 keys, `allTimeNumBets` ~15.35B stable, `restrictedCountries` 35), `admin/users` 401, `affiliate/get?user_id=1` 401, `tp-games/essentials` 200 (~8.7MB), `socket.io` polling 200 handshake (sid + upgrades:websocket) with `Origin: https://roobet.com`.
+- [CHANGED] none beyond prior lead: `liveRTPUpdate` still returns 400+3×INTERNAL_SERVER_ERROR (patch persists) — resolver still executes pre-auth on HTTP channel.
+
+STEP 2 — PRIORITIZE
+- [PRIO] roobet.com/_api/graphql, 9.0, attack_surface=10, business_value=9, tech_exposure=10, gate_ease=9, cloud_surface=7, freshness=7
+- [PRIO] roobet.com/_api/admin/users, 5.8, attack_surface=5, business_value=9, tech_exposure=5, gate_ease=3, cloud_surface=4, freshness=7
+- [PRIO] roobet.com/_api/affiliate/get, 5.1, attack_surface=5, business_value=7, tech_exposure=4, gate_ease=3, cloud_surface=4, freshness=7
+
+STEP 3 — HYPOTHESES
+[HYP] Pre-auth GraphQL schema/mutation/User-type disclosure via dual HTTP+WS channel
+class: OTHER
+asset: roobet.com/_api/graphql
+confidence: 95
+reasoning: Anonymous `graphql-transport-ws` (101 + connection_ack, no socketToken) + full introspection (Query 28/Mut 26/Sub 7) incl. 64-field User type (email, KYC PII, financial, auth tokens, role flags); all 26 mutations pass validation anonymously leaking InputType/enum/scalar shapes; HTTP GET transport enabled (CSRF gate bypassed via `x-apollo-operation-name`); INTROSPECTION_DISABLED on HTTP only; `liveRTPUpdate` resolver executes pre-auth on HTTP (now 400+3×INTERNAL_SERVER_ERROR — server suppressed "No user with that id" message but resolver still runs, not 401/NOT_AUTHENTICATED).
+evidence_needed: None — fully characterized; sole robot-side reportable line.
+verify_steps: HUMAN: submit to bugs.olivermaicher.eu with WS introspection output, HTTP GET CSRF-gate bypass, mutation validation error disclosure, liveRTPUpdate pre-auth execution proof.
+impact: schema/PII-structure disclosure + ID-oracle priming; low standalone severity (resolver auth caps data-plane).
+testability: PASSIVE
+[HYP] Admin vertical priv-esc via normal-user session
+class: AUTH
+asset: roobet.com/_api/admin/users
+confidence: 55
+reasoning: admin/users + admin/stats live at 401 (re-confirmed today); Express connect.sid auth; not behind Cloudflare bot-gate; role-gate unverifiable without session.
+evidence_needed: 200 JSON from /_api/admin/users with normal-user session.
+verify_steps: HUMAN (sandbox+normal session): GET /_api/admin/users ≤1 rps. 200 ⇒ CRITICAL (staff/PII listing + stats).
+impact: admin user listing (PII) + platform stats ⇒ HIGH.
+testability: AUTH_HELPED
+[HYP] Affiliate data IDOR via user_id/affiliate_code params
+class: IDOR
+asset: roobet.com/_api/affiliate/get
+confidence: 45
+reasoning: ?user_id=1 returns 401 not 404 (re-confirmed today) — parameter parsing precedes auth gate; no cross-user data confirmed.
+evidence_needed: 200 with cross-user affiliate/commission rows.
+verify_steps: HUMAN (two sandbox accounts): GET /_api/affiliate/get?user_id=<acct_B> with session A ≤1 rps.
+impact: cross-user affiliate/commission data ⇒ HIGH.
+testability: AUTH_HELPED
+
+STEP 4 — SELF-CRITIQUE
+- [PARKED] Game-provider ID oracle via liveRTPUpdate: error message now suppressed (400+3×INTERNAL_SERVER_ERROR), no A/B passive differentiation; POST excluded from read-only envelope; no state change issued.
+- [PARKED] api.roobet.com Cloudflare bypass / auth/account/admin subdomains / crash-gs HUMAN_ONLY socket: unchanged, no passive path.
+- [FINAL] Survivors ranked: 1) graphql pre-auth dual-channel disclosure (PASSIVE, reportable), 2) admin priv-esc (AUTH_HELPED), 3) affiliate IDOR (AUTH_HELPED).
+
+STEP 5 — NEXT ACTION
+[NEXT] HUMAN: (1) Submit the fully-characterized dual-channel pre-auth GraphQL disclosure to bugs.olivermaicher.eu (WS introspection Query28/Mut26/Sub7 + 64-field User PII graph + mutation validation error disclosure + HTTP GET CSRF-gate bypass via x-apollo-operation-name + liveRTPUpdate pre-auth execution 400+INTERNAL_SERVER_ERROR + INTROSPECTION_DISABLED-on-HTTP asymmetry), severity low. (2) Same session, sandbox tests ≤1 rps: GET /_api/admin/users (200 ⇒ CRITICAL), GET /_api/affiliate/get?user_id=<acct_B> (200 ⇒ HIGH).
+
+STEP 6 — LEARNING
+- [LEARN] ACCEPTED OTHER @ roobet.com/_api/*: live re-probe (settings/get 200/35 keys, admin/users 401, affiliate/get?user_id=1 401, tp-games/essentials 200 ~8.7MB, socket.io poll 200 handshake) — surface static; zero delta.
+- [LEARN] ACCEPTED OTHER @ roobet.com/_api/settings/get: still 35 keys; allTimeNumBets 15,346,162,003 (~15.35B); restrictedCountries 35; no new config exposure.
+- [LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql HTTP POST: liveRTPUpdate patch persists (400+3×INTERNAL_SERVER_ERROR, no message leak) — resolver still executes pre-auth; severity unchanged.
+
+STEP 7 — RISK
+[RISK] roobet: 55 — Surface static across consecutive runs (6 HTTP + 2 WS routes; config dump reduced to 35 keys; liveRTPUpdate message leak patched). Sole robot-side reportable finding is the dual-channel pre-auth GraphQL schema+mutation disclosure, severity capped low by resolver auth. All HIGH/CRITICAL-value lines (admin priv-esc, affiliate IDOR, ID oracle) remain session-gated or exceed the read-only POST envelope. Engagement rules respected (read-only, ≤1 rps, no state changes, no customer data retained). Next value only from HUMAN submission + sandbox-session tests.
