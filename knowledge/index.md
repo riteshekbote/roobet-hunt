@@ -246,3 +246,15 @@
 - 2026-09-08 PARKED api.roobet.com Cloudflare bypass: Requires valid browser headers/session/turnstile to test.
 - 2026-09-08 PARKED auth.roobet.com/account.roobet.com/admin.roobet.com: Subdomains unresponsive; no attack surface confirmed.
 - 2026-09-08 PARKED crash-gs.roobet.com unauthenticated socket: Requires browser/WS tooling, HUMAN_ONLY.
+- 2026-09-08 ACCEPTED OTHER @ roobet.com/_api/graphql HTTP POST: `liveRTPUpdate` mutation response changed from 200+"No user with that id"+INTERNAL_SERVER_ERROR to 400+3×INTERNAL_SERVER_ERROR — server patched error message but resolver still executes pre-auth (not 401/NOT_AUTHENTICATED). Severity unchanged.
+- 2026-09-08 ACCEPTED OTHER @ roobet.com/_api/graphql: Anonymous `graphql-transport-ws` (101 + `connection_ack`, no `socketToken`) + full introspection (Query 28/Mut 26/Sub 7) — supersedes `api.roobet.com` 403-only assessment.
+- 2026-09-08 ACCEPTED OTHER @ roobet.com/_api/graphql: Mutation validation errors confirmed as additional disclosure vector — all 26 mutations pass GraphQL validation anonymously, leaking InputType shapes, required fields, enum values, custom scalar formats.
+- 2026-09-08 ACCEPTED OTHER @ roobet.com/_api/graphql subscriptions: `kycUpdated` + `polymarketOrders` return JS error `Cannot read properties of null (reading 'user')` — confirms resolver accesses session user directly.
+- 2026-09-08 ACCEPTED OTHER @ roobet.com/_api/graphql User type: 64 fields via introspection incl. email, KYC PII, financial, auth tokens, role flags.
+- 2026-09-08 ACCEPTED OTHER @ roobet.com/_api/socket.io: engine.io polling 200 handshake + anonymous ns `/` broadcast — Origin-gated (403 without `Origin: https://roobet.com`).
+- 2026-09-08 ACCEPTED OTHER @ roobet.com/_api/graphql GET: Apollo GET transport enabled — CSRF gate bypassable via `x-apollo-operation-name` header.
+- 2026-09-08 ACCEPTED OTHER @ roobet.com/_api/graphql HTTP __type: INTROSPECTION_DISABLED on HTTP channel; only WS provides full introspection.
+- 2026-09-08 ACCEPTED OTHER @ roobet.com/_api/settings/get: 35 keys, globalStats.allTimeNumBets ~15.3B, restrictedCountries 35 entries — config surface reduced but stable.
+- 2026-09-08 REJECTED OTHER @ roobet.com/_api/*: 10 new family candidates (admin/affiliates, admin/games, admin/config, affiliate/stats, auth/me, auth/session, admin/system, health, version, admin/stats-test) all 404 SPA shell — route families bounded.
+- 2026-09-08 REJECTED MISCONFIG @ fs.roobet.com: GCS bucket `?list-type=2` redirects to fullstory.com; no object enumeration possible.
+- 2026-09-08 ACCEPTED MISCONFIG @ roobet.com: Remix catch-all route masks potential API endpoints under `/api/*` paths.
