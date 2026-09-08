@@ -461,3 +461,10 @@ www.roobet.com
 - CHANGED roobet.com/_api/admin/users: base path now consistently returns 401 (prior 404s were probe URL artifacts with backticks)
 - CHANGED roobet.com/_api/affiliate/get: parameter tests `?user_id`/`affiliate_code` return 401 not 404 — confirms parameter parsing on low-gate surface
 - CHANGED Surface stable: 6 HTTP routes + 2 WS routes confirmed across 5+ runs; zero delta in hosts/routes
+
+## 2026-09-08 20:18:43 UTC
+- NEW roobet.com/_api/graphql HTTP POST liveRTPUpdate error message changed from 200 "No user with that id" + INTERNAL_SERVER_ERROR to 400 + 3× INTERNAL_SERVER_ERROR — server patched error message but resol
+- NEW roobet.com/_api/settings/get response reduced from 68 to 35 keys (config surface reduced); globalStats.allTimeNumBets stable at ~15.3B; restrictedCountries now 35 entries (was 33)
+- CHANGED roobet.com/_api/admin/users base path consistently returns 401 (prior 404s were probe URL artifacts)
+- CHANGED roobet.com/_api/affiliate/get parameter tests ?user_id/affiliate_code return 401 not 404 — confirms parameter parsing on low-gate surface
+- CHANGED Surface stable: 6 HTTP routes + 2 WS routes confirmed across 5+ runs; zero delta in hosts/routes
