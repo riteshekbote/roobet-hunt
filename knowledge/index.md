@@ -229,3 +229,20 @@
 - 2026-09-07 PARKED api.roobet.com Cloudflare bypass: Requires valid browser headers/session/turnstile to test.
 - 2026-09-07 PARKED auth.roobet.com/account.roobet.com/admin.roobet.com: Subdomains unresponsive; no attack surface confirmed.
 - 2026-09-07 PARKED crash-gs.roobet.com unauthenticated socket: Requires browser/WS tooling, HUMAN_ONLY.
+- 2026-09-08 ACCEPTED OTHER @ roobet.com/_api/socket.io: polling transport Origin-gated — 403 `disallowed origin` without `Origin: https://roobet.com`, 200 handshake with it; realtime surface mechanistically re-confirmed, no delta.
+- 2026-09-08 ACCEPTED OTHER @ roobet.com/_api/graphql GET: CSRF preflight confirmed via error body — requires non-form content-type or `x-apollo-operation-name`/`apollo-require-preflight`; Apollo GET transport behavior consistent with prior characterization.
+- 2026-09-08 REJECTED OTHER @ roobet.com/_api/*: 6 new family candidates (admin/affiliates, admin/games, admin/config, affiliate/stats, auth/me, auth/session) all 404 SPA shell — admin/affiliate/auth route families bounded; zero new surface.
+- 2026-09-08 ACCEPTED OTHER @ roobet.com/_api/graphql HTTP GET: Apollo GET transport enabled — CSRF gate bypassable via x-apollo-operation-name header; cacheable URL creates proxy/referrer leakage advantages. Low standalone severity.
+- 2026-09-08 ACCEPTED OTHER @ roobet.com/_api/graphql HTTP POST: mutation liveRTPUpdate → 200 "No user with that id" + INTERNAL_SERVER_ERROR — resolver executes pre-auth on HTTP channel. Earlier "400" observation was a no-body GET artifact.
+- 2026-09-08 ACCEPTED OTHER @ roobet.com/_api/graphql HTTP __type: INTROSPECTION_DISABLED on HTTP channel — `__type(name:"User")` blocked; only WS provides full introspection.
+- 2026-09-08 REJECTED OTHER @ roobet.com/_api/graphql HTTP GET __type with introspection: INTROSPECTION_DISABLED server-side; no partial type introspection via HTTP.
+- 2026-09-08 ACCEPTED OTHER @ roobet.com/_api/*: zero surface delta on HTTP routes (6 live + 2 WS); remaining hypotheses session-gated.
+- 2026-09-08 ACCEPTED OTHER @ roobet.com/_api/admin/users: base path now consistently returns 401 (prior 404s were probe URL artifacts with backticks).
+- 2026-09-08 ACCEPTED OTHER @ roobet.com/_api/affiliate/get: parameter tests ?user_id/affiliate_code return 401 not 404 — confirms parameter parsing on low-gate surface.
+- 2026-09-08 REJECTED MISCONFIG @ roobet.com: OAuth metadata endpoints return SPA shell (catch-all route), not JSON configuration.
+- 2026-09-08 REJECTED MISCONFIG @ fs.roobet.com: GCS bucket ?list-type=2 redirects to fullstory.com; no object enumeration possible.
+- 2026-09-08 REJECTED OTHER @ api.roobet.com: GraphQL endpoint blocked by Cloudflare bot management (403) without valid Origin/Referer/browser session.
+- 2026-09-08 ACCEPTED MISCONFIG @ roobet.com: Remix catch-all route masks potential API endpoints under /api/* paths.
+- 2026-09-08 PARKED api.roobet.com Cloudflare bypass: Requires valid browser headers/session/turnstile to test.
+- 2026-09-08 PARKED auth.roobet.com/account.roobet.com/admin.roobet.com: Subdomains unresponsive; no attack surface confirmed.
+- 2026-09-08 PARKED crash-gs.roobet.com unauthenticated socket: Requires browser/WS tooling, HUMAN_ONLY.

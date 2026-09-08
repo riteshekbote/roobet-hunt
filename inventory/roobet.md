@@ -420,3 +420,12 @@ www.roobet.com
 - NEW roobet.com/_api/graphql HTTP channel live: POST mutation resolver executes pre-auth (liveRTPUpdate → 200 "No user with that id" + INTERNAL_SERVER_ERROR), GET enables Apollo transport (CSRF bypass via 
 - CHANGED roobet.com/_api/admin/users, /_api/admin/stats, /_api/affiliate/get base paths now consistently return 401 (prior 404s were probe URL artifacts with backticks)
 - CHANGED Surface stable: 6 HTTP routes + 2 WS routes confirmed across 5+ runs; zero delta
+
+## 2026-09-08 03:53:58 UTC
+- CHANGED Surface stable across 5+ runs: 6 HTTP routes + 2 WS routes on roobet.com/_api/* confirmed; zero delta in hosts/routes
+- CHANGED roobet.com/_api/graphql HTTP channel fully characterized: Apollo GET transport (CSRF bypass via x-apollo-operation-name), POST mutation resolver executes pre-auth (liveRTPUpdate → "No user with that i
+- CHANGED roobet.com/_api/admin/users, /_api/admin/stats, /_api/affiliate/base paths consistently return 401 (prior 404s were probe artifacts)
+- CHANGED api.roobet.com, auth.roobet.com, account.roobet.com, admin.roobet.com, billing.roobet.com, dashboard.roobet.com, sso.roobet.com + 13 others: non-resolving/internal (000/timeout) — no delta
+- CHANGED crash-gs.roobet.com Socket.IO TLS upgrade open (no 4xx) then app-timeout; HUMAN_ONLY — no delta
+- CHANGED fs.roobet.com GCS ?list-type=2 → fullstory.com redirect; no enumeration — no delta
+- CHANGED roobet.com OAuth metadata endpoints return SPA shell (Remix catch-all), not JSON — no delta
