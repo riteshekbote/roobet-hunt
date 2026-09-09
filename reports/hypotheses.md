@@ -1193,3 +1193,7 @@
 - LEARN: PARKED api.roobet.com Cloudflare bypass: Requires valid browser headers/session/turnstile to test.
 - LEARN: PARKED auth.roobet.com/account.roobet.com/admin.roobet.com: Subdomains unresponsive; no attack surface confirmed.
 - LEARN: PARKED crash-gs.roobet.com unauthenticated socket: Requires browser/WS tooling, HUMAN_ONLY.
+
+## RANKED HYPOTHESES 2026-09-09 23:36:19 UTC
+- [85] roobet.com/_api/graphql: Pre-auth GraphQL Mutation Resolver Execution via HTTP Channel (No ID Oracle) (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): HUMAN: Submit dual-channel pre-auth GraphQL disclosure to bugs.olivermaicher.eu — add (a) WS root-count drift 28/26→29/27/7, (b) query-plane pre-auth resolver e
