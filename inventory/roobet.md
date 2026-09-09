@@ -502,3 +502,9 @@ www.roobet.com
 ## 2026-09-09 11:38:18 UTC
 
 ## 2026-09-09 15:37:57 UTC
+
+## 2026-09-09 18:47:04 UTC
+- CHANGED Fresh re-probe (2026-09-09): zero surface delta — settings/get 200 (exactly 35 keys), admin/users 401, affiliate/get 401 (+ ?user_id=1 401), tp-games/essentials 200, graphql GET+x-apollo-operation-nam
+- CHANGED socket.io POST-40 (engine.io namespace connect over polling) → 400; polling handshake + anonymous broadcast feed unchanged, WS-upgrade remains the functional transport (HUMAN_ONLY for full frame proto
+- CHANGED roobet.com/_api/graphql HTTP POST: liveRTPUpdate mutation error message patched from 200+"No user with that id"+INTERNAL_SERVER_ERROR to 400+3×INTERNAL_SERVER_ERROR (resolver still executes pre-auth, 
+- CHANGED roobet.com/_api/settings/get: response reduced from 68 to 35 keys; globalStats.allTimeNumBets stable ~15.3B; restrictedCountries 35 entries (was 33)

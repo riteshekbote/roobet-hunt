@@ -1,4 +1,6 @@
-## 2026-09-09 15:37:45 UTC [target] (model nemotron3)
+## 2026-09-09 18:46:47 UTC [target] (model nemotron3)
+[CHANGED] roobet.com/_api/graphql HTTP POST: liveRTPUpdate mutation error message patched from 200+"No user with that id"+INTERNAL_SERVER_ERROR to 400+3×INTERNAL_SERVER_ERROR (resolver still executes pre-auth, not 401/NOT_AUTHENTICATED)
+[CHANGED] roobet.com/_api/settings/get: response reduced from 68 to 35 keys; globalStats.allTimeNumBets stable ~15.3B; restrictedCountries 35 entries (was 33)
 [PRIO] roobet.com/_api/graphql,9.10,attack_surface=10,business_value=9,tech_exposure=10,gate_ease=10,cloud_surface=5,freshness=9
 [PRIO] roobet.com/_api/admin/users,7.15,attack_surface=8,business_value=10,tech_exposure=7,gate_ease=3,cloud_surface=5,freshness=8
 [PRIO] roobet.com/_api/socket.io,6.85,attack_surface=7,business_value=6,tech_exposure=8,gate_ease=9,cloud_surface=5,freshness=8
