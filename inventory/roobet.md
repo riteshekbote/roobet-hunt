@@ -500,3 +500,5 @@ www.roobet.com
 - CHANGED 6 new _api/* family candidates (admin/affiliates, admin/games, admin/config, affiliate/stats, auth/me, auth/session) all 404 SPA shell — route families bounded
 
 ## 2026-09-09 11:38:18 UTC
+
+## 2026-09-09 15:37:57 UTC
