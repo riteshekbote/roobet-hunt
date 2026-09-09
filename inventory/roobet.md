@@ -488,3 +488,13 @@ www.roobet.com
 - CHANGED roobet.com/_api/socket.io polling Origin-gated: 403 without Origin: https://roobet.com, 200 with it
 - CHANGED roobet.com/_api/graphql GET: CSRF preflight confirmed via error body — requires non-form content-type or x-apollo-operation-name/apollo-require-preflight
 - CHANGED 6 new _api/* family candidates (admin/affiliates, admin/games, admin/config, affiliate/stats, auth/me, auth/session) all 404 SPA shell — route families bounded
+
+## 2026-09-09 06:09:54 UTC
+- NEW roobet.com/_api/graphql HTTP POST liveRTPUpdate error message changed: 200 "No user with that id" + INTERNAL_SERVER_ERROR → 400 + 3× INTERNAL_SERVER_ERROR (server patched error text but resolver still
+- NEW roobet.com/_api/settings/get response keys reduced 68→35; globalStats.allTimeNumBets stable ~15.3B; restrictedCountries 35 entries (was 33)
+- CHANGED roobet.com/_api/admin/users base path consistently 401 (prior 404s were probe URL artifacts)
+- CHANGED roobet.com/_api/affiliate/get ?user_id/?affiliate_code return 401 not 404 — confirms parameter parsing on low-gate surface
+- CHANGED Surface stable: 6 HTTP + 2 WS routes confirmed across 5+ runs; zero delta in hosts/routes
+- CHANGED roobet.com/_api/socket.io polling Origin-gated: 403 without Origin: https://roobet.com, 200 with it
+- CHANGED roobet.com/_api/graphql GET: CSRF preflight confirmed via error body — requires non-form content-type or x-apollo-operation-name/apollo-require-preflight
+- CHANGED 6 new _api/* family candidates (admin/affiliates, admin/games, admin/config, affiliate/stats, auth/me, auth/session) all 404 SPA shell — route families bounded

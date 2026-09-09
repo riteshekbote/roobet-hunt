@@ -1,4 +1,4 @@
-## 2026-09-09 01:09:13 UTC [target] (model nemotron3)
+## 2026-09-09 06:09:23 UTC [target] (model nemotron3)
 [NEW] roobet.com/_api/graphql HTTP POST liveRTPUpdate error message changed: 200 "No user with that id" + INTERNAL_SERVER_ERROR → 400 + 3× INTERNAL_SERVER_ERROR (server patched error text but resolver still executes pre-auth, not 401/NOT_AUTHENTICATED)
 [NEW] roobet.com/_api/settings/get response keys reduced 68→35; globalStats.allTimeNumBets stable ~15.3B; restrictedCountries 35 entries (was 33)
 [CHANGED] roobet.com/_api/admin/users base path consistently 401 (prior 404s were probe URL artifacts)
@@ -7,10 +7,11 @@
 [CHANGED] roobet.com/_api/socket.io polling Origin-gated: 403 without Origin: https://roobet.com, 200 with it
 [CHANGED] roobet.com/_api/graphql GET: CSRF preflight confirmed via error body — requires non-form content-type or x-apollo-operation-name/apollo-require-preflight
 [CHANGED] 6 new _api/* family candidates (admin/affiliates, admin/games, admin/config, affiliate/stats, auth/me, auth/session) all 404 SPA shell — route families bounded
-[PRIO] roobet.com/_api/graphql,8.50,attack_surface=9,business_value=8,tech_exposure=9,gate_ease=10,cloud_surface=5,freshness=9
+[PRIO] roobet.com/_api/graphql,8.75,attack_surface=9,business_value=8,tech_exposure=9,gate_ease=10,cloud_surface=5,freshness=9
 [PRIO] roobet.com/_api/admin/users,6.65,attack_surface=7,business_value=9,tech_exposure=6,gate_ease=3,cloud_surface=5,freshness=8
 [PRIO] roobet.com/_api/socket.io,6.60,attack_surface=6,business_value=5,tech_exposure=7,gate_ease=10,cloud_surface=5,freshness=8
 [PRIO] roobet.com/_api/affiliate/get,5.55,attack_surface=6,business_value=6,tech_exposure=5,gate_ease=3,cloud_surface=5,freshness=8
+[PRIO] roobet.com/_api/settings/get,5.10,attack_surface=5,business_value=4,tech_exposure=6,gate_ease=10,cloud_surface=5,freshness=7
 [HYP] Pre-auth GraphQL Mutation Resolver Execution via HTTP Channel (ID Oracle Candidate)
 class: OTHER
 asset: roobet.com/_api/graphql
