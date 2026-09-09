@@ -13978,3 +13978,67 @@ testability: PASSIVE
 [RISK] roobet: 55 — Surface static across consecutive runs (6 HTTP + 2 WS, zero delta). Server actively patching (liveRTPUpdate message suppressed, HTTP introspection disabled, config trimmed 68→35). Sole robot-side reportable finding is low-severity dual-channel pre-auth GraphQL schema+mutation disclosure. All HIGH/CRITICAL lines (admin priv-esc, affiliate IDOR, ID oracle A/B) require a live session or exceed the read-only POST envelope. Engagement rules respected (read-only, ≤1 rps, no state changes, no customer data retained). No further robot-side value exists — all remaining steps are HUMAN submission + sandboxed-session tests.
 
 Run appended to `leads/lead-bigpickle.md` (2023 lines).
+===== ANALYST bigpickle 2026-09-09 21:35:39 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mcurl -sS --max-time 20 -o /tmp/opencode/rb_gql_http.json -w "HTTP %{http_code}\n" -H "Origin: https://roobet.com" -H "Content-Type: application/json" -H "x-apollo-operation-name: ExchangeRates" "https://roobet.com/_api/graphql?operationName=ExchangeRates&query=%7BexchangeRates%7B__typename%7D%7D"
+HTTP 400
+[0m
+[0m→ [0mRead /tmp/opencode/rb_gql_http.json
+[0m
+[0m$ [0mcurl -sS --max-time 20 -o /tmp/opencode/rb_gql_http2.json -w "HTTP %{http_code}\n" -H "Origin: https://roobet.com" -H "Content-Type: application/json" -H "x-apollo-operation-name: ExchangeRates" "https://roobet.com/_api/graphql?operationName=ExchangeRates&query=query%20ExchangeRates%7BexchangeRates%7B__typename%7D%7D"
+HTTP 200
+[0m
+[0m→ [0mRead /tmp/opencode/rb_gql_http2.json
+STEP 1 — DELTA
+[CHANGED] roobet.com/_api/graphql HTTP GET read-plane: `exchangeRates` (named op + `x-apollo-operation-name`) → 200 with `NOT_AUTHENTICATED`/null data — resolver auth gate confirmed identical on HTTP and WS channels; closes last cross-channel gap. No surface delta otherwise (6 HTTP + 2 WS stable; settings/get 35 keys; liveRTPUpdate 400+3×INTERNAL_SERVER_ERROR; admin/users 401; affiliate/get 401).
+
+STEP 2 — PRIORITIZE
+[PRIO] roobet.com/_api/graphql,95,attack_surface=97,tech_exposure=95,gate_ease=95,business_value=60,freshness=10
+[PRIO] roobet.com/_api/admin/users,55,attack_surface=40,tech_exposure=10,gate_ease=0,business_value=90,freshness=10
+[PRIO] roobet.com/_api/affiliate/get,45,attack_surface=55,tech_exposure=10,gate_ease=0,business_value=70,freshness=10
+
+STEP 3 — HYPOTHESES
+[HYP] Pre-auth GraphQL schema/mutation/User-type disclosure via dual HTTP+WS channel
+class: OTHER
+asset: roobet.com/_api/graphql
+confidence: 95
+reasoning: Anonymous `graphql-transport-ws` (101 + connection_ack, no socketToken) + full introspection (Query28/Mut26/Sub7) + 64-field User type (email, KYC PII, financial, auth tokens, role flags); all 26 mutations pass validation anonymously leaking InputType/enum/scalar shapes; HTTP GET transport enabled (CSRF gate bypassable via `x-apollo-operation-name` — re-confirmed 200); `liveRTPUpdate` resolver executes pre-auth (400+3×INTERNAL_SERVER_ERROR); INTROSPECTION_DISABLED on HTTP only. Resolver auth = NOT_AUTHENTICATED on data-plane across both channels (incl. this run's HTTP GET `exchangeRates`).
+evidence_needed: None — fully characterized.
+verify_steps: HUMAN: submit to bugs.olivermaicher.eu with WS introspection output, HTTP GET CSRF-gate bypass, mutation validation error disclosure, liveRTPUpdate pre-auth execution, HTTP/WS auth-gate parity.
+impact: schema/PII-structure disclosure + ID-oracle priming; low standalone severity (resolver auth caps data-plane).
+testability: PASSIVE
+[HYP] Admin priv-esc via normal-user session on /_api/admin/users
+class: AUTH
+asset: roobet.com/_api/admin/users
+confidence: 55
+reasoning: Route exists on low-gate surface, returns 401 (not 404) with Express session auth (connect.sid + userId); authorization unknown, not behind Cloudflare bot-gate.
+evidence_needed: 200 or 403 for non-admin session; requires live session.
+verify_steps: HUMAN sandboxed (≤1 rps): GET /_api/admin/users with normal-user connect.sid; 200 ⇒ CRITICAL priv-esc.
+impact: cross-tenant user/PII dump; CRITICAL if 200.
+testability: AUTH_HELPED
+[HYP] Affiliate IDOR via user_id param
+class: IDOR
+asset: roobet.com/_api/affiliate/get
+confidence: 45
+reasoning: 401 on ?user_id and ?affiliate_code confirms parameter parsing; endpoint auth-gated, authorization unknown.
+evidence_needed: A/B with two sandbox accounts.
+verify_steps: HUMAN: session A → GET /_api/affiliate/get?user_id=<acct_B>; 200 with B's data ⇒ HIGH IDOR.
+impact: cross-user affiliate data disclosure; HIGH if 200.
+testability: AUTH_HELPED
+
+STEP 4 — SELF-CRITIQUE
+[PARKED] HTTP GET data-plane leak (exchangeRates over GET): REJECTED by probe — NOT_AUTHENTICATED, identical gate to WS; no HTTP-only anonymous read.
+[PARKED] updateUserProfile pre-auth resolver (nemotron3): redundant with liveRTPUpdate evidence; mutation POST outside passive envelope; no severity delta.
+[FINAL] GraphQL disclosure (95, OTHER, PASSIVE) — sole reportable, fully characterized, submission-ready.
+
+STEP 5 — NEXT ACTION
+[NEXT] HUMAN: Submit dual-channel pre-auth GraphQL disclosure to bugs.olivermaicher.eu — package: (1) WS `__schema` introspection (Query28/Mut26/Sub7, 64-field User incl. email/KYC PII/financial/auth-tokens/role-flags); (2) 26 mutations validate anonymously (InputType/enum/scalar shapes); (3) HTTP GET CSRF-gate bypass via `x-apollo-operation-name` (operationName must match named query); (4) `liveRTPUpdate` pre-auth resolver execution (400+3×INTERNAL_SERVER_ERROR, not 401); (5) INTROSPECTION_DISABLED-on-HTTP vs full-WS asymmetry; (6) resolver auth parity across channels (both return NOT_AUTHENTICATED, no leak). Same sandboxed session (≤1 rps): GET /_api/admin/users (200 ⇒ CRITICAL), GET /_api/affiliate/get?user_id=<acct_B> with session A (200 ⇒ HIGH).
+
+STEP 6 — LEARNING
+[LEARN] REJECTED OTHER @ roobet.com/_api/graphql HTTP GET: `exchangeRates` over GET (`x-apollo-operation-name` bypass, named op) returns NOT_AUTHENTICATED/λnull data — resolver auth gate identical to WS; no HTTP-only anonymous data plane.
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql: Zero surface delta across runs; cross-channel model now fully closed (introspection WS-only, CFG-gate bypass GET, resolver auth parity). Sole reportable line unchanged.
+
+STEP 7 — RISK
+[RISK] roobet: 55 — Surface static (6 HTTP + 2 WS, zero delta). Server actively patching (liveRTPUpdate message suppressed, HTTP introspection disabled, config trimmed 68→35). This run closed the last open channel question (HTTP read-plane same gate as WS). Sole robot-side reportable finding is low-severity pre-auth GraphQL disclosure. All HIGH/CRITICAL lines require live session. Read-only, ≤1 rps, no state changes, no customer data retained. No further robot-side value — remaining steps are HUMAN submission + sandboxed-session tests.

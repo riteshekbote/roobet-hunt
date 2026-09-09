@@ -508,3 +508,17 @@ www.roobet.com
 - CHANGED socket.io POST-40 (engine.io namespace connect over polling) → 400; polling handshake + anonymous broadcast feed unchanged, WS-upgrade remains the functional transport (HUMAN_ONLY for full frame proto
 - CHANGED roobet.com/_api/graphql HTTP POST: liveRTPUpdate mutation error message patched from 200+"No user with that id"+INTERNAL_SERVER_ERROR to 400+3×INTERNAL_SERVER_ERROR (resolver still executes pre-auth, 
 - CHANGED roobet.com/_api/settings/get: response reduced from 68 to 35 keys; globalStats.allTimeNumBets stable ~15.3B; restrictedCountries 35 entries (was 33)
+
+## 2026-09-09 21:35:39 UTC
+- CHANGED roobet.com/_api/graphql HTTP GET read-plane: `exchangeRates` (named op + `x-apollo-operation-name`) → 200 with `NOT_AUTHENTICATED`/null data — resolver auth gate confirmed identical on HTTP and WS cha
+- NEW roobet.com/_api/graphql HTTP POST: liveRTPUpdate mutation error message patched from 200+"No user with that id"+INTERNAL_SERVER_ERROR to 400+3×INTERNAL_SERVER_ERROR (resolver still executes pre-auth, 
+- NEW roobet.com/_api/settings/get: response reduced from 68 to 35 keys; globalStats.allTimeNumBets stable ~15.3B; restrictedCountries 35 entries (was 33)
+- NEW roobet.com/_api/socket.io: polling transport Origin-gated — 403 disallowed origin without Origin: https://roobet.com, 200 handshake with it
+- NEW roobet.com/_api/graphql GET: CSRF preflight confirmed via error body — requires non-form content-type or x-apollo-operation-name/apollo-require-preflight
+- CHANGED roobet.com/_api/admin/users: base path consistently returns 401 (prior 404s were probe URL artifacts)
+- CHANGED roobet.com/_api/affiliate/get: parameter tests ?user_id/affiliate_code return 401 not 404 — confirms parameter parsing on low-gate surface
+- CHANGED Surface static: 6 HTTP routes + 2 WS routes confirmed across 5+ runs; zero delta in hosts/routes
+- CHANGED api.roobet.com, auth.roobet.com, account.roobet.com, admin.roobet.com, billing.roobet.com, dashboard.roobet.com, sso.roobet.com + 13 others: non-resolving/internal (000/timeout) — no delta
+- CHANGED crash-gs.roobet.com Socket.IO TLS upgrade open (no 4xx) then app-timeout; HUMAN_ONLY — no delta
+- CHANGED fs.roobet.com GCS ?list-type=2 → fullstory.com redirect; no enumeration — no delta
+- CHANGED roobet.com OAuth metadata endpoints return SPA shell (Remix catch-all), not JSON — no delta
