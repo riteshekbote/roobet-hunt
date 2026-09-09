@@ -1948,3 +1948,26 @@ testability: AUTH_HELPED
 [LEARN] REJECTED OTHER @ roobet.com/_api/*: 10 new family candidates all 404 — route families bounded.
 [LEARN] PARKED api.roobet.com/Cloudflare bypass/auth/account/admin subdomains/crash-gs HUMAN_ONLY: unchanged, no passive path.
 [RISK] roobet: 55 — Surface static across consecutive runs with zero delta (6 HTTP + 2 WS). Server actively patching (liveRTPUpdate message suppressed, introspection HTTP-disabled, config trimmed 68→35). Sole robot-side reportable finding is low-severity dual-channel pre-auth GraphQL schema+mutation disclosure. All HIGH/CRITICAL lines (admin priv-esc, affiliate IDOR, ID oracle A/B) require a live session or exceed read-only POST envelope. Engagement rules respected (read-only, ≤1 rps, no state changes, no customer data retained). **No further robot-side value exists. All next steps require HUMAN submission + sandboxed-session tests.**
+## 2026-09-09 11:35:27 UTC [target] (model bigpickle)
+[PRIO] roobet.com/_api/graphql,95,attack_surface=97,tech_exposure=95,gate_ease=95,business_value=60,freshness=10
+[PRIO] roobet.com/_api/admin/users,55,attack_surface=40,tech_exposure=10,gate_ease=0,business_value=90,freshness=10
+[PRIO] roobet.com/_api/affiliate/get,45,attack_surface=55,tech_exposure=10,gate_ease=0,business_value=70,freshness=10
+[HYP] Pre-auth GraphQL schema/mutation/User-type disclosure via dual HTTP+WS channel
+class: OTHER
+asset: roobet.com/_api/graphql
+confidence: 95
+reasoning: Anonymous graphql-transport-ws (101 + connection_ack, no socketToken) + full introspection (Query28/Mut26/Sub7) + 64-field User type (email, KYC PII, financial, auth tokens, role flags); all 26 mutations pass validation anonymously leaking InputType/enum/scalar shapes; HTTP GET transport enabled (CSRF gate bypassable via x-apollo-operation-name); liveRTPUpdate resolver executes pre-auth on HTTP (400+3×INTERNAL_SERVER_ERROR); subscription errors disclose session architecture; INTROSPECTION_DISABLED on HTTP only.
+evidence_needed: None — fully characterized.
+verify_steps: HUMAN: submit to bugs.olivermaicher.eu with WS introspection output, HTTP GET CSRF-gate bypass, mutation validation error disclosure, liveRTPUpdate pre-auth execution proof.
+impact: schema/PII-structure disclosure + ID-oracle priming; low standalone severity (resolver auth caps data-plane).
+testability: PASSIVE
+[PARKED] Admin priv-esc via normal-user session: confidence 55, requires live session, no passive path — AUTH_HELPED, no value without session.
+[PARKED] Affiliate IDOR via user_id params: confidence 45, requires two sandbox accounts — AUTH_HELPED.
+[PARKED] Game-provider ID oracle liveRTPUpdate: POST excluded from read-only envelope; cannot A/B differentiate passively.
+[FINAL] Pre-auth GraphQL disclosure (95, OTHER, PASSIVE) — sole survivor, fully characterized, reportable.
+[NEXT] HUMAN: Submit fully-characterized dual-channel pre-auth GraphQL disclosure to bugs.olivermaicher.eu (WS introspection Query28/Mut26/Sub7 + 64-field User PII graph + mutation validation error disclosure + HTTP GET CSRF-gate bypass via x-apollo-operation-name + liveRTPUpdate pre-auth execution 400+3×INTERNAL_SERVER_ERROR + INTROSPECTION_DISABLED-on-HTTP asymmetry + subscription session-user error disclosure), severity low. Same session, sandboxed (≤1 rps): GET /_api/admin/users (200 ⇒ CRITICAL), GET /_api/affiliate/get?user_id=<acct_B> with session A (200 ⇒ HIGH).
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql: Zero delta across runs; dual-channel pre-auth GraphQL disclosure remains sole reportable line; resolver-level NOT_AUTHENTICATED caps severity.
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/*: Surface static (6 HTTP + 2 WS); config dump stable (35 keys), liveRTPUpdate error message patched (400+3×INTERNAL_SERVER_ERROR); remaining high-value lines session-gated.
+[LEARN] REJECTED OTHER @ roobet.com/_api/*: 10 new family candidates all 404 — route families bounded.
+[LEARN] PARKED api.roobet.com/Cloudflare bypass/auth/account/admin subdomains/crash-gs HUMAN_ONLY: unchanged, no passive path.
+[RISK] roobet: 55 — Surface static across consecutive runs with zero delta (6 HTTP + 2 WS). Server actively patching (liveRTPUpdate message suppressed, introspection HTTP-disabled, config trimmed 68→35). Sole robot-side reportable finding is low-severity dual-channel pre-auth GraphQL schema+mutation disclosure. All HIGH/CRITICAL lines (admin priv-esc, affiliate IDOR, ID oracle A/B) require a live session or exceed the read-only POST envelope. Engagement rules respected (read-only, ≤1 rps, no state changes, no customer data retained). No further robot-side value exists. All next steps require HUMAN submission + sandboxed-session tests.
