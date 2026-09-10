@@ -2156,3 +2156,42 @@ verify_steps: HUMAN: session A → GET /_api/affiliate/get?user_id=<acct_B>; 200
 impact: cross-user affiliate data disclosure; HIGH if 200.
 testability: AUTH_HELPED
 [NEXT] HUMAN: Submit dual-channel pre-auth GraphQL disclosure to bugs.olivermaicher.eu — add (a) WS root-count drift 28/26→29/27/7, (b) query-plane pre-auth resolver execution (`gameTags`, `tpGamesGetAll` → `Cannot read properties of undefined (reading 'push')`, data null) alongside `liveRTPUpdate`, (c) full-29-query anonymous sweep result (14×NOT_AUTHENTICATED, zero data return = gate parity proof); retain original package (WS __schema + 64-field User, mutation validation shape leak, HTTP GET CSRF-gate bypass via x-apollo-operation-name, INTROSPECTION_DISABLED-on-HTTP asymmetry, subscription session-user error). Same sandboxed session (≤1 rps): GET /_api/admin/users (200 ⇒ CRITICAL), GET /_api/affiliate/get?user_id=<acct_B> with session A (200 ⇒ HIGH).
+## 2026-09-10 01:28:44 UTC [target] (model bigpickle)
+[PRIO] roobet.com/_api/graphql,9.10
+[PRIO] roobet.com/_api/admin/users,7.15
+[PRIO] roobet.com/_api/socket.io,6.85
+[HYP] Pre-auth GraphQL Schema/Mutation Disclosure via Dual HTTP+WS Channel
+class: OTHER
+asset: roobet.com/_api/graphql
+confidence: 95
+reasoning: Anonymous graphql-transport-ws (101 + connection_ack, no socketToken) + full introspection (Query 29/Mut 27/Sub 7). User type exposes 64 fields (email, KYC PII, financial, auth tokens, role flags). All 27 mutations pass validation anonymously (InputType/enum/scalar shape leak). Query-plane resolver execution confirmed (gameTags, tpGamesGetAll → "Cannot read properties of undefined (reading 'push')"). liveRTPUpdate mutation executes pre-auth (400+3×INTERNAL_SERVER_ERROR). HTTP GET transport enabled (CSRF gate bypassable via x-apollo-operation-name). INTROSPECTION_DISABLED on HTTP, full on WS.
+evidence_needed: None — fully characterized.
+verify_steps: HUMAN: submit to bugs.olivermaicher.eu — WS __schema (29Q/27M/7S, 64-field User), mutation validation disclosure, query-plane pre-auth resolver execution, liveRTPUpdate pre-auth, HTTP GET CSRF-gate bypass, HTTP/WS auth-gate parity, INTROSPECTION_DISABLED-on-HTTP asymmetry.
+impact: Schema/PII-structure + input-shape disclosure, ID-oracle priming; severity low (resolver auth caps data plane; no anonymous data returned).
+testability: PASSIVE
+[HYP] Admin Priv-esc via Normal-User Session on /_api/admin/users
+class: AUTH
+asset: roobet.com/_api/admin/users
+confidence: 55
+reasoning: Route live on low-gate surface (401, not 404), Express session auth (connect.sid+userId), not behind CF bot-gate; authorization state unknown.
+evidence_needed: 200/403 for non-admin session.
+verify_steps: HUMAN sandboxed (≤1 rps): GET /_api/admin/users with normal-user connect.sid; 200 ⇒ CRITICAL.
+impact: Cross-tenant user/PII dump; CRITICAL if 200.
+testability: AUTH_HELPED
+[HYP] Affiliate IDOR via user_id Param
+class: IDOR
+asset: roobet.com/_api/affiliate/get
+confidence: 45
+reasoning: ?user_id and ?affiliate_code return 401 (not 404) ⇒ parameter parsing live; authorization unknown.
+evidence_needed: A/B two sandbox accounts.
+verify_steps: HUMAN: session A → GET /_api/affiliate/get?user_id=<acct_B>; 200 with B's data ⇒ HIGH.
+impact: Cross-user affiliate data disclosure; HIGH if 200.
+testability: AUTH_HELPED
+[PARKED] Admin Priv-esc: confidence 55 < 60 threshold; requires live session (AUTH_HELPED).
+[PARKED] Affiliate IDOR: confidence 45 < 60 threshold; requires live session (AUTH_HELPED).
+[FINAL] Pre-auth GraphQL Disclosure: confidence 95, fully characterized, PASSIVE testability. **SOLE SURVIVOR.**
+[NEXT] HUMAN: Submit dual-channel pre-auth GraphQL disclosure to bugs.olivermaicher.eu — package: (1) WS __schema introspection (Query29/Mut27/Sub7, 64-field User), (2) mutation validation error disclosure (InputType/enum/scalar shape leak), (3) query-plane pre-auth resolver execution (gameTags, tpGamesGetAll → "Cannot read properties of undefined (reading 'push')"), (4) liveRTPUpdate pre-auth (400+3×INTERNAL_SERVER_ERROR), (5) HTTP GET CSRF-gate bypass via x-apollo-operation-name, (6) INTROSPECTION_DISABLED-on-HTTP asymmetry, (7) subscription session-user error disclosure. Same sandboxed session (≤1 rps): GET /_api/admin/users (200 ⇒ CRITICAL), GET /_api/affiliate/get?user_id=<acct_B> (200 ⇒ HIGH).
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql: Zero surface delta across runs; cross-channel model now fully closed (introspection WS-only, CFGate bypass GET, resolver auth parity). Sole reportable line unchanged.
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/*: Surface static (6 HTTP + 2 WS); config stable (35 keys); liveRTPUpdate patched (400+3×INTERNAL_SERVER_ERROR); remaining value session-gated.
+[LEARN] REJECTED OTHER @ roobet.com/_api/*: auth/me, admin/config, health all 404 — route families bounded.
+[RISK] roobet: 55 — Surface static (6 HTTP + 2 WS, zero delta). Server actively patching (liveRTPUpdate message suppressed, HTTP introspection disabled, config trimmed 68→35). This run closed the last open channel question (HTTP read-plane same gate as WS). Sole robot-side reportable finding is low-severity pre-auth GraphQL disclosure. All HIGH/CRITICAL lines require live session. Read-only, ≤1 rps, no state changes, no customer data retained. No further robot-side value — remaining steps are HUMAN submission + sandboxed-session tests.

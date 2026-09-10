@@ -14653,3 +14653,81 @@ STEP 6 — LEARNING:
 
 STEP 7 — RISK:
 - [RISK] roobet: 55 — HTTP surface static (6+2 routes, zero delta, ≤1 rps read-only). WS schema drifted +1Q/+1M with two new pre-auth-executing query resolvers (extends disclosure class, severity unchanged). Full anonymous query sweep proves zero data-plane leak. Server continues patching (liveRTPUpdate suppressed, HTTP introspection disabled, config trimmed). Sole reportable robot-side line: low-severity pre-auth GraphQL disclosure, submission-ready. All HIGH/CRITICAL hypotheses (admin priv-esc, affiliate IDOR) remain session-gated; none actionable passively. Compliance maintained: read-only GET + anonymous WS subscribes, no state changes, no customer data retained.
+===== ANALYST bigpickle 2026-09-10 01:31:13 UTC =====
+[0m
+> build · big-pickle
+[0m
+[ANALYSIS] Structured Bug Bounty Assessment — Roobet Program
+═══════════════════════════════════════════════════════════════
+
+**STEP 1 — DELTA**
+NO_DELTA — Surface static (6 HTTP + 2 WS routes, zero delta since 2026-09-09). Config stable at 35 keys. liveRTPUpdate patched (400+3×INTERNAL_SERVER_ERROR). Remaining high-value lines session-gated.
+
+**STEP 2 — PRIORITIZE**
+
+| Asset | Score | Attack Surface | Business Value | Tech Exposure | Gate Ease | Cloud Surface | Freshness |
+|-------|-------|----------------|----------------|---------------|-----------|---------------|-----------|
+| roobet.com/_api/graphql | 9.10 | 10 | 9 | 10 | 10 | 5 | 9 |
+| roobet.com/_api/admin/users | 7.15 | 8 | 10 | 7 | 3 | 5 | 8 |
+| roobet.com/_api/socket.io | 6.85 | 7 | 6 | 8 | 9 | 5 | 8 |
+| roobet.com/_api/affiliate/get | 5.80 | 7 | 7 | 6 | 3 | 5 | 8 |
+| roobet.com/_api/settings/get | 5.25 | 5 | 5 | 7 | 10 | 5 | 7 |
+
+[PRIO] roobet.com/_api/graphql,9.10
+[PRIO] roobet.com/_api/admin/users,7.15
+[PRIO] roobet.com/_api/socket.io,6.85
+
+**STEP 3 — HYPOTHESES**
+
+[HYP] Pre-auth GraphQL Schema/Mutation Disclosure via Dual HTTP+WS Channel
+class: OTHER
+asset: roobet.com/_api/graphql
+confidence: 95
+reasoning: Anonymous graphql-transport-ws (101 + connection_ack, no socketToken) + full introspection (Query 29/Mut 27/Sub 7). User type exposes 64 fields (email, KYC PII, financial, auth tokens, role flags). All 27 mutations pass validation anonymously (InputType/enum/scalar shape leak). Query-plane resolver execution confirmed (gameTags, tpGamesGetAll → "Cannot read properties of undefined (reading 'push')"). liveRTPUpdate mutation executes pre-auth (400+3×INTERNAL_SERVER_ERROR). HTTP GET transport enabled (CSRF gate bypassable via x-apollo-operation-name). INTROSPECTION_DISABLED on HTTP, full on WS.
+evidence_needed: None — fully characterized.
+verify_steps: HUMAN: submit to bugs.olivermaicher.eu — WS __schema (29Q/27M/7S, 64-field User), mutation validation disclosure, query-plane pre-auth resolver execution, liveRTPUpdate pre-auth, HTTP GET CSRF-gate bypass, HTTP/WS auth-gate parity, INTROSPECTION_DISABLED-on-HTTP asymmetry.
+impact: Schema/PII-structure + input-shape disclosure, ID-oracle priming; severity low (resolver auth caps data plane; no anonymous data returned).
+testability: PASSIVE
+
+[HYP] Admin Priv-esc via Normal-User Session on /_api/admin/users
+class: AUTH
+asset: roobet.com/_api/admin/users
+confidence: 55
+reasoning: Route live on low-gate surface (401, not 404), Express session auth (connect.sid+userId), not behind CF bot-gate; authorization state unknown.
+evidence_needed: 200/403 for non-admin session.
+verify_steps: HUMAN sandboxed (≤1 rps): GET /_api/admin/users with normal-user connect.sid; 200 ⇒ CRITICAL.
+impact: Cross-tenant user/PII dump; CRITICAL if 200.
+testability: AUTH_HELPED
+
+[HYP] Affiliate IDOR via user_id Param
+class: IDOR
+asset: roobet.com/_api/affiliate/get
+confidence: 45
+reasoning: ?user_id and ?affiliate_code return 401 (not 404) ⇒ parameter parsing live; authorization unknown.
+evidence_needed: A/B two sandbox accounts.
+verify_steps: HUMAN: session A → GET /_api/affiliate/get?user_id=<acct_B>; 200 with B's data ⇒ HIGH.
+impact: Cross-user affiliate data disclosure; HIGH if 200.
+testability: AUTH_HELPED
+
+**STEP 4 — SELF-CRITIQUE**
+
+[PARKED] Admin Priv-esc: confidence 55 < 60 threshold; requires live session (AUTH_HELPED).
+[PARKED] Affiliate IDOR: confidence 45 < 60 threshold; requires live session (AUTH_HELPED).
+[FINAL] Pre-auth GraphQL Disclosure: confidence 95, fully characterized, PASSIVE testability. **SOLE SURVIVOR.**
+
+**STEP 5 — NEXT ACTION**
+
+[NEXT] HUMAN: Submit dual-channel pre-auth GraphQL disclosure to bugs.olivermaicher.eu — package: (1) WS __schema introspection (Query29/Mut27/Sub7, 64-field User), (2) mutation validation error disclosure (InputType/enum/scalar shape leak), (3) query-plane pre-auth resolver execution (gameTags, tpGamesGetAll → "Cannot read properties of undefined (reading 'push')"), (4) liveRTPUpdate pre-auth (400+3×INTERNAL_SERVER_ERROR), (5) HTTP GET CSRF-gate bypass via x-apollo-operation-name, (6) INTROSPECTION_DISABLED-on-HTTP asymmetry, (7) subscription session-user error disclosure. Same sandboxed session (≤1 rps): GET /_api/admin/users (200 ⇒ CRITICAL), GET /_api/affiliate/get?user_id=<acct_B> (200 ⇒ HIGH).
+
+**STEP 6 — LEARNING**
+
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql: Zero surface delta across runs; cross-channel model now fully closed (introspection WS-only, CFGate bypass GET, resolver auth parity). Sole reportable line unchanged.
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/*: Surface static (6 HTTP + 2 WS); config stable (35 keys); liveRTPUpdate patched (400+3×INTERNAL_SERVER_ERROR); remaining value session-gated.
+[LEARN] REJECTED OTHER @ roobet.com/_api/*: auth/me, admin/config, health all 404 — route families bounded.
+
+**STEP 7 — RISK**
+
+[RISK] roobet: 55 — Surface static (6 HTTP + 2 WS, zero delta). Server actively patching (liveRTPUpdate message suppressed, HTTP introspection disabled, config trimmed 68→35). This run closed the last open channel question (HTTP read-plane same gate as WS). Sole robot-side reportable finding is low-severity pre-auth GraphQL disclosure. All HIGH/CRITICAL lines require live session. Read-only, ≤1 rps, no state changes, no customer data retained. No further robot-side value — remaining steps are HUMAN submission + sandboxed-session tests.
+
+═══════════════════════════════════════════════════════════════
+**SUMMARY**: Surface fully bounded. Only reportable finding: pre-auth GraphQL disclosure (low severity). HIGH/CRITICAL paths (admin/users, affiliate/get) require live session. Recommendation: submit current package to bugs.olivermaicher.eu.
