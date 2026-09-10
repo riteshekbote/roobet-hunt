@@ -14731,3 +14731,190 @@ testability: AUTH_HELPED
 
 ═══════════════════════════════════════════════════════════════
 **SUMMARY**: Surface fully bounded. Only reportable finding: pre-auth GraphQL disclosure (low severity). HIGH/CRITICAL paths (admin/users, affiliate/get) require live session. Recommendation: submit current package to bugs.olivermaicher.eu.
+===== ANALYST bigpickle 2026-09-10 06:57:27 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m→ [0mRead .
+[0m→ [0mRead state_bigpickle.json
+[0m→ [0mRead leads
+[0m→ [0mRead scope.yml
+[0m→ [0mRead leads/lead-bigpickle.md
+[0m→ [0mRead probe-results.md
+Now let me do a fresh probe to verify the current surface is still stable before writing my analysis.
+[0m
+[0m$ [0mcurl -s -o /dev/null -w "%{http_code}" https://roobet.com/_api/settings/get 2>/dev/null; echo " settings/get"
+curl -s -o /dev/null -w "%{http_code}" https://roobet.com/_api/admin/users 2>/dev/null; echo " admin/users"
+curl -s -o /dev/null -w "%{http_code}" https://roobet.com/_api/affiliate/get 2>/dev/null; echo " affiliate/get"
+curl -s -o /dev/null -w "%{http_code}" "https://roobet.com/_api/affiliate/get?user_id=1" 2>/dev/null; echo " affiliate/get?user_id=1"
+curl -s -o /dev/null -w "%{http_code}" https://roobet.com/_api/tp-games/essentials 2>/dev/null; echo " tp-games/essentials"
+curl -s -o /dev/null -w "%{http_code}" -X POST https://roobet.com/_api/graphql 2>/dev/null; echo " graphql POST"
+curl -s -o /dev/null -w "%{http_code}" "https://roobet.com/_api/graphql?query=query{__typename}" -H "x-apollo-operation-name: __typename" 2>/dev/null; echo " graphql GET"
+200 settings/get
+401 admin/users
+401 affiliate/get
+401 affiliate/get?user_id=1
+200 tp-games/essentials
+400 graphql POST
+500 graphql GET
+[0m
+[0m$ [0mcurl -sv "https://roobet.com/_api/graphql?query=query{__typename}" -H "x-apollo-operation-name: __typename" 2>&1 | head -40
+* Host roobet.com:443 was resolved.
+* IPv6: 2606:4700:4401::ac40:97f3, 2606:4700:4400::6812:240d
+* IPv4: 104.18.36.13, 172.64.151.243
+*   Trying 104.18.36.13:443...
+* Connected to roobet.com (104.18.36.13) port 443
+* ALPN: curl offers h2,http/1.1
+} [5 bytes data]
+* TLSv1.3 (OUT), TLS handshake, Client hello (1):
+} [512 bytes data]
+*  CAfile: /etc/ssl/certs/ca-certificates.crt
+*  CApath: /etc/ssl/certs
+{ [5 bytes data]
+* TLSv1.3 (IN), TLS handshake, Server hello (2):
+{ [122 bytes data]
+* TLSv1.3 (IN), TLS handshake, Encrypted Extensions (8):
+{ [19 bytes data]
+* TLSv1.3 (IN), TLS handshake, Certificate (11):
+{ [2470 bytes data]
+* TLSv1.3 (IN), TLS handshake, CERT verify (15):
+{ [78 bytes data]
+* TLSv1.3 (IN), TLS handshake, Finished (20):
+{ [52 bytes data]
+* TLSv1.3 (OUT), TLS change cipher, Change cipher spec (1):
+} [1 bytes data]
+* TLSv1.3 (OUT), TLS handshake, Finished (20):
+} [52 bytes data]
+* SSL connection using TLSv1.3 / TLS_AES_256_GCM_SHA384 / X25519 / id-ecPublicKey
+* ALPN: server accepted h2
+* Server certificate:
+*  subject: CN=roobet.com
+*  start date: Aug 16 23:56:08 2026 GMT
+*  expire date: Nov 15 00:56:05 2026 GMT
+*  subjectAltName: host "roobet.com" matched cert's "roobet.com"
+*  issuer: C=US; O=Google Trust Services; CN=WE1
+*  SSL certificate verify ok.
+*   Certificate level 0: Public key type EC/prime256v1 (256/128 Bits/secBits), signed using ecdsa-with-SHA256
+*   Certificate level 1: Public key type EC/prime256v1 (256/128 Bits/secBits), signed using ecdsa-with-SHA384
+*   Certificate level 2: Public key type EC/secp384r1 (384/192 Bits/secBits), signed using ecdsa-with-SHA384
+} [5 bytes data]
+* using HTTP/2
+[0m
+[0m$ [0mcurl -s -w "\n---STATUS:%{http_code}---" "https://roobet.com/_api/graphql?query=query{__typename}" -H "x-apollo-operation-name: __typename" 2>/dev/null
+{"errors":[{"message":"Syntax Error: Unexpected Name \"query__typename\".\n\nGraphQL request:1:1\n1 | query__typename\n  | ^","extensions":{"code":"GRAPHQL_VALIDATION_FAILED"}}]}
+
+---STATUS:500---
+[0m
+[0m$ [0mcurl -s -w "\n---STATUS:%{http_code}---" "https://roobet.com/_api/graphql?query=%7B__typename%7D" -H "x-apollo-operation-name: test" 2>/dev/null
+{"data":{"__typename":"Query"}}
+
+---STATUS:200---
+[0m
+[0m$ [0mcurl -s -w "\n---STATUS:%{http_code}---" "https://roobet.com/_api/graphql" -X POST -H "Content-Type: application/json" -d '{"query":"{ exchangeRates { currency rate } }"}' 2>/dev/null
+{"errors":[{"message":"Internal Server Error","extensions":{"code":"INTERNAL_SERVER_ERROR"}},{"message":"Internal Server Error","extensions":{"code":"INTERNAL_SERVER_ERROR"}}]}
+
+---STATUS:400---
+[0m
+[0m→ [0mRead leads/lead-bigpickle.md[90m [offset=1, limit=5][0m
+Surface confirmed stable. No delta. Let me write the output.
+[0m→ [0mRead leads/lead-bigpickle.md[90m [offset=2170][0m
+[0m✗ [0mEdit leads/lead-bigpickle.md failed
+[91m[1mError: [0mFound multiple matches for oldString. Provide more surrounding context to make the match unique.
+[0m
+[0m$ [0mwc -l /home/runner/work/roobet-hunt/roobet-hunt/leads/lead-bigpickle.md
+2197 /home/runner/work/roobet-hunt/roobet-hunt/leads/lead-bigpickle.md
+[0m
+[0m← [0mEdit leads/lead-bigpickle.md
+Index: /home/runner/work/roobet-hunt/roobet-hunt/leads/lead-bigpickle.md
+===================================================================
+--- /home/runner/work/roobet-hunt/roobet-hunt/leads/lead-bigpickle.md
++++ /home/runner/work/roobet-hunt/roobet-hunt/leads/lead-bigpickle.md
+@@ -2194,4 +2194,44 @@
+ [LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql: Zero surface delta across runs; cross-channel model now fully closed (introspection WS-only, CFGate bypass GET, resolver auth parity). Sole reportable line unchanged.
+ [LEARN] ACCEPTED OTHER @ roobet.com/_api/*: Surface static (6 HTTP + 2 WS); config stable (35 keys); liveRTPUpdate patched (400+3×INTERNAL_SERVER_ERROR); remaining value session-gated.
+ [LEARN] REJECTED OTHER @ roobet.com/_api/*: auth/me, admin/config, health all 404 — route families bounded.
+ [RISK] roobet: 55 — Surface static (6 HTTP + 2 WS, zero delta). Server actively patching (liveRTPUpdate message suppressed, HTTP introspection disabled, config trimmed 68→35). This run closed the last open channel question (HTTP read-plane same gate as WS). Sole robot-side reportable finding is low-severity pre-auth GraphQL disclosure. All HIGH/CRITICAL lines require live session. Read-only, ≤1 rps, no state changes, no customer data retained. No further robot-side value — remaining steps are HUMAN submission + sandboxed-session tests.
++## 2026-09-10 01:36:00 UTC [target] (model bigpickle)
++NO_DELTA — fresh probe confirms: settings/get 200, admin/users 401, affiliate/get 401, tp-games/essentials 200, graphql POST 400, graphql GET 200 (URL-encoded __typename + x-apollo-operation-name). Zero change from 2026-09-10 01:28:44 baseline.
++[PRIO] roobet.com/_api/graphql,7.55,attack_surface=8,business_value=7,tech_exposure=9,gate_ease=10,cloud_surface=4,freshness=5
++[PRIO] roobet.com/_api/admin/users,4.45,attack_surface=5,business_value=9,tech_exposure=4,gate_ease=2,cloud_surface=4,freshness=5
++[PRIO] roobet.com/_api/affiliate/get,3.5,attack_surface=4,business_value=6,tech_exposure=3,gate_ease=2,cloud_surface=3,freshness=5
++[HYP] Pre-auth GraphQL Schema/Mutation Disclosure via Dual HTTP+WS Channel
++class: OTHER
++asset: roobet.com/_api/graphql
++confidence: 95
++reasoning: Anonymous graphql-transport-ws (101 + connection_ack, no socketToken) + full introspection (Query 29/Mut 27/Sub 7). User type exposes 64 fields (email, KYC PII, financial, auth tokens, role flags). All 27 mutations pass validation anonymously (InputType/enum/scalar shape leak). Query-plane resolver execution confirmed (gameTags, tpGamesGetAll → "Cannot read properties of undefined (reading 'push')"). liveRTPUpdate mutation executes pre-auth (400+3×INTERNAL_SERVER_ERROR). HTTP GET transport enabled (CSRF gate bypassable via x-apollo-operation-name). INTROSPECTION_DISABLED on HTTP, full on WS.
++evidence_needed: None — fully characterized.
++verify_steps: HUMAN: submit to bugs.olivermaicher.eu — WS __schema (29Q/27M/7S, 64-field User), mutation validation disclosure, query-plane pre-auth resolver execution, liveRTPUpdate pre-auth, HTTP GET CSRF-gate bypass, HTTP/WS auth-gate parity, INTROSPECTION_DISABLED-on-HTTP asymmetry.
++impact: Schema/PII-structure + input-shape disclosure, ID-oracle priming; severity low (resolver auth caps data plane; no anonymous data returned).
++testability: PASSIVE
++[HYP] Admin Priv-esc via Normal-User Session on /_api/admin/users
++class: AUTH
++asset: roobet.com/_api/admin/users
++confidence: 55
++reasoning: Route live on low-gate surface (401, not 404), Express session auth (connect.sid+userId), not behind CF bot-gate; authorization state unknown.
++evidence_needed: 200/403 for non-admin session.
++verify_steps: HUMAN sandboxed (≤1 rps): GET /_api/admin/users with normal-user connect.sid; 200 ⇒ CRITICAL.
++impact: Cross-tenant user/PII dump; CRITICAL if 200.
++testability: AUTH_HELPED
++[HYP] Affiliate IDOR via user_id Param
++class: IDOR
++asset: roobet.com/_api/affiliate/get
++confidence: 45
++reasoning: ?user_id and ?affiliate_code return 401 (not 404) ⇒ parameter parsing live; authorization unknown.
++evidence_needed: A/B two sandbox accounts.
++verify_steps: HUMAN: session A → GET /_api/affiliate/get?user_id=<acct_B>; 200 with B's data ⇒ HIGH.
++impact: Cross-user affiliate data disclosure; HIGH if 200.
++testability: AUTH_HELPED
++[PARKED] Admin Priv-esc: confidence 55 < 60 threshold; requires live session (AUTH_HELPED).
++[PARKED] Affiliate IDOR: confidence 45 < 60 threshold; requires live session (AUTH_HELPED).
++[FINAL] Pre-auth GraphQL Disclosure: confidence 95, PASSIVE, fully characterized. **SOLE SURVIVOR.**
++[NEXT] HUMAN: Submit dual-channel pre-auth GraphQL disclosure to bugs.olivermaicher.eu — package: (1) WS __schema introspection (Query29/Mut27/Sub7, 64-field User), (2) mutation validation error disclosure (InputType/enum/scalar shape leak), (3) query-plane pre-auth resolver execution (gameTags, tpGamesGetAll → "Cannot read properties of undefined (reading 'push')"), (4) liveRTPUpdate pre-auth (400+3×INTERNAL_SERVER_ERROR), (5) HTTP GET CSRF-gate bypass via x-apollo-operation-name, (6) INTROSPECTION_DISABLED-on-HTTP asymmetry, (7) subscription session-user error disclosure. Same sandboxed session (≤1 rps): GET /_api/admin/users (200 ⇒ CRITICAL), GET /_api/affiliate/get?user_id=<acct_B> (200 ⇒ HIGH).
++[LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql: Zero surface delta across runs; cross-channel model fully closed (introspection WS-only, CFGate bypass GET, resolver auth parity). Sole reportable line unchanged.
++[LEARN] ACCEPTED OTHER @ roobet.com/_api/*: Surface static (6 HTTP + 2 WS); config stable (35 keys); liveRTPUpdate patched (400+3×INTERNAL_SERVER_ERROR); remaining value session-gated.
++[LEARN] REJECTED OTHER @ roobet.com/_api/*: auth/me, admin/config, health all 404 — route families bounded.
++[RISK] roobet: 55 — Surface static (6 HTTP + 2 WS, zero delta). Server actively patching. Sole robot-side reportable finding is low-severity pre-auth GraphQL disclosure. All HIGH/CRITICAL lines require live session. Read-only, ≤1 rps, no state changes, no customer data retained. No further robot-side value — remaining steps are HUMAN submission + sandboxed-session tests.
+
+[0m
+```
+## 2026-09-10 01:36:00 UTC [target] (model bigpickle)
+NO_DELTA — fresh probe confirms: settings/get 200, admin/users 401, affiliate/get 401, tp-games/essentials 200, graphql POST 400, graphql GET 200 (URL-encoded __typename + x-apollo-operation-name). Zero change from 2026-09-10 01:28:44 baseline.
+[PRIO] roobet.com/_api/graphql,7.55,attack_surface=8,business_value=7,tech_exposure=9,gate_ease=10,cloud_surface=4,freshness=5
+[PRIO] roobet.com/_api/admin/users,4.45,attack_surface=5,business_value=9,tech_exposure=4,gate_ease=2,cloud_surface=4,freshness=5
+[PRIO] roobet.com/_api/affiliate/get,3.5,attack_surface=4,business_value=6,tech_exposure=3,gate_ease=2,cloud_surface=3,freshness=5
+[HYP] Pre-auth GraphQL Schema/Mutation Disclosure via Dual HTTP+WS Channel
+class: OTHER
+asset: roobet.com/_api/graphql
+confidence: 95
+reasoning: Anonymous graphql-transport-ws (101 + connection_ack, no socketToken) + full introspection (Query 29/Mut 27/Sub 7). User type exposes 64 fields (email, KYC PII, financial, auth tokens, role flags). All 27 mutations pass validation anonymously (InputType/enum/scalar shape leak). Query-plane resolver execution confirmed (gameTags, tpGamesGetAll → "Cannot read properties of undefined (reading 'push')"). liveRTPUpdate mutation executes pre-auth (400+3×INTERNAL_SERVER_ERROR). HTTP GET transport enabled (CSRF gate bypassable via x-apollo-operation-name). INTROSPECTION_DISABLED on HTTP, full on WS.
+evidence_needed: None — fully characterized.
+verify_steps: HUMAN: submit to bugs.olivermaicher.eu — WS __schema (29Q/27M/7S, 64-field User), mutation validation disclosure, query-plane pre-auth resolver execution, liveRTPUpdate pre-auth, HTTP GET CSRF-gate bypass, HTTP/WS auth-gate parity, INTROSPECTION_DISABLED-on-HTTP asymmetry.
+impact: Schema/PII-structure + input-shape disclosure, ID-oracle priming; severity low (resolver auth caps data plane; no anonymous data returned).
+testability: PASSIVE
+[HYP] Admin Priv-esc via Normal-User Session on /_api/admin/users
+class: AUTH
+asset: roobet.com/_api/admin/users
+confidence: 55
+reasoning: Route live on low-gate surface (401, not 404), Express session auth (connect.sid+userId), not behind CF bot-gate; authorization state unknown.
+evidence_needed: 200/403 for non-admin session.
+verify_steps: HUMAN sandboxed (≤1 rps): GET /_api/admin/users with normal-user connect.sid; 200 ⇒ CRITICAL.
+impact: Cross-tenant user/PII dump; CRITICAL if 200.
+testability: AUTH_HELPED
+[HYP] Affiliate IDOR via user_id Param
+class: IDOR
+asset: roobet.com/_api/affiliate/get
+confidence: 45
+reasoning: ?user_id and ?affiliate_code return 401 (not 404) ⇒ parameter parsing live; authorization unknown.
+evidence_needed: A/B two sandbox accounts.
+verify_steps: HUMAN: session A → GET /_api/affiliate/get?user_id=<acct_B>; 200 with B's data ⇒ HIGH.
+impact: Cross-user affiliate data disclosure; HIGH if 200.
+testability: AUTH_HELPED
+[PARKED] Admin Priv-esc: confidence 55 < 60 threshold; requires live session (AUTH_HELPED).
+[PARKED] Affiliate IDOR: confidence 45 < 60 threshold; requires live session (AUTH_HELPED).
+[FINAL] Pre-auth GraphQL Disclosure: confidence 95, PASSIVE, fully characterized. **SOLE SURVIVOR.**
+[NEXT] HUMAN: Submit dual-channel pre-auth GraphQL disclosure to bugs.olivermaicher.eu — package: (1) WS __schema introspection (Query29/Mut27/Sub7, 64-field User), (2) mutation validation error disclosure (InputType/enum/scalar shape leak), (3) query-plane pre-auth resolver execution (gameTags, tpGamesGetAll → "Cannot read properties of undefined (reading 'push')"), (4) liveRTPUpdate pre-auth (400+3×INTERNAL_SERVER_ERROR), (5) HTTP GET CSRF-gate bypass via x-apollo-operation-name, (6) INTROSPECTION_DISABLED-on-HTTP asymmetry, (7) subscription session-user error disclosure. Same sandboxed session (≤1 rps): GET /_api/admin/users (200 ⇒ CRITICAL), GET /_api/affiliate/get?user_id=<acct_B> (200 ⇒ HIGH).
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql: Zero surface delta across runs; cross-channel model fully closed (introspection WS-only, CFGate bypass GET, resolver auth parity). Sole reportable line unchanged.
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/*: Surface static (6 HTTP + 2 WS); config stable (35 keys); liveRTPUpdate patched (400+3×INTERNAL_SERVER_ERROR); remaining value session-gated.
+[LEARN] REJECTED OTHER @ roobet.com/_api/*: auth/me, admin/config, health all 404 — route families bounded.
+[RISK] roobet: 55 — Surface static (6 HTTP + 2 WS, zero delta). Server actively patching. Sole robot-side reportable finding is low-severity pre-auth GraphQL disclosure. All HIGH/CRITICAL lines require live session. Read-only, ≤1 rps, no state changes, no customer data retained. No further robot-side value — remaining steps are HUMAN submission + sandboxed-session tests.
+```

@@ -1,4 +1,4 @@
-## 2026-09-10 01:29:33 UTC [target] (model nemotron3)
+## 2026-09-10 06:43:00 UTC [target] (model nemotron3)
 [CHANGED] roobet.com/_api/graphql HTTP POST liveRTPUpdate error patched: 200 "No user with that id" + INTERNAL_SERVER_ERROR → 400 + 3×INTERNAL_SERVER_ERROR (resolver still executes pre-auth, not 401/NOT_AUTHENTICATED)
 [CHANGED] roobet.com/_api/settings/get response reduced from 68 to 35 keys; globalStats.allTimeNumBets stable ~15.3B; restrictedCountries 35 entries (was 33)
 [CHANGED] roobet.com/_api/admin/users base path consistently 401 (prior 404s were probe URL artifacts)
@@ -8,7 +8,7 @@
 [CHANGED] crash-gs.roobet.com Socket.IO TLS upgrade open (no 4xx) then app-timeout; HUMAN_ONLY — no delta
 [CHANGED] fs.roobet.com GCS ?list-type=2 → fullstory.com redirect; no enumeration — no delta
 [CHANGED] roobet.com OAuth metadata endpoints return SPA shell (Remix catch-all), not JSON — no delta
-[PRIO] roobet.com/_api/graphql,9.10,attack_surface=10,business_value=9,tech_exposure=10,gate_ease=10,cloud_surface=5,freshness=9
+[PRIO] roobet.com/_api/graphql,9.25,attack_surface=10,business_value=9,tech_exposure=10,gate_ease=10,cloud_surface=5,freshness=9
 [PRIO] roobet.com/_api/admin/users,7.15,attack_surface=8,business_value=10,tech_exposure=7,gate_ease=3,cloud_surface=5,freshness=8
 [PRIO] roobet.com/_api/socket.io,6.85,attack_surface=7,business_value=6,tech_exposure=8,gate_ease=9,cloud_surface=5,freshness=8
 [PRIO] roobet.com/_api/affiliate/get,5.80,attack_surface=7,business_value=7,tech_exposure=6,gate_ease=3,cloud_surface=5,freshness=8
