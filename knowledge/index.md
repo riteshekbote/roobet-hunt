@@ -326,3 +326,5 @@
 - 2026-09-10 PARKED auth.roobet.com/account.roobet.com/admin.roobet.com: Subdomains unresponsive; no attack surface confirmed.
 - 2026-09-10 PARKED crash-gs.roobet.com unauthenticated socket: Requires browser/WS tooling, HUMAN_ONLY.
 - 2026-09-10 ACCEPTED OTHER @ roobet.com/_api/graphql: Zero surface delta across runs; cross-channel model fully closed (introspection WS-only, CFGate bypass GET, resolver auth parity). Sole reportable line unchanged.
+- 2026-09-10 ACCEPTED OTHER @ roobet.com/_api/*: zero surface delta confirmed — settings/get 35-key schema byte-stable, admin/users 401, affiliate/get?user_id=1 401, socket.io Ond-delimited poll handshake + Origin gate intact.
+- 2026-09-10 ACCEPTED OTHER @ roobet.com/_api/graphql: transport re-confirmed live (WS 101 + HTTP GET/POST) — pre-auth GraphQL disclosure remains sole robot-side reportable line; resolver auth caps severity.
