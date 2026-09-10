@@ -2389,3 +2389,4 @@ testability: AUTH_HELPED
 [LEARN] ACCEPTED OTHER @ roobet.com/_api/*: zero surface delta confirmed — settings/get 35-key schema byte-stable, admin/users 401, affiliate/get?user_id=1 401, socket.io Ond-delimited poll handshake + Origin gate intact.
 [LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql: transport re-confirmed live (WS 101 + HTTP GET/POST) — pre-auth GraphQL disclosure remains sole robot-side reportable line; resolver auth caps severity.
 [RISK] roobet: 50 — Surface static (6 HTTP + 2 WS); server actively hardening (liveRTPUpdate msg suppressed, HTTP introspection disabled, config trimmed 68→35). Sole robot-side finding is low-severity pre-auth GraphQL disclosure; all HIGH/CRITICAL lines session-gated. Read-only ≤1 rps, no state changes, no data retained. No further robot-side value — remaining steps are HUMAN submission + sandboxed-session tests.
+## 2026-09-10 23:51:52 UTC [target] (model bigpickle)
