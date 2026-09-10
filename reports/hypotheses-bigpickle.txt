@@ -1,4 +1,4 @@
-## 2026-09-10 11:53:52 UTC [target] (model bigpickle)
+## 2026-09-10 16:06:41 UTC [target] (model bigpickle)
 [PRIO] roobet.com/_api/graphql,7.55,attack_surface=8,business_value=7,tech_exposure=9,gate_ease=10,cloud_surface=4,freshness=5
 [PRIO] roobet.com/_api/admin/users,4.45,attack_surface=5,business_value=9,tech_exposure=4,gate_ease=2,cloud_surface=4,freshness=5
 [PRIO] roobet.com/_api/affiliate/get,3.5,attack_surface=4,business_value=6,tech_exposure=3,gate_ease=2,cloud_surface=3,freshness=5
@@ -36,4 +36,4 @@ testability: AUTH_HELPED
 [LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql: Zero surface delta across runs; cross-channel model fully closed (introspection WS-only, CFGate bypass GET, resolver auth parity). Sole reportable line unchanged.
 [LEARN] ACCEPTED OTHER @ roobet.com/_api/*: Surface static (6 HTTP + 2 WS); config stable (35 keys); liveRTPUpdate patched (400+3×INTERNAL_SERVER_ERROR); remaining value session-gated.
 [LEARN] REJECTED OTHER @ roobet.com/_api/*: auth/me, admin/config, health all 404 — route families bounded.
-[RISK] roobet: 55 — Surface static (6 HTTP + 2 WS, zero delta). Server actively patching (liveRTPUpdate message suppressed, HTTP introspection disabled, config trimmed 68→35). Sole robot-side reportable finding is low-severity pre-auth GraphQL disclosure. All HIGH/CRITICAL lines require live session. Read-only, ≤1 rps, no state changes, no customer data retained. No further robot-side value — remaining steps are HUMAN submission + sandboxed-session tests.
+[RISK] roobet: 55 — Surface static (6 HTTP + 2 WS, zero delta). Server actively patching. Sole robot-side reportable finding is low-severity pre-auth GraphQL disclosure. All HIGH/CRITICAL lines require live session. Read-only, ≤1 rps, no state changes, no customer data retained. No further robot-side value — remaining steps are HUMAN submission + sandboxed-session tests.

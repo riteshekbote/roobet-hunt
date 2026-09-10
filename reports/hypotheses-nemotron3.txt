@@ -1,15 +1,16 @@
-## 2026-09-10 12:01:32 UTC [target] (model nemotron3)
+## 2026-09-10 16:19:13 UTC [target] (model nemotron3)
+[CHANGED] roobet.com/_api/graphql HTTP POST liveRTPUpdate error patched: 200 "No user with that id" + INTERNAL_SERVER_ERROR → 400 + 3×INTERNAL_SERVER_ERROR (resolver still executes pre-auth, not 401/NOT_AUTHENTICATED)
+[CHANGED] roobet.com/_api/settings/get response reduced from 68 to 35 keys; globalStats.allTimeNumBets stable ~15.3B; restrictedCountries 35 entries (was 33)
+[CHANGED] roobet.com/_api/admin/users base path consistently 401 (prior 404s were probe URL artifacts)
+[CHANGED] roobet.com/_api/affiliate/get ?user_id/?affiliate_code return 401 not 404 — confirms parameter parsing on low-gate surface
+[CHANGED] Surface static: 6 HTTP + 2 WS routes confirmed across 5+ runs; zero delta in hosts/routes
+[CHANGED] api.roobet.com, auth.roobet.com, account.roobet.com, admin.roobet.com, billing.roobet.com, dashboard.roobet.com, sso.roobet.com + 13 others: non-resolving/internal (000/timeout) — no delta
+[CHANGED] crash-gs.roobet.com Socket.IO TLS upgrade open (no 4xx) then app-timeout; HUMAN_ONLY — no delta
+[CHANGED] fs.roobet.com GCS ?list-type=2 → fullstory.com redirect; no enumeration — no delta
+[CHANGED] roobet.com OAuth metadata endpoints return SPA shell (Remix catch-all), not JSON — no delta
+[NEW] roobet.com/_api/graphql HTTP GET read-plane: exchangeRates (named op + x-apollo-operation-name) → 200 with NOT_AUTHENTICATED/null data — resolver auth gate confirmed identical on HTTP and WS channels
 [PRIO] roobet.com/_api/graphql,9.25,attack_surface=10,business_value=9,tech_exposure=10,gate_ease=10,cloud_surface=5,freshness=9
 [PRIO] roobet.com/_api/admin/users,7.15,attack_surface=8,business_value=10,tech_exposure=7,gate_ease=3,cloud_surface=5,freshness=8
-[PRIO] roobet.com/_api/socket.io,6.85,attack_surface=7,business_value=6,tech_exposure=8,gate_ease=9,cloud_surface=5,freshness=8
-[PRIO] roobet.com/_api/affiliate/get,5.80,attack_surface=7,business_value=7,tech_exposure=6,gate_ease=3,cloud_surface=5,freshness=8
-[PRIO] roobet.com/_api/settings/get,5.25,attack_surface=5,business_value=5,tech_exposure=7,gate_ease=10,cloud_surface=5,freshness=7
-[HYP] Pre-auth GraphQL Mutation Resolver Execution via HTTP Channel (No ID Oracle)
-class: OTHER
-asset: roobet.com/_api/graphql
-confidence: 85
-reasoning: HTTP POST to /_api/graphql executes mutation resolvers pre-auth (liveRTPUpdate, placeBet, forfeitCashableBonus, claimBonus all return INTERNAL_SERVER_ERROR not NOT_AUTHENTICATED). A/B test with userId="000000000000000000000001" vs "000000000000000000000002" returns identical 3×INTERNAL_SERVER_ERROR — no ID presence signal. WS channel provides full introspection (28Q/26M/7S) + mutation validation error disclosure (InputType schemas) + User type with 64 fields (KYC PII, financials, auth tokens, role flags). Apollo GET transport enabled via x-apollo-operation-name header.
-evidence_needed: Confirmation that any mutation returns differentiable error for valid vs invalid identifiers; test remaining 22 mutations for pre-auth resolver execution on HTTP channel.
 verify_steps: POST https://roobet.com/_api/graphql -H "Content-Type: application/json" -d '{"query":"mutation { updateUserProfile(input:{displayName:\"test\"}) }"}' → capture error structure; repeat with other profile/account mutations. Single request each, read-only, 1 rps.
 impact: Pre-auth mutation resolver execution on HTTP channel maps attack surface for session-assisted IDOR/BOLA/privilege escalation. Severity: MEDIUM (pre-auth schema + resolver reachability) — capped by resolver auth on data-plane. No anonymous ID oracle confirmed.
 testability: PASSIVE
