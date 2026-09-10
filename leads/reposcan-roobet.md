@@ -163,3 +163,12 @@ verify_steps: Visit https://github.com/roobet to confirm the org has zero public
 TARGET_ORG not configured for roobet; skipping public-org deep scan.
 ## REPOSCAN 2026-09-10 06:39:01 UTC
 TARGET_ORG not configured for roobet; skipping public-org deep scan.
+## REPOSCAN 2026-09-10 11:54:39 UTC
+[HYP] No org candidates to audit
+class: OTHER
+asset: cands.txt / scope.yml
+confidence: 100
+reasoning: |
+impact: N/A
+verify_steps: 1) Confirm github.com/roobet has 0 public repos. 2) If org exists, populate cands.txt with repo URLs and re-run reposcan.
+TARGET_ORG not configured for roobet; skipping public-org deep scan.
