@@ -15266,3 +15266,101 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 - [RISK] roobet: 50 — Surface static (6 HTTP + 2 WS, zero delta across 10+ runs); server actively hardening (liveRTPUpdate error suppressed, HTTP introspection disabled, config trimmed 68→35). Sole robot-side line is low-severity pre-auth GraphQL disclosure; all HIGH/CRITICAL paths session-gated. Read-only ≤1 rps, no state changes, no customer data retained. Robot-side phase exhausted — remaining value is HUMAN submission + sandboxed-session tests.
+===== ANALYST bigpickle 2026-09-11 08:50:10 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m• [0mExplore workspace state[90m Explore Agent[0m
+[0m✓ [0mExplore workspace state[90m Explore Agent[0m
+[0m→ [0mRead leads/lead-bigpickle.md
+[0m→ [0mRead leads/lead-nemotron3.md
+[0m→ [0mRead reports/hypotheses-nemotron3.txt
+[0m→ [0mRead reports/hypotheses-bigpickle.txt
+[0m→ [0mRead reports/valid-bugs.md
+[0m→ [0mRead knowledge/index.md
+[0m→ [0mRead state_bigpickle.json
+[0m→ [0mRead triage/run-2026-09-11-03-48.md
+Now let me read the most recent triage run and the latest lead outputs to get the current snapshot:
+Now I have full context. Let me produce the structured analysis.
+
+---
+
+## 2026-09-11 03:55:00 UTC [target] (model bigpickle)
+
+### STEP 1 — DELTA
+
+NO_DELTA. All 6 HTTP routes + 2 WS routes byte-stable since 2026-09-09. Settings/get 35 keys, admin/users 401, affiliate/get 401, graphql WS 101+introspection live, socket.io Origin-gated. Zero new hosts, zero new route candidates. Server hardening signals (liveRTPUpdate msg patch, HTTP introspection disabled, config trim 68→35) stable since 2026-09-08.
+
+### STEP 2 — PRIORITIZE
+
+| Asset | Score | Axis |
+|---|---|---|
+| `roobet.com/_api/graphql` (HTTP+WS) | 9.25 | attack_surface=10, business_value=9, tech_exposure=10, gate_ease=10, cloud_surface=5, freshness=9 |
+| `roobet.com/_api/admin/users` | 7.15 | attack_surface=8, business_value=10, tech_exposure=7, gate_ease=3, cloud_surface=5, freshness=8 |
+| `roobet.com/_api/socket.io` | 6.40 | attack_surface=7, business_value=6, tech_exposure=8, gate_ease=8, cloud_surface=5, freshness=7 |
+| `roobet.com/_api/affiliate/get` | 5.95 | attack_surface=6, business_value=7, tech_exposure=6, gate_ease=3, cloud_surface=5, freshness=8 |
+| `roobet.com/_api/settings/get` | 4.85 | attack_surface=5, business_value=5, tech_exposure=5, gate_ease=10, cloud_surface=5, freshness=6 |
+
+### STEP 3 — HYPOTHESES
+
+[HYP] Pre-auth Mutation Resolver Execution Family Sweep (HTTP)
+class: OTHER
+asset: roobet.com/_api/graphql
+confidence: 55
+reasoning: liveRTPUpdate (userId-bearing, admin-detached) executes pre-auth bypassing resolver NOT_AUTHENTICATED gate; precedent proves not all mutations gate on session user; upstream [85] rescore on this line.
+evidence_needed: A second mutation returning resolver-level (non-auth, non-validation) error referencing a user-supplied ID, A/B differentiated.
+verify_steps: HUMAN sandboxed ≤1rps, POST only mutations with read-only error semantics (never stateful input, no real userIds); compare resolver-error vs NOT_AUTHENTICATED bifurcation.
+impact: ID-presence oracle / additional schema-execution disclosure; LOW unless a stateful mutation fires.
+testability: AUTH_HELPED
+
+[HYP] Admin Priv-esc via Normal-User Session on /_api/admin/users
+class: AUTH
+asset: roobet.com/_api/admin/users
+confidence: 55
+reasoning: Live on low-gate surface (401, not behind CF bot-gate), Express session auth (connect.sid+userId); authorization state unknown, session-gated.
+evidence_needed: 200/403 for non-admin cookie.
+verify_steps: HUMAN sandboxed ≤1rps: GET with normal-user connect.sid; 200 ⇒ CRITICAL.
+impact: Cross-tenant user/PII dump; CRITICAL if 200.
+testability: AUTH_HELPED
+
+[HYP] Affiliate IDOR via user_id Param
+class: IDOR
+asset: roobet.com/_api/affiliate/get
+confidence: 45
+reasoning: ?user_id=1 and ?affiliate_code return 401 (not 404) ⇒ parameter parsing live; authorization unknown.
+evidence_needed: A/B two sandbox accounts.
+verify_steps: HUMAN: session A → GET ?user_id=<acct_B>; 200 with B data ⇒ HIGH.
+impact: Cross-user affiliate data disclosure; HIGH if 200.
+testability: AUTH_HELPED
+
+### STEP 4 — SELF-CRITIQUE
+
+[PARKED] Pre-auth Mutation Resolver Execution Family Sweep (HTTP): confidence 55 < 60; AUTH_HELPED testability; liveRTPUpdate is the only mutation confirmed to bypass resolver auth gate — all others return NOT_AUTHENTICATED on the data-plane. Sweep would only confirm same pattern. No new evidence path without session.
+
+[PARKED] Admin Priv-esc via Normal-User Session: confidence 55 < 60; requires valid session cookie; engagement rules prohibit session theft. AUTH_HELPED only.
+
+[PARKED] Affiliate IDOR via user_id Param: confidence 45 < 40 borderline; requires A/B sandbox accounts; AUTH_HELPED only.
+
+[FINAL] Pre-auth GraphQL Disclosure (from nemotron3 [85]): Sole robot-side reportable line. Fully characterized across dual HTTP+WS channels. All sub-components confirmed:
+1. WS: graphql-transport-ws 101+connection_ack, no socketToken, full introspection (29Q/27M/7S, 64-field User incl. email/KYC/financial/auth-token/role)
+2. HTTP: Apollo GET transport (CSRF bypass via x-apollo-operation-name), INTROSPECTION_DISABLED on HTTP
+3. Mutation validation errors: all 27 mutations pass GraphQL validation anonymously, leaking InputType shapes/enums/custom scalars
+4. liveRTPUpdate: pre-auth resolver execution (400+3×INTERNAL_SERVER_ERROR), not 401/NOT_AUTHENTICATED
+5. Subscriptions: kycUpdated+polymarketOrders return JS error `Cannot read properties of null (reading 'user')` — architecture disclosure
+6. Data-plane: exchangeRates/viewerChecks/userPublicProfile/userSystemStatus all NOT_AUTHENTICATED — resolver auth caps severity
+7. Socket.IO: Origin-gated, anonymous broadcast of new_bet/settingsUpdated/withdraw flags — real-time surface
+Severity: LOW (schema+input-shape disclosure, resolver auth enforced on data-plane). **This finding is ready for submission.**
+
+### STEP 5 — NEXT ACTION
+
+[HUMAN] Submit packaged finding to bugs.olivermaicher.eu — (1) WS `__schema` introspection (29Q/27M/7S, 64-field User), (2) mutation validation-error disclosure (InputType/enum/scalar), (3) query-plane pre-auth resolver execution, (4) liveRTPUpdate pre-auth resolver run (400+3×INTERNAL_SERVER_ERROR), (5) HTTP GET CSRF-gate bypass via x-apollo-operation-name, (6) INTROSPECTION_DISABLED-on-HTTP asymmetry, (7) subscription session-user error disclosure. Same sandboxed session (≤1 rps): GET /_api/admin/users (200 ⇒ CRITICAL), GET /_api/affiliate/get?user_id=<acct_B> (200 ⇒ HIGH).
+
+### STEP 6 — LEARNING
+
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/*: zero surface delta confirmed — settings/get 35-key schema byte-stable, admin/users 401, affiliate/get?user_id=1 401, socket.io Ond-delimited poll handshake + Origin gate intact.
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql: transport re-confirmed live (WS 101 + HTTP GET/POST) — pre-auth GraphQL disclosure remains sole robot-side reportable line; resolver auth caps severity.
+[LEARN] PARKED all session-gated hypotheses: admin priv-esc (55), mutation sweep (55), affiliate IDOR (45) — all require AUTH_HELPED; no passive test possible; no further robot-side value on these lines.
+
+### STEP 7 — RISK
+
+[RISK] roobet: 50 — Surface static (6 HTTP + 2 WS); server actively hardening (liveRTPUpdate msg suppressed, HTTP introspection disabled, config trimmed 68→35). Sole robot-side finding is low-severity pre-auth GraphQL disclosure; all HIGH/CRITICAL lines session-gated. Read-only ≤1 rps, no state changes, no data retained. No further robot-side value — remaining steps are HUMAN submission + sandboxed-session tests.
