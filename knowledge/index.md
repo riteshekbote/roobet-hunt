@@ -349,3 +349,5 @@
 - 2026-09-11 PARKED all session-gated hypotheses: admin priv-esc (55), mutation sweep (55), affiliate IDOR (45) — all require AUTH_HELPED; no passive test possible; no further robot-side value on these lines.
 - 2026-09-11 ACCEPTED OTHER @ roobet.com/_api/graphql HTTP POST: 7/7 tested mutations (liveRTPUpdate, updateUserProfile, placeBet, claimBonus, forfeitCashableBonus, updateEmail, updatePassword) execute pre-auth → INTERNAL_SERVER_ERROR (not 401/NOT_AUTHENTICATED)
 - 2026-09-11 ACCEPTED OTHER @ roobet.com/_api/settings/get: response stable at 35 keys (down from 68) — config surface reduced; globalStats.allTimeNumBets stable at ~15.3B; restrictedCountries 35 entries (was 33)
+- 2026-09-11 ACCEPTED OTHER @ roobet.com/_api/*: zero surface delta re-confirmed this run — settings/get 35 keys ~byte-stable (1765B), admin/users 401, affiliate/get?user_id=1 401, graphql 400 no-body, socket.io Origin-gated polling 200.
+- 2026-09-11 ACCEPTED OTHER @ roobet.com/_api/graphql: transport re-confirmed live (HTTP 400 / polling 200 / WS 101); pre-auth GraphQL disclosure remains sole robot-side reportable line; resolver auth caps severity.

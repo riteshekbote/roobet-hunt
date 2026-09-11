@@ -2507,3 +2507,42 @@ evidence_needed: A/B two sandbox accounts.
 verify_steps: HUMAN sandboxed ≤1rps: session A → GET /_api/affiliate/get?user_id=<acct_B_id>; 200 with B data ⇒ HIGH.
 impact: Cross-user affiliate data disclosure; HIGH if 200.
 testability: AUTH_HELPED
+## 2026-09-11 19:51:00 UTC [target] (model bigpickle)
+[PRIO] roobet.com/_api/graphql,7.25,attack_surface=8,business_value=7,tech_exposure=10,gate_ease=10,cloud_surface=3,freshness=2
+[PRIO] roobet.com/_api/admin/users,4.85,attack_surface=4,business_value=10,tech_exposure=4,gate_ease=1,cloud_surface=4,freshness=2
+[PRIO] roobet.com/_api/affiliate/get,3.30,attack_surface=4,business_value=6,tech_exposure=3,gate_ease=1,cloud_surface=0,freshness=2
+[HYP] Pre-auth GraphQL Schema/Operation Disclosure on Dual HTTP+WS Channels
+class: OTHER
+asset: roobet.com/_api/graphql
+confidence: 88
+reasoning: Anonymous graphql-transport-ws upgrade (101 + connection_ack, no socketToken) + full __schema introspection (Query 28 / Mutation 26 / Subscription 7). HTTP channel: Apollo GET transport (CSRF gate bypassable via x-apollo-operation-name), INTROSPECTION_DISABLED HTTP vs WS-only; 7/7 mutations (liveRTPUpdate, updateUserProfile, placeBet, claimBonus, forfeitCashableBonus, updateEmail, updatePassword) pass validation and execute resolvers pre-auth → INTERNAL_SERVER_ERROR (not 401/NOT_AUTHENTICATED), server patched liveRTPUpdate message text. User type: 64 fields incl. email, KYC PII, financials, auth tokens, role flags. Subscriptions kycUpdated/polymarketOrders leak `Cannot read properties of null (reading 'user')`.
+evidence_needed: none robot-side — fully characterized; residual value (ID-presence oracle, money-mutation pre-auth fire) needs A/B sandboxed accounts.
+verify_steps: [FINAL] read-only introspection/validation probes exhausted; no further passive tests warranted.
+impact: Anonymous schema/operation disclosure enabling targeted exploitation by any registered user; LOW-MEDIUM standalone (resolver NOT_AUTHENTICATED caps data-plane), CRITICAL only if a session compromise reaches the PII graph or a money mutation fires pre-auth.
+testability: PASSIVE
+[HYP] Admin Priv-esc via Normal-User Session on /_api/admin/users
+class: AUTH
+asset: roobet.com/_api/admin/users
+confidence: 55
+reasoning: 401 on low-gate surface (bypasses Cloudflare bot-gate); Express.js session auth (connect.sid HttpOnly). Authorization vs session-validity gating indistinguishable anonymously; no A/B possible without a normal-user cookie.
+evidence_needed: 200/403 for a non-admin connect.sid.
+verify_steps: HUMAN sandboxed ≤1rps: GET /_api/admin/users with normal-user cookie → 200 ⇒ CRITICAL.
+impact: Cross-tenant user/PII dump; CRITICAL if 200.
+testability: AUTH_HELPED
+[HYP] Affiliate Endpoint IDOR via user_id Param
+class: IDOR
+asset: roobet.com/_api/affiliate/get
+confidence: 45
+reasoning: ?user_id=<id>/?affiliate_code=<code> return 401 (not 404) across 10+ runs — parameter parsing confirmed alive; authorization unknown.
+evidence_needed: A/B two sandbox accounts.
+verify_steps: HUMAN sandboxed ≤1rps: session A → GET ?user_id=<acct_B> → 200 with B data ⇒ HIGH.
+impact: Cross-user affiliate data disclosure; HIGH if 200.
+testability: AUTH_HELPED
+[PARKED] Admin priv-esc (55): session-cookie required; violates no-session-theft rule; no passive test possible.
+[PARKED] Affiliate IDOR (45): A/B sandbox accounts required; AUTH_HELPED only.
+[PARKED] graphql A/B ID-presence oracle / money-mutation fire test: requires throwaway live account + state-change risk; HUMAN sandboxed only.
+[FINAL] Pre-auth GraphQL Disclosure (88, PASSIVE) — sole robot-side reportable line; fully characterized dual-channel; resolver auth caps severity at LOW-MEDIUM.
+[NEXT] HUMAN: Submit pre-auth GraphQL disclosure package via bugs.olivermaicher.eu (WS anonymous graphql-transport-ws 101 + full introspection 28Q/26M/7S incl. 64-field User type; HTTP GET CSRF-bypassable Apollo transport; 7/7 mutations validate+execute pre-auth with resolver auth enforcing NOT_AUTHENTICATED on read-plane; note liveRTPUpdate hardening observed 09-08) — PoC read-only; all remaining high-value verifications (admin/users cookie test, affiliate A/B IDOR, money-mutation A/B) require sandboxed sessions, out of robot reach.
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/*: zero surface delta re-confirmed this run — settings/get 35 keys ~byte-stable (1765B), admin/users 401, affiliate/get?user_id=1 401, graphql 400 no-body, socket.io Origin-gated polling 200.
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql: transport re-confirmed live (HTTP 400 / polling 200 / WS 101); pre-auth GraphQL disclosure remains sole robot-side reportable line; resolver auth caps severity.
+[RISK] roobet: 50 — Surface static (6 HTTP + 2 WS); server actively hardening (liveRTPUpdate msg suppressed, HTTP introspection disabled, config trimmed 68→35). Sole robot-side finding is low-severity pre-auth GraphQL disclosure; all HIGH/CRITICAL lines (admin priv-esc, affiliate IDOR, money-mutation) are session-gated. Read-only ≤1 rps, no state changes, no data retained; no further robot-side value — remaining steps are HUMAN submission + sandboxed-session tests.
