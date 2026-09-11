@@ -2546,3 +2546,31 @@ testability: AUTH_HELPED
 [LEARN] ACCEPTED OTHER @ roobet.com/_api/*: zero surface delta re-confirmed this run — settings/get 35 keys ~byte-stable (1765B), admin/users 401, affiliate/get?user_id=1 401, graphql 400 no-body, socket.io Origin-gated polling 200.
 [LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql: transport re-confirmed live (HTTP 400 / polling 200 / WS 101); pre-auth GraphQL disclosure remains sole robot-side reportable line; resolver auth caps severity.
 [RISK] roobet: 50 — Surface static (6 HTTP + 2 WS); server actively hardening (liveRTPUpdate msg suppressed, HTTP introspection disabled, config trimmed 68→35). Sole robot-side finding is low-severity pre-auth GraphQL disclosure; all HIGH/CRITICAL lines (admin priv-esc, affiliate IDOR, money-mutation) are session-gated. Read-only ≤1 rps, no state changes, no data retained; no further robot-side value — remaining steps are HUMAN submission + sandboxed-session tests.
+## 2026-09-11 22:22:08 UTC [target] (model bigpickle)
+[HYP] Pre-auth GraphQL Schema/Operation Disclosure on Dual HTTP+WS Channels (resolver auth-curtain degraded to uncaught ISE)
+class: OTHER
+asset: roobet.com/_api/graphql
+confidence: 88
+reasoning: Anonymous graphql-transport-ws (101 + connection_ack, no socketToken) + full introspection (28Q/26M/7S) WS-only; HTTP POST valid-body query executes resolvers pre-auth; `exchangeRates` read-query this run returns 2×INTERNAL_SERVER_ERROR on GET (x-apollo-operation-name bypass) AND POST — prior clean NOT_AUTHENTICATED response gone, resolver still fires anonymously but error path changed; 7/7 mutations previously confirmed executing pre-auth → ISE; User type 64 fields incl. KYC PII/financials/auth tokens.
+evidence_needed: none robot-side — read-plane behavior now uniform ISE across channels; residual A/B value only.
+verify_steps: [FINAL] read-only query/validation probes exhausted; transport re-confirmed live this run (GET 200/ISE, POST 200/ISE).
+impact: Anonymous schema+operation disclosure; uniform pre-auth resolver execution on reads and writes; wrong-account targeted operations reachable by any registered user; LOW-MEDIUM standalone (no data plane leak), CRITICAL only downstream of session compromise.
+testability: PASSIVE
+[HYP] Admin Priv-esc via Normal-User Session on /_api/admin/users
+class: AUTH
+asset: roobet.com/_api/admin/users
+confidence: 55
+reasoning: 401 on low-gate surface (bypasses Cloudflare bot-gate); Express.js session auth (connect.sid HttpOnly); authorization vs session-validity indistinguishable anonymously; no A/B without normal-user cookie.
+evidence_needed: 200/403 for a non-admin connect.sid.
+verify_steps: HUMAN sandboxed ≤1rps: GET /_api/admin/users with normal-user cookie → 200 ⇒ CRITICAL.
+impact: Cross-tenant user/PII dump; CRITICAL if 200.
+testability: AUTH_HELPED
+[HYP] Affiliate Endpoint IDOR via user_id Param
+class: IDOR
+asset: roobet.com/_api/affiliate/get
+confidence: 45
+reasoning: `?user_id`/`?affiliate_code` return 401 (not 404) across 10+ runs — parameter parsing alive; authorization unknown; no passive A/B.
+evidence_needed: A/B two sandbox accounts.
+verify_steps: HUMAN sandboxed ≤1rps: session A → GET ?user_id=<acct_B> → 200 with B data ⇒ HIGH.
+impact: Cross-user affiliate data disclosure; HIGH if 200.
+testability: AUTH_HELPED
