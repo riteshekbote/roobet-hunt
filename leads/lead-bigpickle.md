@@ -2454,3 +2454,31 @@ testability: AUTH_HELPED
 [LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql: transport re-confirmed live (WS 101 + HTTP GET/POST) — pre-auth GraphQL disclosure remains sole robot-side reportable line; resolver auth caps severity.
 [LEARN] PARKED all session-gated hypotheses: admin priv-esc (55), mutation sweep (55), affiliate IDOR (45) — all require AUTH_HELPED; no passive test possible; no further robot-side value on these lines.
 [RISK] roobet: 50 — Surface static (6 HTTP + 2 WS); server actively hardening (liveRTPUpdate msg suppressed, HTTP introspection disabled, config trimmed 68→35). Sole robot-side finding is low-severity pre-auth GraphQL disclosure; all HIGH/CRITICAL lines session-gated. Read-only ≤1 rps, no state changes, no data retained. No further robot-side value — remaining steps are HUMAN submission + sandboxed-session tests.
+## 2026-09-11 13:26:09 UTC [target] (model bigpickle)
+[HYP] Pre-auth GraphQL Mutation Resolver Execution via HTTP Channel (No ID Oracle)
+class: OTHER
+asset: roobet.com/_api/graphql
+confidence: 85
+reasoning: liveRTPUpdate executes pre-auth on HTTP POST (200 "No user with that id"+ISE, now patched 400+3×ISE, resolver still runs, not 401); resolver auth enforced on read-plane (NOT_AUTHENTICATED parity on exchangeRates GET+WS); introspection WS-only (28Q/26M/7S); 26 mutations pass validation anonymously leaking InputTypes. Profile/email mutations not A/B tested.
+evidence_needed: second mutation returning resolver-level non-auth error referencing a user-supplied ID, A/B differentiated.
+verify_steps: HUMAN sandboxed throwaway account ≤1rps: mutation { updateUserProfile(input:{displayName:"test"}) } → 400-ISE vs NOT_AUTHENTICATED bifurcation; never placeBet/claimBonus/forfeit on live account.
+impact: schema-execution disclosure + potential ID-presence oracle; LOW-MEDIUM capped by resolver auth; CRITICAL only if money mutation fires pre-auth.
+testability: AUTH_HELPED
+[HYP] Admin Priv-esc via Normal-User Session on /_api/admin/users
+class: AUTH
+asset: roobet.com/_api/admin/users
+confidence: 55
+reasoning: 401 (not 404) on low-gate surface; Express session auth (connect.sid+userId+twofactorRequired); authorization state unknown.
+evidence_needed: 200/403 for non-admin cookie.
+verify_steps: HUMAN sandboxed ≤1rps: GET with normal-user connect.sid; 200 ⇒ CRITICAL.
+impact: Cross-tenant user/PII dump; CRITICAL if 200.
+testability: AUTH_HELPED
+[HYP] Affiliate IDOR via user_id Param
+class: IDOR
+asset: roobet.com/_api/affiliate/get
+confidence: 45
+reasoning: ?user_id=1/?affiliate_code return 401 (not 404) ⇒ parameter parsing live; authorization unknown.
+evidence_needed: A/B two sandbox accounts.
+verify_steps: HUMAN: session A → GET ?user_id=<acct_B>; 200 with B data ⇒ HIGH.
+impact: Cross-user affiliate data disclosure; HIGH if 200.
+testability: AUTH_HELPED
