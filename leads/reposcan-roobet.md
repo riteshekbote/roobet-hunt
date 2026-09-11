@@ -189,3 +189,12 @@ reasoning: Roobet has no public GitHub org. RoobetTeam is defunct/private. Emplo
 impact: N/A
 verify_steps: N/A
 TARGET_ORG not configured for roobet; skipping public-org deep scan.
+## REPOSCAN 2026-09-11 08:59:03 UTC
+[HYP] No source-code findings — zero org-owned public repos exist
+class: OTHER
+asset: N/A (no repos)
+confidence: 100
+reasoning: Roobet has no public GitHub organization. cands.txt = "no org candidates", scope.yml github_orgs = none-configured, TARGET_ORG env var is empty. Prior 50+ reposcan runs all confirm 0 public repos. No code to audit for secrets, hardcoded creds, or insecure patterns.
+impact: N/A
+verify_steps: 1) curl -s "https://api.github.com/orgs/ROOBET" | jq '.public_repos' → 0. 2) If org is later discovered, populate cands.txt and re-run.
+TARGET_ORG not configured for roobet; skipping public-org deep scan.
