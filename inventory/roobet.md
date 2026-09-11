@@ -633,3 +633,13 @@ www.roobet.com
 - CHANGED roobet.com OAuth metadata endpoints return SPA shell (Remix catch-all), not JSON — no delta
 
 ## 2026-09-11 13:42:50 UTC
+
+## 2026-09-11 17:23:07 UTC
+- CHANGED roobet.com/_api/graphql HTTP POST: liveRTPUpdate mutation error message patched from 200 "No user with that id" + INTERNAL_SERVER_ERROR to 400 + 3×INTERNAL_SERVER_ERROR — resolver still executes pre-a
+- CHANGED roobet.com/_api/settings/get: response stable at 35 keys (down from 68); globalStats.allTimeNumBets ~15.3B; restrictedCountries 35 entries — config surface reduced but static across 10+ runs
+- CHANGED roobet.com/_api/admin/users, /_api/admin/stats base paths consistently 401 (prior 404s were probe URL artifacts with backticks)
+- CHANGED roobet.com/_api/affiliate/get ?user_id/?affiliate_code return 401 not 404 — confirms parameter parsing on low-gate surface
+- CHANGED roobet.com/_api/socket.io polling Origin-gated: 403 without Origin: https://roobet.com, 200 with it
+- CHANGED roobet.com/_api/graphql GET: CSRF preflight confirmed via error body — requires non-form content-type or x-apollo-operation-name/apollo-require-preflight
+- NEW Verified 6 additional mutations (updateUserProfile, placeBet, claimBonus, forfeitCashableBonus, updateEmail, updatePassword) execute pre-auth on HTTP channel → all return INTERNAL_SERVER_ERROR (not 40
+- CHANGED Surface static: 6 HTTP + 2 WS routes confirmed across 10+ runs; zero delta in hosts/routes

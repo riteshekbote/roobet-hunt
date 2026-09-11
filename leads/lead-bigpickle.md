@@ -2482,3 +2482,28 @@ evidence_needed: A/B two sandbox accounts.
 verify_steps: HUMAN: session A → GET ?user_id=<acct_B>; 200 with B data ⇒ HIGH.
 impact: Cross-user affiliate data disclosure; HIGH if 200.
 testability: AUTH_HELPED
+## 2026-09-11 17:17:57 UTC [target] (model bigpickle)
+class: OTHER
+asset: roobet.com/_api/graphql
+confidence: 88
+reasoning: Anonymous graphql-transport-ws (101 + connection_ack, no socketToken) + full __schema introspection (Query 28 / Mutation 26 / Subscription 7) confirmed across 10+ consecutive runs. HTTP channel: Apollo GET transport enabled (CSRF gate bypassable via x-apollo-operation-name); HTTP introspection INTROSPECTION_DISABLED (WS-only). All 26 mutations pass GraphQL validation anonymously, leaking exact InputType shapes/required fields/enums/custom scalars. subscription error disclosure (kycUpdated/polymarketOrders `Cannot read properties of null (reading 'user')`). User type: 64 fields (email, KYC PII, financials, auth tokens, role flags). liveRTPUpdate mutation executes pre-auth on HTTP POST (400 + 3×ISE after server patch). Resolver-level NOT_AUTHENTICATED caps data-plane severity.
+evidence_needed: none — fully characterized robot-side.
+verify_steps: [FINAL] no further passive tests required; findng fully characterized.
+impact: Pre-auth schema/operation disclosure to anonymous users; enables targeted authenticated exploitation by any user account. LOW-MEDIUM standalone (resolver auth enforced); CRITICAL if session compromise achieved downstream.
+testability: PASSIVE
+class: AUTH
+asset: roobet.com/_api/admin/users
+confidence: 55
+reasoning: 401 on low-gate surface (not behind CF bot-management). Express.js session auth (connect.sid HttpOnly + userId non-HttpOnly + twofactorRequired). Authorization state unknown — 401 consistent but may be session-role-gated or session-validity-gated indistinguishably.
+evidence_needed: 200 for non-admin connect.sid cookie.
+verify_steps: HUMAN sandboxed ≤1rps: GET /_api/admin/users with normal-user connect.sid; 200 ⇒ CRITICAL finding.
+impact: Cross-tenant user/PII dump; CRITICAL if 200.
+testability: AUTH_HELPED
+class: IDOR
+asset: roobet.com/_api/affiliate/get
+confidence: 45
+reasoning: `?user_id=<id>` and `?affiliate_code=<code>` return 401 (not 404) across 10+ runs — parameter parsing confirmed alive; authorization state unknown.
+evidence_needed: A/B two sandbox accounts.
+verify_steps: HUMAN sandboxed ≤1rps: session A → GET /_api/affiliate/get?user_id=<acct_B_id>; 200 with B data ⇒ HIGH.
+impact: Cross-user affiliate data disclosure; HIGH if 200.
+testability: AUTH_HELPED
