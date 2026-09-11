@@ -11,3 +11,8 @@
 - 2 lead(s) marked VALID at 2026-09-11 13:24:31 UTC
   - **Verdict: VALID**
   - | 1 | GraphQL anonymous introspection (full schema + PII/financial field disclosure) | **VALID** | 5.3 |
+
+- 3 lead(s) marked VALID at 2026-09-11 17:14:32 UTC
+  - | Q4 Provable | **No** | Needs a valid user session (`connect.sid`) to test; cannot verify without signing up. Auth is server-side. |
+  - | Q4 Provable | **No** | Needs valid session to test parameter influence |
+  - | Q4 Provable | **No** | Needs valid session + correct body format |
