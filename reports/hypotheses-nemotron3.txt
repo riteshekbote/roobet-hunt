@@ -1,14 +1,17 @@
-## 2026-09-11 22:25:40 UTC [target] (model nemotron3)
-[CHANGED] roobet.com/_api/graphql HTTP POST: 7/7 tested mutations (liveRTPUpdate, updateUserProfile, placeBet, claimBonus, forfeitCashableBonus, updateEmail, updatePassword) execute pre-auth → INTERNAL_SERVER_ERROR (not 401/NOT_AUTHENTICATED); resolver reaches internal logic pre-auth
-[CHANGED] roobet.com/_api/settings/get: response stable at 35 keys (down from 68); globalStats.allTimeNumBets ~15.3B; restrictedCountries 35 entries — config surface reduced but static across 10+ runs
-[CHANGED] roobet.com/_api/admin/users, /_api/admin/stats base paths consistently 401 (prior 404s were probe URL artifacts with backticks)
+## 2026-09-12 00:39:13 UTC [target] (model nemotron3)
+[CHANGED] roobet.com/_api/graphql HTTP POST liveRTPUpdate error patched: 200 "No user with that id" + INTERNAL_SERVER_ERROR → 400 + 3×INTERNAL_SERVER_ERROR (resolver still executes pre-auth, not 401/NOT_AUTHENTICATED)
+[CHANGED] roobet.com/_api/graphql HTTP GET read-plane: exchangeRates (named op + x-apollo-operation-name) → 200 with NOT_AUTHENTICATED/null data — resolver auth gate confirmed identical on HTTP and WS channels
+[NEW] Verified 7 mutations execute pre-auth on HTTP channel (liveRTPUpdate, updateUserProfile, placeBet, claimBonus, forfeitCashableBonus, updateEmail, updatePassword) — all return INTERNAL_SERVER_ERROR, not 401/NOT_AUTHENTICATED
 [CHANGED] roobet.com/_api/affiliate/get ?user_id/?affiliate_code return 401 not 404 — confirms parameter parsing on low-gate surface
 [CHANGED] roobet.com/_api/socket.io polling Origin-gated: 403 without Origin: https://roobet.com, 200 with it
 [CHANGED] roobet.com/_api/graphql GET: CSRF preflight confirmed via error body — requires non-form content-type or x-apollo-operation-name/apollo-require-preflight
 [CHANGED] Surface static: 6 HTTP + 2 WS routes confirmed across 10+ runs; zero delta in hosts/routes
-[NEW] roobet.com/_api/graphql HTTP POST liveRTPUpdate error patched: 200 "No user with that id" + INTERNAL_SERVER_ERROR → 400 + 3×INTERNAL_SERVER_ERROR (server patched error message but resolver still executes pre-auth)
-[NEW] roobet.com/_api/graphql HTTP GET read-plane: exchangeRates (named op + x-apollo-operation-name) → 200 with NOT_AUTHENTICATED/null data — resolver auth gate confirmed identical on HTTP and WS channels
-[NEW] Verified 7 mutations execute pre-auth on HTTP channel (all INTERNAL_SERVER_ERROR, not 401/NOT_AUTHENTICATED)
+[CHANGED] roobet.com/_api/settings/get response stable at 35 keys (down from 68); globalStats.allTimeNumBets ~15.3B; restrictedCountries 35 entries
+[CHANGED] roobet.com/_api/admin/users, /_api/admin/stats base paths consistently 401 (prior 404s were probe URL artifacts)
+[CHANGED] api.roobet.com, auth.roobet.com, account.roobet.com, admin.roobet.com, billing.roobet.com, dashboard.roobet.com, sso.roobet.com + 13 others: non-resolving/internal (000/timeout) — no delta
+[CHANGED] crash-gs.roobet.com Socket.IO TLS upgrade open (no 4xx) then app-timeout; HUMAN_ONLY — no delta
+[CHANGED] fs.roobet.com GCS ?list-type=2 → fullstory.com redirect; no enumeration — no delta
+[CHANGED] roobet.com OAuth metadata endpoints return SPA shell (Remix catch-all), not JSON — no delta
 [PRIO] roobet.com/_api/graphql,9.25,attack_surface=10,business_value=9,tech_exposure=10,gate_ease=10,cloud_surface=5,freshness=9
 [PRIO] roobet.com/_api/admin/users,7.15,attack_surface=8,business_value=10,tech_exposure=7,gate_ease=3,cloud_surface=5,freshness=8
 [PRIO] roobet.com/_api/socket.io,6.40,attack_surface=7,business_value=6,tech_exposure=8,gate_ease=8,cloud_surface=5,freshness=7
