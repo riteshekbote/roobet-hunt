@@ -378,3 +378,5 @@
 - 2026-09-12 ACCEPTED OTHER @ roobet.com/_api/graphql HTTP POST: 7/7 tested mutations execute pre-auth → INTERNAL_SERVER_ERROR (not 401/NOT_AUTHENTICATED)
 - 2026-09-12 ACCEPTED OTHER @ roobet.com/_api/settings/get: response stable at 35 keys (down from 68); globalStats.allTimeNumBets ~15.3B; restrictedCountries 35 entries
 - 2026-09-12 ACCEPTED OTHER @ roobet.com/_api/socket.io: polling transport Origin-gated — 403 disallowed origin without Origin: https://roobet.com, 200 with it
+- 2026-09-12 ACCEPTED OTHER @ roobet.com/_api/*: zero surface delta re-confirmed this run — settings/get 200 @1762B (35 keys, byte-stable), admin/users 401, affiliate/get?user_id=1 401, graphql GET 400 @406B, socket.io Origin-gated poll 200.
+- 2026-09-12 ACCEPTED OTHER @ roobet.com/_api/graphql: pre-auth GraphQL disclosure remains sole robot-side reportable line (already VALID 5.3); resolver auth caps severity; transport live (GET 400 @406B / WS 101 / POST 400+ISE).

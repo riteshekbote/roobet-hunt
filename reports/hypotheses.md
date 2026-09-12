@@ -1587,3 +1587,27 @@
 - LEARN: PARKED api.roobet.com Cloudflare bypass: Requires valid browser headers/session/turnstile to test
 - LEARN: PARKED auth.roobet.com/account.roobet.com/admin.roobet.com: Subdomains unresponsive; no attack surface confirmed
 - LEARN: PARKED crash-gs.roobet.com unauthenticated socket: Requires browser/WS tooling, HUMAN_ONLY
+
+## RANKED HYPOTHESES 2026-09-12 13:12:20 UTC
+- [95] roobet.com/_api/graphql: Pre-auth GraphQL Mutation Resolver Execution via HTTP Channel (Expanded Surface) (from art/lead_nemotron3.txt)
+- [88] roobet.com/_api/graphql: Pre-auth GraphQL Schema/Operation Disclosure on Dual HTTP+WS Channels (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): HUMAN: Submit/finalize pre-auth GraphQL disclosure at bugs.olivermaicher.eu — WS anonymous graphql-transport-ws 101 + full introspection (28Q/26M/7S incl. 64-fi
+- NEXT(hypotheses-nemotron3.txt): PROBE: POST https://roobet.com/_api/graphql -H "Content-Type: application/json" -d '{"query":"mutation { claimBonus(input:{bonusId:\"welcome\"}) }"}' → capture 
+- LEARN: ACCEPTED OTHER @ roobet.com/_api/*: zero surface delta re-confirmed this run — settings/get 200 @1762B (35 keys, byte-stable), admin/users 401, affiliate/get?us
+- LEARN: ACCEPTED OTHER @ roobet.com/_api/graphql: pre-auth GraphQL disclosure remains sole robot-side reportable line (already VALID 5.3); resolver auth caps severity; 
+- LEARN: ACCEPTED OTHER @ roobet.com/_api/graphql: Zero delta across runs; dual-channel pre-auth GraphQL disclosure remains sole reportable line; resolver-level NOT_AUTH
+- LEARN: ACCEPTED OTHER @ roobet.com/_api/*: Surface static (6 HTTP + 2 WS); config dump stable (35 keys), liveRTPUpdate error message patched (400+3×INTERNAL_SERVER_ERR
+- LEARN: ACCEPTED OTHER @ roobet.com/_api/graphql HTTP POST: 7/7 tested mutations execute pre-auth → INTERNAL_SERVER_ERROR (not 401/NOT_AUTHENTICATED)
+- LEARN: ACCEPTED OTHER @ roobet.com/_api/settings/get: response stable at 35 keys (down from 68); globalStats.allTimeNumBets ~15.3B; restrictedCountries 35 entries
+- LEARN: ACCEPTED OTHER @ roobet.com/_api/admin/users: base path consistently returns 401 (prior 404s were probe URL artifacts)
+- LEARN: ACCEPTED OTHER @ roobet.com/_api/affiliate/get: parameter tests ?user_id/affiliate_code return 401 not 404 — confirms parameter parsing on low-gate surface
+- LEARN: ACCEPTED OTHER @ roobet.com/_api/socket.io: polling transport Origin-gated — 403 disallowed origin without Origin: https://roobet.com, 200 with it
+- LEARN: ACCEPTED OTHER @ roobet.com/_api/graphql GET: CSRF preflight confirmed via error body — requires non-form content-type or x-apollo-operation-name/apollo-require
+- LEARN: REJECTED OTHER @ roobet.com/_api/*: 6 new family candidates (admin/affiliates, admin/games, admin/config, affiliate/stats, auth/me, auth/session) all 404 SPA sh
+- LEARN: REJECTED MISCONFIG @ roobet.com: OAuth metadata endpoints return SPA shell (catch-all route), not JSON configuration
+- LEARN: REJECTED MISCONFIG @ fs.roobet.com: GCS bucket ?list-type=2 redirects to fullstory.com; no object enumeration possible
+- LEARN: REJECTED OTHER @ api.roobet.com: GraphQL endpoint blocked by Cloudflare bot management (403) without valid Origin/Referer/browser session
+- LEARN: ACCEPTED MISCONFIG @ roobet.com: Remix catch-all route masks potential API endpoints under /api/* paths
+- LEARN: PARKED api.roobet.com Cloudflare bypass: Requires valid browser headers/session/turnstile to test
+- LEARN: PARKED auth.roobet.com/account.roobet.com/admin.roobet.com: Subdomains unresponsive; no attack surface confirmed
+- LEARN: PARKED crash-gs.roobet.com unauthenticated socket: Requires browser/WS tooling, HUMAN_ONLY

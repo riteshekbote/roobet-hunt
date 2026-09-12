@@ -2723,3 +2723,42 @@ testability: AUTH_HELPED
 [LEARN] ACCEPTED OTHER @ roobet.com/_api/*: zero surface delta re-confirmed this run — settings/get 200 @ 1763B (35 keys, byte-stable), admin/users 401, affiliate/get?user_id=1 401, graphql GET 400 @406B, socket.io Origin-gated poll 403↔200.
 [LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql: pre-auth GraphQL disclosure remains sole robot-side reportable line (already VALID 5.3); resolver auth caps severity; transport live (GET 400 / WS 101 / POST 400+ISE).
 [RISK] roobet: 50 — Surface byte-static across 10+ consecutive runs (6 HTTP + 2 WS); server actively hardening (liveRTPUpdate msg suppressed, HTTP introspection disabled, settings/get trimmed 68→35); sole robot-side finding is low-severity pre-auth GraphQL disclosure, already validated 5.3; all HIGH/CRITICAL lines session-gated and out of robot reach. Probes stayed read-only ≤1rps, no state changes, no data retained; remaining value is HUMAN submission + sandboxed-session testing.
+## 2026-09-12 13:10:40 UTC [target] (model bigpickle)
+[PRIO] roobet.com/_api/graphql, 4.6, attack_surface=5 business_value=6 tech_exposure=9(GraphQL) gate_ease=5(auth@resolver) cloud_surface=1 freshness=1
+[PRIO] roobet.com/_api/admin/users, 4.1, attack_surface=3 business_value=9 tech_exposure=4(admin) gate_ease=2(401) cloud_surface=1 freshness=1
+[PRIO] roobet.com/_api/affiliate/get, 3.7, attack_surface=3 business_value=6 tech_exposure=4(IDOR) gate_ease=2(401) cloud_surface=1 freshness=1
+[HYP] Pre-auth GraphQL Schema/Operation Disclosure on Dual HTTP+WS Channels
+class: OTHER
+asset: roobet.com/_api/graphql
+confidence: 88
+reasoning: Anonymous graphql-transport-ws (101+connection_ack, no socketToken) + full introspection (28Q/26M/7S, 64-field User incl. email/KYC PII/financial/socketToken) WS-only; HTTP __type INTROSPECTION_DISABLED; Apollo GET transport live, CSRF gate bypassable via x-apollo-operation-name; 7/7 mutations execute resolvers pre-auth → uncaught INTERNAL_SERVER_ERROR (not 401/NOT_AUTHENTICATED); read-plane gated identically on HTTP/WS (exchangeRates → NOT_AUTHENTICATED). Transport re-live this run (GET no-body 400 @406B byte-stable).
+evidence_needed: none robot-side — read+write planes exhaustively characterized across WS+GET+POST; A/B value only via sessions.
+verify_steps: [FINAL] introspection, mutation-validation, transport probes exhausted across 10+ runs; re-confirmed this run settings/get 200/35k, admin/users 401, graphql GET 400 @406B, socket.io Origin-gate 200.
+impact: Anonymous schema+operation+error disclosure; LOW-MEDIUM standalone (resolver auth caps data-plane), CRITICAL downstream of session compromise; already VALID 5.3 in valid-bugs.md.
+testability: PASSIVE
+[HYP] Admin Priv-esc via Normal-User Session on /_api/admin/users
+class: AUTH
+asset: roobet.com/_api/admin/users
+confidence: 55
+reasoning: 401 on low-gate surface (bypasses Cloudflare bot-gate); Express session auth (connect.sid HttpOnly + userId); authorization-vs-session-validity indistinguishable anonymously.
+evidence_needed: 200/403 for a non-admin connect.sid.
+verify_steps: HUMAN sandboxed ≤1rps: GET /_api/admin/users with normal-user cookie → 200 ⇒ CRITICAL.
+impact: Cross-tenant user/PII dump; CRITICAL if 200.
+testability: AUTH_HELPED
+[HYP] Affiliate Endpoint IDOR via user_id Param
+class: IDOR
+asset: roobet.com/_api/affiliate/get
+confidence: 45
+reasoning: ?user_id/?affiliate_code return 401 (not 404) across 10+ runs — parameter parsing alive; authorization unknown.
+evidence_needed: A/B two sandbox accounts.
+verify_steps: HUMAN sandboxed ≤1rps: session A → GET ?user_id=<acct_B> → 200 with B data ⇒ HIGH.
+impact: Cross-user affiliate data disclosure; HIGH if 200.
+testability: AUTH_HELPED
+[PARKED] liveRTPUpdate as ID-presence oracle: post-09-08 error uniform 400+3×ISE for any payload — no A/B differentiation; oracle dead.
+[PARKED] SSRF/mass-assignment/JWT/OAuth-redirect on remaining inventory: api.roobet.com bot-gated (403), auth/account/admin/sso subdomains non-resolving, no in-app fetch parameter on low-gate surface — no passive test exists.
+[PARKED] all session-gated hypotheses (admin priv-esc 55, affiliate IDOR 45, money-mutation A/B): AUTH_HELPED only; no robot-side test possible.
+[FINAL] survivors ranked: GraphQL disclosure (88, PASSIVE, already VALID 5.3) > admin priv-esc (55, AUTH_HELPED) > affiliate IDOR (45, AUTH_HELPED).
+[NEXT] HUMAN: Submit/finalize pre-auth GraphQL disclosure at bugs.olivermaicher.eu — WS anonymous graphql-transport-ws 101 + full introspection (28Q/26M/7S incl. 64-field User type w/ email/KYC/financial/auth-token fields); HTTP GET Apollo CSRF-gate bypass (x-apollo-operation-name); 7/7 mutations execute resolvers pre-auth (uncaught ISE, not NOT_AUTHENTICATED); note 09-08 hardening (liveRTPUpdate msg suppressed, HTTP __type disabled). Residual HIGH/CRITICAL verifications (admin/users cookie, affiliate A/B) require sandboxed sessions — out of robot reach; further passive probes add zero info on a byte-stable surface.
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/*: zero surface delta re-confirmed this run — settings/get 200 @1762B (35 keys, byte-stable), admin/users 401, affiliate/get?user_id=1 401, graphql GET 400 @406B, socket.io Origin-gated poll 200.
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql: pre-auth GraphQL disclosure remains sole robot-side reportable line (already VALID 5.3); resolver auth caps severity; transport live (GET 400 @406B / WS 101 / POST 400+ISE).
+[RISK] roobet: 50 — Surface byte-static across 10+ consecutive runs (6 HTTP + 2 WS); server actively hardening (liveRTPUpdate msg suppressed, HTTP introspection disabled, settings/get trimmed 68→35); sole robot-side finding is low-severity pre-auth GraphQL disclosure, already VALID 5.3; all HIGH/CRITICAL lines (admin priv-esc, affiliate IDOR, money-mutation A/B) session-gated and out of robot reach. Probes stayed read-only GET ≤1rps, no state changes; remaining value is HUMAN submission + sandboxed-session testing.
