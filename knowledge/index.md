@@ -372,3 +372,5 @@
 - 2026-09-12 PARKED api.roobet.com Cloudflare bypass: Requires valid browser headers/session/turnstile to test
 - 2026-09-12 PARKED auth.roobet.com/account.roobet.com/admin.roobet.com: Subdomains unresponsive; no attack surface confirmed
 - 2026-09-12 PARKED crash-gs.roobet.com unauthenticated socket: Requires browser/WS tooling, HUMAN_ONLY
+- 2026-09-12 ACCEPTED OTHER @ roobet.com/_api/*: zero surface delta re-confirmed this run — settings/get 200 @ 1764B (byte-stable), admin/users 401, affiliate/get?user_id=1 401, graphql GET 400.
+- 2026-09-12 ACCEPTED OTHER @ roobet.com/_api/graphql: pre-auth GraphQL disclosure remains sole robot-side reportable line (already VALID 5.3); resolver auth caps severity; transport live (GET 400 / WS 101 / POST 400+ISE).
