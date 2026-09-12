@@ -16,3 +16,10 @@
   - | Q4 Provable | **No** | Needs a valid user session (`connect.sid`) to test; cannot verify without signing up. Auth is server-side. |
   - | Q4 Provable | **No** | Needs valid session to test parameter influence |
   - | Q4 Provable | **No** | Needs valid session + correct body format |
+
+- 5 lead(s) marked VALID at 2026-09-12 21:20:20 UTC
+  - **VERDICT: VALID**
+  - **VERDICT: VALID**
+  - | Q4 Provable | PARTIAL | 401 baseline confirmed passively; requires valid session to prove/disprove escalation (AUTH_HELPED) |
+  - | 1 | GraphQL Anonymous Introspection | **VALID** | 7.5 | Report via bugs.olivermaicher.eu |
+  - | 2 | GraphQL Pre-Auth Mutation Execution | **VALID** | 5.3 | Report via bugs.olivermaicher.eu |
