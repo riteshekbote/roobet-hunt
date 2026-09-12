@@ -737,3 +737,13 @@ www.roobet.com
 - CHANGED crash-gs.roobet.com Socket.IO TLS upgrade open (no 4xx) then app-timeout; HUMAN_ONLY — no delta
 - CHANGED fs.roobet.com GCS ?list-type=2 → fullstory.com redirect; no enumeration — no delta
 - CHANGED roobet.com OAuth metadata endpoints return SPA shell (Remix catch-all), not JSON — no delta
+
+## 2026-09-12 21:20:37 UTC
+- CHANGED roobet.com/_api/graphql HTTP POST: 7/7 tested mutations (liveRTPUpdate, updateUserProfile, placeBet, claimBonus, forfeitCashableBonus, updateEmail, updatePassword) execute pre-auth → INTERNAL_SERVER_E
+- CHANGED roobet.com/_api/settings/get: response byte-stable at 35 keys (1762-1766B across 10+ runs); globalStats.allTimeNumBets ~15.39B; restrictedCountries 35 entries — config surface reduced but static
+- CHANGED Server actively hardening: liveRTPUpdate error message suppressed (200→400), HTTP introspection disabled (INTROSPECTION_DISABLED), settings/get trimmed 68→35 keys
+- CHANGED roobet.com/_api/socket.io polling Origin-gated: 403 without Origin: https://roobet.com, 200 with it — mechanistically re-confirmed
+- CHANGED api.roobet.com, auth.roobet.com, account.roobet.com, admin.roobet.com, billing.roobet.com, dashboard.roobet.com, sso.roobet.com + 13 others: non-resolving/internal (000/timeout) — no delta
+- CHANGED crash-gs.roobet.com Socket.IO TLS upgrade open (no 4xx) then app-timeout; HUMAN_ONLY — no delta
+- CHANGED fs.roobet.com GCS ?list-type=2 → fullstory.com redirect; no enumeration — no delta
+- CHANGED roobet.com OAuth metadata endpoints return SPA shell (Remix catch-all), not JSON — no delta
