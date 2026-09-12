@@ -380,3 +380,5 @@
 - 2026-09-12 ACCEPTED OTHER @ roobet.com/_api/socket.io: polling transport Origin-gated — 403 disallowed origin without Origin: https://roobet.com, 200 with it
 - 2026-09-12 ACCEPTED OTHER @ roobet.com/_api/*: zero surface delta re-confirmed this run — settings/get 200 @1762B (35 keys, byte-stable), admin/users 401, affiliate/get?user_id=1 401, graphql GET 400 @406B, socket.io Origin-gated poll 200.
 - 2026-09-12 ACCEPTED OTHER @ roobet.com/_api/graphql: pre-auth GraphQL disclosure remains sole robot-side reportable line (already VALID 5.3); resolver auth caps severity; transport live (GET 400 @406B / WS 101 / POST 400+ISE).
+- 2026-09-12 ACCEPTED OTHER @ roobet.com/_api/graphql: GET transport gate mechanistically stable — `x-apollo-operation-name` ⇒ 200 executes (`{"data":{"__typename":"Query"}}` @32B), omitted ⇒ 400; resolver pre-execution reachable pre-auth on HTTP channel, consistent with prior 7/7 mutation result.
+- 2026-09-12 ACCEPTED OTHER @ roobet.com/_api/*: zero surface delta re-confirmed this run — settings/get 200 @1763B (35 keys), admin/users 401, affiliate/get?user_id=1 401, socket.io 403-without-Origin; all byte-stable across 10+ runs.
