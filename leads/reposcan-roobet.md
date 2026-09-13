@@ -237,3 +237,12 @@ reasoning: |
 impact: N/A — no source code exists to audit for secrets, hardcoded creds, or insecure patterns
 verify_steps: |
 TARGET_ORG not configured for roobet; skipping public-org deep scan.
+## REPOSCAN 2026-09-13 18:58:41 UTC
+[HYP] N/A - No in-scope repositories found
+class: N/A
+asset: N/A
+confidence: 0
+reasoning: Roobet GitHub org has no public repos. All discovered repos are third-party.
+impact: N/A
+verify_steps: N/A
+TARGET_ORG not configured for roobet; skipping public-org deep scan.
