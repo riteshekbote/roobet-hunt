@@ -1,4 +1,4 @@
-## 2026-09-13 16:28:24 UTC [target] (model bigpickle)
+## 2026-09-13 18:58:47 UTC [target] (model bigpickle)
 [PRIO] roobet.com/_api/graphql,7.9,exposure+gates
 [PRIO] roobet.com/_api/socket.io,6.1,exposure+gate
 [PRIO] roobet.com/_api/admin/users,5.9,attack_surface+value

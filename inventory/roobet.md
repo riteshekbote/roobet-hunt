@@ -767,3 +767,13 @@ www.roobet.com
 - CHANGED crash-gs.roobet.com Socket.IO TLS upgrade open (no 4xx) then app-timeout; HUMAN_ONLY — no delta.
 - CHANGED fs.roobet.com GCS ?list-type=2 → fullstory.com redirect; no enumeration — no delta.
 - CHANGED roobet.com OAuth metadata endpoints return SPA shell (Remix catch-all), not JSON — no delta.
+
+## 2026-09-13 19:08:03 UTC
+- CHANGED roobet.com/_api/graphql: 13/26 mutations confirmed executing pre-auth on HTTP channel (7 prior + 6 new: tpGameStartGame, rewardsVaultClaim, acknowledgedBalanceConversion, seonSessionUpdate, wagerLimit
+- CHANGED roobet.com/_api/settings/get: response byte-stable at 35 keys (1765B), globalStats.allTimeNumBets ~15.4B (15398115547), restrictedCountries 35 entries — config surface static across 10+ runs
+- CHANGED roobet.com/_api/*: zero surface delta re-confirmed — settings/get 200 @1765B, admin/users 401, affiliate/get?user_id=1 401, graphql GET 400 @406B / named-op 200 @32B, socket.io Origin-gated poll 403↔2
+- CHANGED roobet.com/_api/graphql GET transport gate mechanically stable — x-apollo-operation-name ⇒ 200 executes ({"data":{"__typename":"Query"}} @32B), omitted ⇒ 400 @406B; pre-auth pre-execution reachable on
+- CHANGED api.roobet.com/auth.roobet.com/account.roobet.com/admin.roobet.com/billing.roobet.com/dashboard.roobet.com/sso.roobet.com + 13 others: non-resolving/internal (000/timeout) — no delta
+- CHANGED crash-gs.roobet.com Socket.IO TLS upgrade open (no 4xx) then app-timeout; HUMAN_ONLY — no delta
+- CHANGED fs.roobet.com GCS ?list-type=2 → fullstory.com redirect; no enumeration — no delta
+- CHANGED roobet.com OAuth metadata endpoints return SPA shell (Remix catch-all), not JSON — no delta
