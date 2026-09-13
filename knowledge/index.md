@@ -435,3 +435,4 @@
 - 2026-09-13 ACCEPTED OTHER @ roobet.com/_api/graphql: mutation ISE payloads vary 95–587B (1–3× errors) across resolvers — per-resolver execution depth, not auth-state signal; not reportable.
 - 2026-09-13 ACCEPTED OTHER @ roobet.com/_api/*: zero surface delta re-confirmed (settings/get 35 keys ~byte-stable, admin/users 401, affiliate/get?user_id=1 401); remaining value session-gated.
 - 2026-09-13 REJ[0m
+- 2026-09-13 ACCEPTED OTHER @ roobet.com/_api/graphql HTTP POST: 13/26 tested mutations execute pre-auth → INTERNAL_SERVER_ERROR (not 401/NOT_AUTHENTICATED)
