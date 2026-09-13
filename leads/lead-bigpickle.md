@@ -3208,3 +3208,33 @@ testability: PASSIVE
 [LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql: mutation ISE payloads vary 95–587B (1–3× errors) across resolvers — per-resolver execution depth, not auth-state signal; not reportable.
 [LEARN] ACCEPTED OTHER @ roobet.com/_api/*: zero surface delta re-confirmed (settings/get 35 keys ~byte-stable, admin/users 401, affiliate/get?user_id=1 401); remaining value session-gated.
 [RISK] roobet: 78 — Main API (api.roobet.com) and auth/account/admin subdomains remain gated/unresponsive. Sole robot-side reportable line unchanged: roobet.com/_api/graphql pre-auth GraphQL disclosure (anon WS 101 + full introspection 28Q/26M/7S, mutation validation + resolver pre-execution on HTTP now evidenced across 13 mutations, 64-field User PII graph). _api/socket.io anonymous feed Origin-gated. Admin 401 + affiliate 401 (param-parsing alive) elevate IDOR/priv-esc potential but are session-gated (AUTH_HELPED). No NEW reportable vuln this run; engagement rules (≤1 rps, read-only, no auth-bypass on live data) respected.
+## 2026-09-13 21:22:50 UTC [target] (model bigpickle)
+[HYP] Affiliate Endpoint IDOR via user_id Param — third re-test
+class: IDOR
+asset: roobet.com/_api/affiliate/get
+confidence: 45
+reasoning: ?user_id/?affiliate_code return 401 not 404 across 10+ runs (parameter parsing alive); authorization indistinguishable from session-validity anonymously; only a live two-account A/B can resolve.
+evidence_needed: 200 with account-B affiliate data under session A.
+verify_steps: HUMAN sandboxed ≤1rps: session A → GET /_api/affiliate/get?user_id=<acct_B> → 200 ⇒ HIGH cross-user disclosure; 401 retains baseline.
+impact: Cross-user affiliate revenue/referral data disclosure; HIGH if 200.
+testability: AUTH_HELPED
+[HYP] Admin Priv-esc via Normal-User Session on /_api/admin/users
+class: AUTH
+asset: roobet.com/_api/admin/users
+confidence: 55
+reasoning: 401 stable on low-gate surface across 10+ runs; Express session auth (connect.sid HttpOnly + userId non-HttpOnly); authz-vs-valid-session distinction impossible anonymously.
+evidence_needed: 200 or 403 (not 401) for a non-admin connect.sid.
+verify_steps: HUMAN sandboxed ≤1rps: GET /_api/admin/users with normal-user session → 200 ⇒ cross-tenant PII dump.
+impact: Cross-tenant user/PII dump; CRITICAL if 200.
+testability: AUTH_HELPED
+[HYP] GraphQL GET-transport read-plane parity (pre-auth query sweep)
+class: OTHER
+asset: roobet.com/_api/graphql
+confidence: 40
+reasoning: x-apollo-operation-name named-op GET executes pre-auth (200 @32B re-confirmed this run); read-plane resolver auth parity confirmed only for exchangeRates/viewerChecks/userPublicProfile/userSystemStatus/currentUser so far.
+evidence_needed: NOT_AUTHENTICATED vs ISE classification for remaining Query resolvers to close the read-plane model.
+verify_steps: PROBE (passive, ≤1rps) GET with x-apollo-operation-name over remaining low-risk Query fields; classify response shape only, no data capture.
+impact: Completes cross-channel model; no new severity — resolver auth already caps.
+testability: PASSIVE
+[NEXT] HUMAN: sandboxed two-account A/B (≤1rps): session A → GET https://roobet.com/_api/affiliate/get?user_id=<acct_B> and GET /_api/admin/users with a normal-user connect.sid — the two remaining high-value session-gated lines; abort-log any 200.
+[RISK] roobet: 78 — Surface fully static for 13 consecutive runs (6 HTTP + 2 WS routes, all byte-stable). Sole robot-side reportable line unchanged: roobet.com/_api/graphql pre-auth GraphQL disclosure (anon WS 101 + full introspection 28Q/26M/7S, mutation validation + resolver pre-execution evidenced across 13/26 mutations, 64-field User PII graph). Admin 401 + affiliate 401 (param-parsing alive) keep IDOR/priv-esc potential but are session-gated (AUTH_HELPED). Server actively hardening (settings/get 68→35 keys, liveRTPUpdate message suppressed, HTTP introspection disabled). No NEW reportable vuln this run; engagement rules (≤1 rps, read-only, no auth-bypass on live data) respected.
