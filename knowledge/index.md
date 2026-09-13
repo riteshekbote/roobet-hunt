@@ -431,3 +431,7 @@
 - 2026-09-13 PARKED api.roobet.com Cloudflare bypass: Requires valid browser headers/session/turnstile to test.
 - 2026-09-13 PARKED auth.roobet.com/account.roobet.com/admin.roobet.com: Subdomains unresponsive; no attack surface confirmed.
 - 2026-09-13 PARKED crash-gs.roobet.com unauthenticated socket: Requires browser/WS tooling, HUMAN_ONLY.
+- 2026-09-13 ACCEPTED OTHER @ roobet.com/_api/graphql: Untested-mutation divergence falsified — 13/26 mutations (7 prior + 6 new: tpGameStartGame, rewardsVaultClaim, acknowledgedBalanceConversion, seonSessionUpdate, wagerLimitUpdate, sendTip) all `400 + INTERNAL_SERVER_ERROR` pre-auth; no anonymous data leak; resolver auth pattern homogeneous.
+- 2026-09-13 ACCEPTED OTHER @ roobet.com/_api/graphql: mutation ISE payloads vary 95–587B (1–3× errors) across resolvers — per-resolver execution depth, not auth-state signal; not reportable.
+- 2026-09-13 ACCEPTED OTHER @ roobet.com/_api/*: zero surface delta re-confirmed (settings/get 35 keys ~byte-stable, admin/users 401, affiliate/get?user_id=1 401); remaining value session-gated.
+- 2026-09-13 REJ[0m

@@ -753,3 +753,6 @@ www.roobet.com
 ## 2026-09-13 01:12:40 UTC
 
 ## 2026-09-13 06:23:10 UTC
+
+## 2026-09-13 12:27:10 UTC
+- CHANGED roobet.com/_api/graphql: pre-auth mutation resolver execution re-confirmed on 6 more mutations (tpGameStartGame, rewardsVaultClaim, acknowledgedBalanceConversion, seonSessionUpdate, wagerLimitUpdate, 
