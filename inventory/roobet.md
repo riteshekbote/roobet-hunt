@@ -749,3 +749,5 @@ www.roobet.com
 - CHANGED roobet.com OAuth metadata endpoints return SPA shell (Remix catch-all), not JSON — no delta
 
 ## 2026-09-12 23:09:02 UTC
+
+## 2026-09-13 01:12:40 UTC
