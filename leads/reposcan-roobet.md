@@ -228,3 +228,12 @@ TARGET_ORG not configured for roobet; skipping public-org deep scan.
 TARGET_ORG not configured for roobet; skipping public-org deep scan.
 ## REPOSCAN 2026-09-13 12:08:59 UTC
 TARGET_ORG not configured for roobet; skipping public-org deep scan.
+## REPOSCAN 2026-09-13 16:28:34 UTC
+[HYP] No public GitHub repositories exist for Roobet
+class: OTHER
+asset: github.com/ROOBET (org ID 46298934)
+confidence: 100
+reasoning: |
+impact: N/A — no source code exists to audit for secrets, hardcoded creds, or insecure patterns
+verify_steps: |
+TARGET_ORG not configured for roobet; skipping public-org deep scan.
