@@ -785,3 +785,14 @@ www.roobet.com
 ## 2026-09-14 01:44:10 UTC
 
 ## 2026-09-14 07:18:21 UTC
+
+## 2026-09-14 14:21:20 UTC
+- NEW roobet.com/_api/graphql HTTP POST tpGameStartGame mutation: 400 + 3× INTERNAL_SERVER_ERROR (resolver executes pre-auth, consistent with 13/26 tested mutations)
+- NEW roobet.com/_api/graphql HTTP GET exchangeRates (named op): 200 NOT_AUTHENTICATED/null — resolver auth parity HTTP=WS confirmed
+- CHANGED roobet.com/_api/settings/get: 35 keys, 1765B byte-stable (14th consecutive run), allTimeNumBets ~15.4B
+- CHANGED roobet.com/_api/admin/users + affiliate/get?user_id=1: 401 baseline stable
+- CHANGED roobet.com/_api/socket.io polling: Origin-gated 403↔200 mechanistically re-confirmed
+- CHANGED api.roobet.com/auth.roobet.com/account.roobet.com/admin.roobet.com + 13 others: non-resolving/internal (000/timeout) — no delta
+- CHANGED crash-gs.roobet.com Socket.IO TLS upgrade: open (no 4xx) then app-timeout; HUMAN_ONLY — no delta
+- CHANGED fs.roobet.com GCS ?list-type=2 → fullstory.com redirect — no delta
+- CHANGED roobet.com OAuth metadata endpoints: SPA shell (Remix catch-all) — no delta
