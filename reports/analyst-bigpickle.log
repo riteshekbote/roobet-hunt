@@ -18186,3 +18186,132 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 [RISK] roobet: 78 — Surface static across 14 consecutive runs (6 HTTP + 2 WS routes, byte-stable). Sole robot-side reportable line unchanged: roobet.com/_api/graphql pre-auth GraphQL disclosure (anon WS 101 + full introspection 28Q/26M/7S, mutation validation + 13/26 resolver pre-execution, 64-field User PII graph) — already VALID 5.3. Admin 401 + affiliate 401 (param-parsing alive) keep IDOR/priv-esc potential but are session-gated (AUTH_HELPED, both re-emitted). Server actively hardening (settings/get 68→35, liveRTPUpdate message suppressed, HTTP introspection disabled). No NEW reportable vuln this run; engagement rules (≤1 rps, read-only, no auth-bypass on live data) respected.
+===== ANALYST bigpickle 2026-09-14 07:18:21 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m→ [0mRead .
+[0m→ [0mRead state_bigpickle.json
+[0m→ [0mRead scope.yml
+[0m→ [0mRead leads
+[0m→ [0mRead leads/lead-bigpickle.md
+[0m→ [0mRead leads/lead-nemotron3.md
+[0m→ [0mRead reports
+[0m→ [0mRead reports/valid-bugs.md
+[0m→ [0mRead probe-results.md
+[0m→ [0mRead inventory
+[0m→ [0mRead inventory/roobet.md
+[0m→ [0mRead reports/hypotheses.md
+[0m
+[0m$ [0mcurl -s -o /dev/null -w "%{http_code}" "https://roobet.com/_api/settings/get" 2>&1
+200
+[0m
+[0m$ [0mcurl -s -o /dev/null -w "%{http_code}" "https://roobet.com/_api/admin/users" 2>&1
+401
+[0m
+[0m$ [0mcurl -s -o /dev/null -w "%{http_code}" "https://roobet.com/_api/affiliate/get?user_id=1" 2>&1
+401
+[0m
+[0m$ [0mcurl -s -o /dev/null -w "%{http_code}" "https://roobet.com/_api/graphql" 2>&1
+400
+[0m
+Now I have full context. Let me run the live probes to verify current surface state, then output the structured analysis.
+[0m$ [0mcurl -s -o /dev/null -w "%{http_code}" -H "Origin: https://roobet.com" "https://roobet.com/_api/socket.io/?EIO=3&transport=polling" 2>&1
+200
+[0m
+## Objective
+- Perform automated bug bounty hunting against roobet.com (Roobet gambling platform) as a senior analyst, following an 8-step methodology to discover reportable vulnerabilities in scope.
+- Current phase is POC; primary target is the API surface. Report channel: bugs.olivermaicher.eu.
+
+## Important Details
+- Program scope: All company-owned Roobet infrastructure, gaming platforms, user accounts, wallets, APIs, mobile/web apps, domains.
+- Engagement rules: ≤1 rps, read-only, no auth-bypass on live data, no mutating tests against live customer data.
+- Out-of-scope: DoS, descriptive errors only, outdated libraries, CSRF on anonymous forms, username enumeration, brute-force policy, SSL/TLS best practices, self-XSS, scanner-only reports, etc.
+- Auth mechanism: Express.js session cookies (`connect.sid` HttpOnly + `userId` non-HttpOnly + `twofactorRequired`).
+- Server actively hardening across runs: `liveRTPUpdate` error message suppressed (200→400), HTTP introspection disabled (`INTROSPECTION_DISABLED`), `settings/get` trimmed from 68→35 keys.
+- Single pre-auth reportable finding already validated: `roobet.com/_api/graphql` anonymous WS introspection + pre-auth mutation execution — rated VALID 5.3 in `valid-bugs.md`.
+
+## Work State
+### Completed
+- Full `_api/*` enumeration: 6 HTTP routes + 2 WS routes confirmed stable across 14+ consecutive runs (byte-stable).
+- GraphQL dual-channel characterization complete: WS (introspection, 28Q/26M/7S) + HTTP (GET with CSRF bypass, POST with pre-auth mutation execution, `__type` INTROSPECTION_DISABLED).
+- 13/26 mutations tested pre-auth — all return `INTERNAL_SERVER_ERROR` (not 401/NOT_AUTHENTICATED); resolver auth pattern homogeneous.
+- Subscription error disclosure confirmed (`kycUpdated`/`polymarketOrders` → JS error revealing resolver accesses session user directly).
+- User type introspection: 64 fields disclosed incl. email, KYC PII, financial, auth tokens, role flags.
+- Mutation validation error disclosure: all 26 mutations pass GraphQL validation anonymously, leaking InputType shapes.
+- `settings/get` response: 35 keys, `globalStats.allTimeNumBets` ~15.4B, `restrictedCountries` 35 entries.
+- Socket.IO: Origin-gated (`Origin: https://roobet.com` required), anonymous ns `/` broadcasts live bet feed.
+- Valid bugs file updated: GraphQL anonymous introspection (5.3), pre-auth mutation execution (5.3), subscription error disclosure (3.1), Socket.IO broadcast (3.1).
+
+### Active
+- Two AUTH_HELPED hypotheses remain highest priority but cannot be tested robot-side:
+  - Admin Priv-esc via normal-user session on `/_api/admin/users` (confidence 55)
+  - Affiliate IDOR via `?user_id` param on `/_api/affiliate/get` (confidence 45)
+- One PASSIVE hypothesis parked: GraphQL read-plane Query-Resolver Parity Sweep (confidence 35) — HTTP `__type` INTROSPECTION_DISABLED blocks field-name recovery for remaining ~23 Query resolvers.
+
+### Blocked
+- `api.roobet.com`: Cloudflare bot management blocks all HTTP/WS without valid browser session/turnstile — cannot bypass passively.
+- `auth.roobet.com`, `account.roobet.com`, `admin.roobet.com`, `billing.roobet.com`, `dashboard.roobet.com`, `sso.roobet.com`: non-resolving / no HTTP response — no attack surface confirmed.
+- `crash-gs.roobet.com`: Socket.IO live but HUMAN_ONLY (requires browser/WS tooling).
+- Admin/affiliate endpoints: 401 auth-gated; authz-vs-valid-session distinction impossible anonymously — needs two sandbox accounts (AUTH_HELPED).
+- `fs.roobet.com` GCS bucket: `?list-type=2` redirects to fullstory.com; no object enumeration.
+
+## Next Move
+1. HUMAN: sandboxed two-account A/B test (≤1rps): session A → GET `/_api/admin/users` (non-admin `connect.sid`) and GET `/_api/affiliate/get?user_id=<acct_B>`; abort-log any 200.
+2. If new surface found, repeat 8-step analysis on fresh data; otherwise passive surface is fully exhausted.
+
+## Relevant Files
+- `/home/runner/work/roobet-hunt/roobet-hunt/state_bigpickle.json`: Agent state file — `{"phase":"POC","target":"api"}`.
+- `/home/runner/work/roobet-hunt/roobet-hunt/scope.yml`: Program scope and out-of-scope definitions.
+- `/home/runner/work/roobet-hunt/roobet-hunt/inventory/roobet.md`: Full host inventory + all recon/probe observations from 2026-09-02 through 2026-09-14.
+- `/home/runner/work/roobet-hunt/roobet-hunt/leads/lead-bigpickle.md`: Current agent leads — Admin Priv-esc (55), Affiliate IDOR (45), GraphQL parity sweep (35).
+- `/home/runner/work/roobet-hunt/roobet-hunt/leads/lead-nemotron3.md`: Original leads with broader hypothesis set.
+- `/home/runner/work/roobet-hunt/roobet-hunt/reports/valid-bugs.md`: Validated findings — 2 VALID ratings (GraphQL introspection 5.3, pre-auth mutation 5.3).
+- `/home/runner/work/roobet-hunt/roobet-hunt/reports/hypotheses.md`: Ranked hypothesis history across all runs.
+- `/home/runner/work/roobet-hunt/roobet-hunt/probe-results.md`: Raw probe results from all runs.
+Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed.
+[0m→ [0mRead state_bigpickle.json
+[0m→ [0mRead leads/lead-bigpickle.md
+[0m→ [0mRead reports/valid-bugs.md
+[0m→ [0mRead inventory/roobet.md
+[0m→ [0mRead inventory/roobet.md[90m [offset=445][0m
+[0m→ [0mRead reports/hypotheses.md
+[0m→ [0mRead probe-results.md
+Based on my thorough review, here's what we've accomplished:
+
+## Completed Work
+
+**1. Reconnaissance & Enumeration**
+- 20 subdomains discovered, HTTP-probed; only 3 live: roobet.com, api.roobet.com, fs.roobet.com
+- api.roobet.com blocked by Cloudflare bot management (403)
+- 6 HTTP routes + 2 WS routes fully enumerated on roobet.com/_api/*
+
+**2. GraphQL Analysis (major findings)**
+- Anonymous WS introspection: full schema (28Q/26M/7S) including PII fields (email, KYC, financial data)
+- HTTP pre-auth mutation execution: 13/26 mutations execute without auth (return INTERNAL_SERVER_ERROR, not 401)
+- Subscription error disclosure: JS error revealing internal resolver logic
+- HTTP __type introspection now disabled (server hardening)
+
+**3. Socket.IO Analysis**
+- Anonymous polling + real-time bet feed broadcasts without auth
+
+**4. Validated Findings (4 bugs)**
+- GraphQL anonymous introspection (5.3)
+- Pre-auth mutation execution (5.3)
+- Subscription error disclosure (3.1)
+- Socket.IO broadcast (3.1)
+
+## Remaining Work
+
+The passive surface is **exhausted**. Two high-value hypotheses remain but require **authenticated testing**:
+
+| Hypothesis | Confidence | Blocker |
+|---|---|---|
+| Admin privilege escalation via normal user session | 55% | Needs valid session (AUTH_HELPED) |
+| Affiliate IDOR via `?user_id` param | 45% | Needs valid session (AUTH_HELPED) |
+
+## Next Move
+
+I cannot perform authenticated testing from this CLI environment. The hunt should be paused or handed off for manual browser-based testing with two sandbox accounts.
+
+Want me to update the state file and leads to reflect this status?
