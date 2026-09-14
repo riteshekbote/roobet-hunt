@@ -3340,3 +3340,22 @@ testability: PASSIVE
 [LEARN] ACCEPTED OTHER @ roobet.com/_api/*: 15th consecutive run byte-stable — settings/get 200 @1765B (35 keys), graphql named-op GET 200 @32B, admin/users 401 "Unauthorized" @12B, affiliate/get?user_id=1 401 "Unauthorized" @12B; zero surface delta; passive probing fully exhausted.
 [RISK] roobet: 78 — Surface static across 15 consecutive runs (6 HTTP + 2 WS routes, byte-stable). Sole robot-side reportable line unchanged: roobet.com/_api/graphql pre-auth GraphQL disclosure (anon WS 101 + full introspection 28Q/26M/7S, mutation validation + 13/26 resolver pre-execution, 64-field User PII graph) — already VALID 5.3. Admin 401 + affiliate 401 (param-parsing alive) keep IDOR/priv-esc potential but are session-gated (AUTH_HELPED, both re-emitted). Server actively hardening (settings/get 68→35, liveRTPUpdate message suppressed, HTTP introspection disabled). No NEW reportable vuln this run; engagement rules (≤1 rps, read-only, no auth-bypass on live data) respected.
 ## 2026-09-14 19:31:01 UTC [target] (model bigpickle)
+## 2026-09-14 22:45:50 UTC [target] (model bigpickle)
+[HYP] Admin Priv-esc via Non-Admin Session on /_api/admin/users
+class: AUTH
+asset: roobet.com/_api/admin/users
+confidence: 55
+reasoning: 401 "Unauthorized" @12B stable across 15+ runs on low-gate surface; Express session auth (connect.sid HttpOnly + userId non-HttpOnly + twofactorRequired); authz-vs-valid-session distinction impossible anonymously — a normal-user session was never tested.
+evidence_needed: 200 or 403 (not 401) for a non-admin connect.sid.
+verify_steps: HUMAN sandboxed ≤1rps: GET /_api/admin/users with normal-user session → 200 ⇒ cross-tenant PII dump; 401 retains baseline.
+impact: Cross-tenant user/PII dump; CRITICAL if 200.
+testability: AUTH_HELPED
+[HYP] Affiliate Endpoint IDOR via user_id Param — seventh re-test
+class: IDOR
+asset: roobet.com/_api/affiliate/get
+confidence: 45
+reasoning: ?user_id=1 returns 401 @12B this run (param-parsing alive 15+ runs); authorization indistinguishable from session-validity anonymously; needs two sandbox accounts.
+evidence_needed: 200 with account-B affiliate data under session A.
+verify_steps: HUMAN sandboxed ≤1rps: session A → GET /_api/affiliate/get?user_id=<acct_B> → 200 ⇒ HIGH cross-user disclosure; 401 retains baseline.
+impact: Cross-user affiliate revenue/referral data disclosure; HIGH if 200.
+testability: AUTH_HELPED
