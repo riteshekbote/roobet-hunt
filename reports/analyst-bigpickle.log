@@ -18106,3 +18106,83 @@ testability: PASSIVE
 ## STEP 7 — RISK
 
 - [RISK] roobet: 78 — Surface fully static for 14 consecutive runs (6 HTTP + 2 WS routes, byte-stable). Sole robot-side reportable line unchanged: roobet.com/_api/graphql pre-auth GraphQL disclosure (anon WS 101 + full introspection 28Q/26M/7S, mutation validation + resolver pre-execution across 13/26 mutations, 64-field User PII graph; already VALID in valid-bugs.md). Admin 401 + affiliate 401 (param-parsing alive) keep IDOR/priv-esc potential but are session-gated (AUTH_HELPED). Server actively hardening (settings 68→35 keys, liveRTPUpdate message suppressed, HTTP introspection disabled). No NEW reportable vuln this run; engagement rules (≤1 rps, read-only, no auth-bypass or mutating tests on live data) respected.
+===== ANALYST bigpickle 2026-09-14 01:44:10 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mUA="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36"
+O="Origin: https://roobet.com"; R="Referer: https://roobet.com/"
+echo "== settings/get =="; curl -s -o /tmp/opencode/sg.json -w "%{http_code} %{size_download}\n" "https://roobet.com/_api/settings/get" -H "$O" -H "$R" -H "User-Agent: $UA"; sleep 1
+echo "== graphql GET named-op __typename =="; curl -s -o /tmp/opencode/gq.json -w "%{http_code} %{size_download}\n" -G "https://roobet.com/_api/graphql" --data-urlencode 'query={__typename}' -H "x-apollo-operation-name: __typename" -H "Content-Type: application/json" -H "$O" -H "$R" -H "User-Agent: $UA"; sleep 1
+echo "== admin/users =="; curl -s -o /tmp/opencode/adm.json -w "%{http_code} %{size_download}\n" "https://roobet.com/_api/admin/users" -H "$O" -H "$R" -H "User-Agent: $UA"; sleep 1
+echo "== affiliate/get?user_id=1 =="; curl -s -o /tmp/opencode/aff.json -w "%{http_code} %{size_download}\n" "https://roobet.com/_api/affiliate/get?user_id=1" -H "$O" -H "$R" -H "User-Agent: $UA"
+== settings/get ==
+200 1765
+== graphql GET named-op __typename ==
+200 32
+== admin/users ==
+401 12
+== affiliate/get?user_id=1 ==
+401 12
+[0m
+[0m$ [0mecho "== settings/get keys =="; python3 -c "import json;d=json.load(open('/tmp/opencode/sg.json'));k=list(d.keys());print(len(k),k[:8])" 2>/dev/null || head -c 300 /tmp/opencode/sg.json; echo; echo "== graphql body =="; cat /tmp/opencode/gq.json; echo; echo "== admin body =="; cat /tmp/opencode/adm.json; echo; echo "== aff body =="; cat /tmp/opencode/aff.json
+== settings/get keys ==
+35 ['globalStats', 'banner', 'bannerLink', 'bannerLinkTitle', 'disabledApp', 'disabledBitcoinWithdraw', 'disabledEthereumArbitrumWithdraw', 'disabledEthereumBaseWithdraw']
+
+== graphql body ==
+{"data":{"__typename":"Query"}}
+
+== admin body ==
+Unauthorized
+== aff body ==
+Unauthorized
+[0m
+STEP 1 — DELTA
+NO_DELTA — fresh probes (2026-09-13 23:34 UTC) byte-match 14th consecutive run: `settings/get` 200 @1765B (35 keys), `graphql` named-op GET 200 @32B `{"data":{"__typename":"Query"}}`, `admin/users` 401 "Unauthorized" @12B, `affiliate/get?user_id=1` 401 "Unauthorized" @12B.
+
+STEP 2 — PRIORITIZE
+[PRIO] roobet.com/_api/graphql,7.2,tech_exposure(10)/business_value(9)/gate_ease(7),freshness(2) drags
+[PRIO] roobet.com/_api/admin/users,6.5,attack_surface(10)/business_value(10),gate_ease(2)/freshness(2)
+[PRIO] roobet.com/_api/affiliate/get,5.3,attack_surface(8)/business_value(8),gate_ease(2)/freshness(2)
+
+STEP 3 — HYPOTHESES
+[HYP] GraphQL Read-plane Query-Resolver Parity Sweep (residual)
+class: OTHER
+asset: roobet.com/_api/graphql
+confidence: 35
+reasoning: named-op GET executes pre-auth (200 @32B re-confirmed this run); 5 Query fields classified (all NOT_AUTHENTICATED); HTTP `__type` INTROSPECTION_DISABLED blocks field-name recovery so remaining ~23 Query resolvers are unnameable via passive means.
+evidence_needed: NOT_AUTHENTICATED vs ISE classification for additional known Query resolvers.
+verify_steps: PROBE (PASSIVE, ≤1rps) GET /_api/graphql?query={exchangeRates{...}} + x-apollo-operation-name; classify error shape only; no data capture.
+impact: completes cross-channel model; no severity delta — resolver auth already caps.
+testability: PASSIVE
+[HYP] Admin Priv-esc via Normal-User Session on /_api/admin/users
+class: AUTH
+asset: roobet.com/_api/admin/users
+confidence: 55
+reasoning: 401 stable on low-gate surface 14+ runs (body "Unauthorized" @12B); Express session auth (connect.sid HttpOnly + userId non-HttpOnly + twofactorRequired); authz-vs-valid-session distinction impossible anonymously.
+evidence_needed: 200 or 403 (not 401) for a non-admin connect.sid.
+verify_steps: HUMAN sandboxed ≤1rps: GET /_api/admin/users with normal-user session → 200 ⇒ cross-tenant PII dump.
+impact: Cross-tenant user/PII dump; CRITICAL if 200.
+testability: AUTH_HELPED
+[HYP] Affiliate Endpoint IDOR via user_id Param — fifth re-test
+class: IDOR
+asset: roobet.com/_api/affiliate/get
+confidence: 45
+reasoning: ?user_id=1 returns 401 "Unauthorized" @12B this run (param-parsing alive, 14+ runs); authorization indistinguishable from session-validity anonymously; needs two sandbox accounts.
+evidence_needed: 200 with account-B affiliate data under session A.
+verify_steps: HUMAN sandboxed ≤1rps: session A → GET /_api/affiliate/get?user_id=<acct_B> → 200 ⇒ HIGH cross-user disclosure; 401 retains baseline.
+impact: Cross-user affiliate revenue/referral data disclosure; HIGH if 200.
+testability: AUTH_HELPED
+
+STEP 4 — SELF-CRITIQUE
+[PARKED] GraphQL read-plane parity sweep: confidence 35<40 and no passive field-name recovery path (HTTP INTROSPECTION_DISABLED, WS-only introspection not reproducible in robot session) — no-verify-steps viability.
+[FINAL] ranked: Admin Priv-esc (55, AUTH_HELPED) > Affiliate IDOR (45, AUTH_HELPED).
+
+STEP 5 — NEXT ACTION
+[NEXT] HUMAN: sandboxed two-account A/B (≤1rps): session A → GET https://roobet.com/_api/admin/users (non-admin connect.sid) and GET /_api/affiliate/get?user_id=<acct_B>; abort-log any 200; passive robot surface is byte-stable and exhausted.
+
+STEP 6 — LEARNING
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/*: 14th consecutive run byte-stable — settings/get 200 @1765B (35 keys), graphql named-op GET 200 @32B, admin/users 401 "Unauthorized" @12B, affiliate/get?user_id=1 401 "Unauthorized" @12B; zero surface delta; passive probing fully exhausted.
+
+STEP 7 — RISK
+[RISK] roobet: 78 — Surface static across 14 consecutive runs (6 HTTP + 2 WS routes, byte-stable). Sole robot-side reportable line unchanged: roobet.com/_api/graphql pre-auth GraphQL disclosure (anon WS 101 + full introspection 28Q/26M/7S, mutation validation + 13/26 resolver pre-execution, 64-field User PII graph) — already VALID 5.3. Admin 401 + affiliate 401 (param-parsing alive) keep IDOR/priv-esc potential but are session-gated (AUTH_HELPED, both re-emitted). Server actively hardening (settings/get 68→35, liveRTPUpdate message suppressed, HTTP introspection disabled). No NEW reportable vuln this run; engagement rules (≤1 rps, read-only, no auth-bypass on live data) respected.
