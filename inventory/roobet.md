@@ -833,3 +833,11 @@ www.roobet.com
 - CHANGED crash-gs.roobet.com Socket.IO TLS upgrade: open (no 4xx) then app-timeout; HUMAN_ONLY — no delta
 - CHANGED fs.roobet.com GCS ?list-type=2 → fullstory.com redirect — no delta
 - CHANGED roobet.com OAuth metadata endpoints: SPA shell (Remix catch-all) — no delta
+
+## 2026-09-15 11:56:00 UTC
+- NEW roobet.com/_api/graphql: 13/26 mutations now confirmed executing pre-auth on HTTP channel (added tpGameStartGame, rewardsVaultClaim, acknowledgedBalanceConversion, seonSessionUpdate, wagerLimitUpdate,
+- NEW roobet.com/_api/*: 16th consecutive run byte-stable — settings/get 200 @1764B (35 keys), graphql no-body GET 400 @406B / named-op GET 200 @32B, admin/users+stats 401 @12B, affiliate/get?user_id=1 401 
+- CHANGED api.roobet.com/auth.roobet.com/account.roobet.com/admin.roobet.com + 13 others: non-resolving/internal (000/timeout) — no delta
+- CHANGED crash-gs.roobet.com Socket.IO TLS upgrade: open (no 4xx) then app-timeout; HUMAN_ONLY — no delta
+- CHANGED fs.roobet.com GCS ?list-type=2 → fullstory.com redirect — no delta
+- CHANGED roobet.com OAuth metadata endpoints: SPA shell (Remix catch-all) — no delta

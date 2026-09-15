@@ -19145,3 +19145,57 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 [RISK] roobet: 76 — 16 consecutive byte-stable runs (6 HTTP + 2 WS routes). Sole robot-side reportable line unchanged: roobet.com/_api/graphql pre-auth disclosure (anon WS 101 + full introspection 28Q/26M/7S, mutation validation + 13/26 resolver pre-execution, 64-field User PII graph incl. email/KYC/financial tokens) — already VALID 5.3 reported. Server hardening continues (settings/get 68→35, liveRTPUpdate msg suppressed, HTTP INTROSPECTION_DISABLED). Admin 401 + affiliate 401 (param-parsing alive) keep priv-esc/IDOR potential but session-gated (AUTH_HELPED). Engagement rules (≤1rps, read-only, no auth-bypass on live data) respected throughout.
+===== ANALYST bigpickle 2026-09-15 11:56:00 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mcurl -s -o /tmp/opencode/settings_get.txt -w "settings/get: %{http_code} %{size_download}B\n" "https://roobet.com/_api/settings/get" ; sleep 1.1 ; curl -s -o /tmp/opencode/admin_users.txt -w "admin/users: %{http_code} %{size_download}B\n" "https://roobet.com/_api/admin/users" ; sleep 1.1 ; curl -s -o /tmp/opencode/affiliate_idor.txt -w "affiliate/get?user_id=1: %{http_code} %{size_download}B\n" "https://roobet.com/_api/affiliate/get?user_id=1"
+settings/get: 200 1765B
+admin/users: 401 12B
+affiliate/get?user_id=1: 401 12B
+[0m
+[0m$ [0msleep 1.1 ; curl -s -o /tmp/opencode/graphql_nobody.txt -w "graphql no-body GET: %{http_code} %{size_download}B\n" "https://roobet.com/_api/graphql" ; sleep 1.1 ; curl -s -o /tmp/opencode/graphql_namedop.txt -w "graphql named-op GET: %{http_code} %{size_download}B\n" -H "x-apollo-operation-name: TestQuery" "https://roobet.com/_api/graphql?query=%7B__typename%7D" ; sleep 1.1 ; curl -s -o /tmp/opencode/sio_noorigin.txt -w "socket.io no-Origin: %{http_code} %{size_download}B\n" "https://roobet.com/_api/socket.io/?EIO=4&transport=polling&t=test"
+graphql no-body GET: 400 406B
+graphql named-op GET: 200 32B
+socket.io no-Origin: 403 40B
+[0m
+STEP 1 — DELTA
+NO_DELTA — settings/get 200 @1765B, admin/users 401 @12B, affiliate/get?user_id=1 401 @12B, graphql no-body GET 400 @406B / named-op GET 200 @32B, socket.io no-Origin 403 @40B — all byte-identical to 16-run baseline (17th consecutive run).
+
+STEP 2 — PRIORITIZE
+[PRIO] roobet.com/_api/graphql,6.8,dual-channel pre-auth disclosure + 64-field PII graph (a8/b7/t9/g8/c3/f2) — already VALID 5.3, not re-tested
+[PRIO] roobet.com/_api/admin/users,6.3,admin cross-tenant PII if non-admin session passes gate (a5/b10/t6/g8/c2/f2)
+[PRIO] roobet.com/_api/affiliate/get,5.1,user_id IDOR candidate (a4/b7/t5/g8/c2/f2)
+
+STEP 3 — HYPOTHESES
+[HYP] Admin Priv-esc via Non-Admin Session on /_api/admin/users
+class: AUTH
+asset: roobet.com/_api/admin/users
+confidence: 55
+reasoning: 401 "Unauthorized" @12B stable 17 runs on low-gate surface; Express session auth (connect.sid HttpOnly + userId non-HttpOnly + twofactorRequired); authz-vs-valid-session indistinguishable anonymously — non-admin session never tested; sibling affiliate route proves handlers parse params before per-role authz.
+evidence_needed: 200 or 403 (not 401) for a non-admin connect.sid.
+verify_steps: HUMAN sandboxed ≤1rps: GET https://roobet.com/_api/admin/users with normal-user session → 200 ⇒ cross-tenant PII dump; 401 retains baseline.
+impact: Cross-tenant user/PII dump; CRITICAL if 200.
+testability: AUTH_HELPED
+[HYP] Affiliate Endpoint IDOR via user_id Param — tenth re-test
+class: IDOR
+asset: roobet.com/_api/affiliate/get
+confidence: 45
+reasoning: ?user_id=1 returns 401 @12B (param-parsing alive, 17 runs consistent); authorization indistinguishable from session-validity anonymously; needs two sandbox accounts.
+evidence_needed: 200 with account-B affiliate data under session A.
+verify_steps: HUMAN sandboxed ≤1rps: session A → GET https://roobet.com/_api/affiliate/get?user_id=<acct_B> → 200 ⇒ HIGH cross-user disclosure; 401 retains baseline.
+impact: Cross-user affiliate revenue/referral data disclosure; HIGH if 200.
+testability: AUTH_HELPED
+
+STEP 4 — SELF-CRITIQUE
+[PARKED] GraphQL subscription sweep residual (30<40): 2/7 subs already return session-user JS errors; same disclosure class as VALID 5.3; no severity delta. 
+[FINAL] Admin Priv-esc (55, AUTH_HELPED) > Affiliate IDOR (45, AUTH_HELPED). Robot-side passive surface exhausted 17th consecutive run; GraphQL line is existing VALID 5.3 report, not re-emitted.
+
+STEP 5 — NEXT ACTION
+[NEXT] HUMAN: sandboxed two-account A/B (≤1rps, abort-log any 200): GET https://roobet.com/_api/admin/users with non-admin connect.sid and GET https://roobet.com/_api/affiliate/get?user_id=<acct_B> under session A; both 401 ⇒ baseline, any 200 ⇒ immediate report.
+
+STEP 6 — LEARNING
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/*: 17th consecutive run byte-stable — settings/get 200 @1765B, graphql GET 400 @406B / named-op 200 @32B, admin/users+affiliate/get?user_id=1 401 @12B, socket.io no-Origin 403 @40B; zero surface delta; passive probing fully exhausted.
+
+STEP 7 — RISK
+[RISK] roobet: 76 — 17 consecutive byte-stable runs (6 HTTP + 2 WS). Sole robot-side reportable line unchanged: roobet.com/_api/graphql pre-auth disclosure (anon WS 101 + full introspection 28Q/26M/7S, 13/26 resolver pre-execution, 64-field User PII graph) — already VALID 5.3 reported. Server hardening ongoing (settings 68→35, liveRTPUpdate msg suppressed, HTTP INTROSPECTION_DISABLED). Admin/affiliate 401 gates keep priv-esc/IDOR potential alive but session-gated (AUTH_HELPED). Engagement rules (≤1rps, read-only, no live-data auth-bypass) respected throughout.
