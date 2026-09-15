@@ -1,9 +1,4 @@
-## 2026-09-15 16:47:46 UTC [target] (model nemotron3)
-[CHANGED] roobet.com/_api/*: 17th consecutive run byte-stable — settings/get 200 @1763B (35 keys), graphql no-body GET 400 @406B / named-op GET 200 @32B, admin/users 401 @12B, affiliate/get?user_id=1 401 @12B, socket.io Origin-gated poll 200 @119B; zero surface delta; passive probing fully exhausted
-[CHANGED] api.roobet.com/auth.roobet.com/account.roobet.com/admin.roobet.com + 13 others: non-resolving/internal (000/timeout) — no delta
-[CHANGED] crash-gs.roobet.com Socket.IO TLS upgrade: open (no 4xx) then app-timeout; HUMAN_ONLY — no delta
-[CHANGED] fs.roobet.com GCS ?list-type=2 → fullstory.com redirect — no delta
-[CHANGED] roobet.com OAuth metadata endpoints: SPA shell (Remix catch-all) — no delta
+## 2026-09-15 19:58:52 UTC [target] (model nemotron3)
 [PRIO] roobet.com/_api/graphql,9.25,attack_surface=10,business_value=9,tech_exposure=10,gate_ease=10,cloud_surface=5,freshness=9
 [PRIO] roobet.com/_api/admin/users,7.15,attack_surface=8,business_value=10,tech_exposure=7,gate_ease=3,cloud_surface=5,freshness=8
 [PRIO] roobet.com/_api/socket.io,6.40,attack_surface=7,business_value=6,tech_exposure=8,gate_ease=8,cloud_surface=5,freshness=7
