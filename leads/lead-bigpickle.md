@@ -3359,3 +3359,22 @@ evidence_needed: 200 with account-B affiliate data under session A.
 verify_steps: HUMAN sandboxed ≤1rps: session A → GET /_api/affiliate/get?user_id=<acct_B> → 200 ⇒ HIGH cross-user disclosure; 401 retains baseline.
 impact: Cross-user affiliate revenue/referral data disclosure; HIGH if 200.
 testability: AUTH_HELPED
+## 2026-09-15 01:17:46 UTC [target] (model bigpickle)
+[HYP] Admin Priv-esc via Non-Admin Session on /_api/admin/users
+class: AUTH
+asset: roobet.com/_api/admin/users
+confidence: 55
+reasoning: 401 "Unauthorized" @12B stable 16+ runs on low-gate surface; Express session auth (connect.sid HttpOnly + userId non-HttpOnly + twofactorRequired); authz-vs-valid-session distinction impossible anonymously — a normal-user session never tested.
+evidence_needed: 200 or 403 (not 401) for a non-admin connect.sid.
+verify_steps: HUMAN sandboxed ≤1rps: GET https://roobet.com/_api/admin/users with normal-user session → 200 ⇒ cross-tenant PII dump; 401 retains baseline.
+impact: Cross-tenant user/PII dump; CRITICAL if 200.
+testability: AUTH_HELPED
+[HYP] Affiliate Endpoint IDOR via user_id Param — eighth re-test
+class: IDOR
+asset: roobet.com/_api/affiliate/get
+confidence: 45
+reasoning: ?user_id=1 returns 401 @12B this run (param-parsing alive, 16+ runs consistent); authorization indistinguishable from session-validity anonymously; needs two sandbox accounts.
+evidence_needed: 200 with account-B affiliate data under session A.
+verify_steps: HUMAN sandboxed ≤1rps: session A → GET https://roobet.com/_api/affiliate/get?user_id=<acct_B> → 200 ⇒ HIGH cross-user disclosure; 401 retains baseline.
+impact: Cross-user affiliate revenue/referral data disclosure; HIGH if 200.
+testability: AUTH_HELPED
