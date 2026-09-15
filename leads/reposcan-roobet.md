@@ -260,3 +260,12 @@ TARGET_ORG not configured for roobet; skipping public-org deep scan.
 TARGET_ORG not configured for roobet; skipping public-org deep scan.
 ## REPOSCAN 2026-09-14 22:46:38 UTC
 TARGET_ORG not configured for roobet; skipping public-org deep scan.
+## REPOSCAN 2026-09-15 01:18:44 UTC
+[HYP] No source-code findings — zero org-owned public repos exist
+class: OTHER
+asset: github.com/orgs/roobet (org ID 46298934)
+confidence: 100
+reasoning: |
+impact: N/A — no source code attack surface exists via public GitHub
+verify_steps: |
+TARGET_ORG not configured for roobet; skipping public-org deep scan.
