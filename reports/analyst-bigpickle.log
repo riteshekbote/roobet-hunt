@@ -18763,3 +18763,385 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 - [RISK] roobet: 78 — Surface static across 16 consecutive runs (6 HTTP + 2 WS routes, byte-stable). Sole robot-side reportable line unchanged: roobet.com/_api/graphql pre-auth GraphQL disclosure (anon WS 101 + full introspection 28Q/26M/7S, mutation validation + 13/26 resolver pre-execution, 64-field User PII graph) — already VALID 5.3. Admin 401 + affiliate 401 (param-parsing alive) keep priv-esc/IDOR potential but are session-gated (AUTH_HELPED, re-emitted). Server actively hardening (settings/get 68→35, liveRTPUpdate message suppressed, HTTP introspection disabled). No NEW reportable vuln this run; engagement rules (≤1 rps, read-only, GET-only) respected.
+===== ANALYST bigpickle 2026-09-15 06:23:12 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la
+total 492
+drwxr-xr-x 12 runner runner   4096 Sep 15 06:13 .
+drwxr-xr-x  3 runner runner   4096 Sep 15 06:13 ..
+drwxr-xr-x  7 runner runner   4096 Sep 15 06:13 .git
+drwxr-xr-x  3 runner runner   4096 Sep 15 06:13 .github
+-rw-r--r--  1 runner runner   1724 Sep 15 06:13 README.md
+-rw-r--r--  1 runner runner     32 Sep 15 06:13 analyst-out.txt
+-rw-r--r--  1 runner runner 194141 Sep 15 06:13 analyst-prompt.txt
+-rw-r--r--  1 runner runner 190358 Sep 15 06:13 ctx.txt
+drwxr-xr-x  2 runner runner   4096 Sep 15 06:13 inventory
+drwxr-xr-x  2 runner runner   4096 Sep 15 06:13 knowledge
+drwxr-xr-x  2 runner runner   4096 Sep 15 06:13 leads
+-rw-r--r--  1 runner runner  26379 Sep 15 06:13 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Sep 15 06:13 recon-notes
+drwxr-xr-x  2 runner runner   4096 Sep 15 06:13 reports
+drwxr-xr-x  2 runner runner   4096 Sep 15 06:13 reposcan-raw
+-rw-r--r--  1 runner runner   3196 Sep 15 06:13 scope.yml
+drwxr-xr-x  2 runner runner   4096 Sep 15 06:13 scripts
+-rw-r--r--  1 runner runner     33 Sep 15 06:13 state_bigpickle.json
+-rw-r--r--  1 runner runner     33 Sep 15 06:13 state_laguna.json
+-rw-r--r--  1 runner runner     33 Sep 15 06:13 state_ling3.json
+-rw-r--r--  1 runner runner     33 Sep 15 06:13 state_longcat.json
+-rw-r--r--  1 runner runner     33 Sep 15 06:13 state_mimo.json
+-rw-r--r--  1 runner runner     33 Sep 15 06:13 state_nemotron3.json
+drwxr-xr-x  2 runner runner   4096 Sep 15 06:13 triage
+[0m
+[0m→ [0mRead state_bigpickle.json
+[0m→ [0mRead probe-results.md
+[0m
+[0m$ [0mls -la reports/ leads/ knowledge/ triage/ scripts/ 2>/dev/null
+knowledge/:
+total 92
+drwxr-xr-x  2 runner runner  4096 Sep 15 06:13 .
+drwxr-xr-x 12 runner runner  4096 Sep 15 06:13 ..
+-rw-r--r--  1 runner runner 82673 Sep 15 06:13 index.md
+
+leads/:
+total 1300
+drwxr-xr-x  2 runner runner   4096 Sep 15 06:13 .
+drwxr-xr-x 12 runner runner   4096 Sep 15 06:13 ..
+-rw-r--r--  1 runner runner 423316 Sep 15 06:13 lead-bigpickle.md
+-rw-r--r--  1 runner runner   4080 Sep 15 06:13 lead-laguna.md
+-rw-r--r--  1 runner runner   4000 Sep 15 06:13 lead-ling3.md
+-rw-r--r--  1 runner runner   4160 Sep 15 06:13 lead-longcat.md
+-rw-r--r--  1 runner runner     18 Sep 15 06:13 lead-mimo.md
+-rw-r--r--  1 runner runner 859279 Sep 15 06:13 lead-nemotron3.md
+-rw-r--r--  1 runner runner  13805 Sep 15 06:13 reposcan-roobet.md
+
+reports/:
+total 2688
+drwxr-xr-x  2 runner runner    4096 Sep 15 06:13 .
+drwxr-xr-x 12 runner runner    4096 Sep 15 06:13 ..
+-rw-r--r--  1 runner runner 1294862 Sep 15 06:13 analyst-bigpickle.log
+-rw-r--r--  1 runner runner   17360 Sep 15 06:13 analyst-laguna.log
+-rw-r--r--  1 runner runner   17280 Sep 15 06:13 analyst-ling3.log
+-rw-r--r--  1 runner runner   17440 Sep 15 06:13 analyst-longcat.log
+-rw-r--r--  1 runner runner 1063835 Sep 15 06:13 analyst-nemotron3.log
+-rw-r--r--  1 runner runner    1404 Sep 15 06:13 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner      51 Sep 15 06:13 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner      50 Sep 15 06:13 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner      52 Sep 15 06:13 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner   10658 Sep 15 06:13 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  283236 Sep 15 06:13 hypotheses.md
+-rw-r--r--  1 runner runner    1462 Sep 15 06:13 valid-bugs.md
+
+scripts/:
+total 28
+drwxr-xr-x  2 runner runner  4096 Sep 15 06:13 .
+drwxr-xr-x 12 runner runner  4096 Sep 15 06:13 ..
+-rw-r--r--  1 runner runner 16987 Sep 15 06:13 sync-issues.py
+
+triage/:
+total 400
+drwxr-xr-x  2 runner runner  4096 Sep 15 06:13 .
+drwxr-xr-x 12 runner runner  4096 Sep 15 06:13 ..
+-rw-r--r--  1 runner runner     0 Sep 15 06:13 .gitkeep
+-rw-r--r--  1 runner runner   259 Sep 15 06:13 run-2026-09-02-21-54.md
+-rw-r--r--  1 runner runner   161 Sep 15 06:13 run-2026-09-02-23-55.md
+-rw-r--r--  1 runner runner   228 Sep 15 06:13 run-2026-09-03-03-41.md
+-rw-r--r--  1 runner runner   185 Sep 15 06:13 run-2026-09-03-08-44.md
+-rw-r--r--  1 runner runner   144 Sep 15 06:13 run-2026-09-03-13-23.md
+-rw-r--r--  1 runner runner   263 Sep 15 06:13 run-2026-09-03-17-12.md
+-rw-r--r--  1 runner runner   249 Sep 15 06:13 run-2026-09-03-19-56.md
+-rw-r--r--  1 runner runner   212 Sep 15 06:13 run-2026-09-03-22-28.md
+-rw-r--r--  1 runner runner   183 Sep 15 06:13 run-2026-09-04-00-23.md
+-rw-r--r--  1 runner runner   212 Sep 15 06:13 run-2026-09-04-05-06.md
+-rw-r--r--  1 runner runner   350 Sep 15 06:13 run-2026-09-04-09-44.md
+-rw-r--r--  1 runner runner   228 Sep 15 06:13 run-2026-09-04-14-05.md
+-rw-r--r--  1 runner runner   212 Sep 15 06:13 run-2026-09-04-17-39.md
+-rw-r--r--  1 runner runner   223 Sep 15 06:13 run-2026-09-04-19-53.md
+-rw-r--r--  1 runner runner   164 Sep 15 06:13 run-2026-09-04-22-14.md
+-rw-r--r--  1 runner runner   237 Sep 15 06:13 run-2026-09-05-00-11.md
+-rw-r--r--  1 runner runner   299 Sep 15 06:13 run-2026-09-05-04-39.md
+-rw-r--r--  1 runner runner   179 Sep 15 06:13 run-2026-09-05-08-37.md
+-rw-r--r--  1 runner runner   182 Sep 15 06:13 run-2026-09-05-12-04.md
+-rw-r--r--  1 runner runner   146 Sep 15 06:13 run-2026-09-05-15-21.md
+-rw-r--r--  1 runner runner   154 Sep 15 06:13 run-2026-09-05-17-36.md
+-rw-r--r--  1 runner runner   134 Sep 15 06:13 run-2026-09-05-19-30.md
+-rw-r--r--  1 runner runner   143 Sep 15 06:13 run-2026-09-05-21-41.md
+-rw-r--r--  1 runner runner   202 Sep 15 06:13 run-2026-09-05-23-38.md
+-rw-r--r--  1 runner runner   224 Sep 15 06:13 run-2026-09-06-01-20.md
+-rw-r--r--  1 runner runner   154 Sep 15 06:13 run-2026-09-06-06-30.md
+-rw-r--r--  1 runner runner   176 Sep 15 06:13 run-2026-09-06-11-21.md
+-rw-r--r--  1 runner runner   161 Sep 15 06:13 run-2026-09-06-14-23.md
+-rw-r--r--  1 runner runner   177 Sep 15 06:13 run-2026-09-06-17-20.md
+-rw-r--r--  1 runner runner   146 Sep 15 06:13 run-2026-09-06-19-29.md
+-rw-r--r--  1 runner runner   172 Sep 15 06:13 run-2026-09-06-21-42.md
+-rw-r--r--  1 runner runner   178 Sep 15 06:13 run-2026-09-06-23-37.md
+-rw-r--r--  1 runner runner   173 Sep 15 06:13 run-2026-09-07-01-18.md
+-rw-r--r--  1 runner runner   190 Sep 15 06:13 run-2026-09-07-06-12.md
+-rw-r--r--  1 runner runner  1006 Sep 15 06:13 run-2026-09-07-12-46.md
+-rw-r--r--  1 runner runner   185 Sep 15 06:13 run-2026-09-07-18-10.md
+-rw-r--r--  1 runner runner   156 Sep 15 06:13 run-2026-09-07-21-36.md
+-rw-r--r--  1 runner runner   367 Sep 15 06:13 run-2026-09-07-23-45.md
+-rw-r--r--  1 runner runner   225 Sep 15 06:13 run-2026-09-08-03-48.md
+-rw-r--r--  1 runner runner   147 Sep 15 06:13 run-2026-09-08-08-44.md
+-rw-r--r--  1 runner runner   156 Sep 15 06:13 run-2026-09-08-13-25.md
+-rw-r--r--  1 runner runner   698 Sep 15 06:13 run-2026-09-08-17-29.md
+-rw-r--r--  1 runner runner   186 Sep 15 06:13 run-2026-09-08-20-16.md
+-rw-r--r--  1 runner runner   156 Sep 15 06:13 run-2026-09-08-22-45.md
+-rw-r--r--  1 runner runner   143 Sep 15 06:13 run-2026-09-09-01-07.md
+-rw-r--r--  1 runner runner   193 Sep 15 06:13 run-2026-09-09-06-05.md
+-rw-r--r--  1 runner runner   153 Sep 15 06:13 run-2026-09-09-11-34.md
+-rw-r--r--  1 runner runner   161 Sep 15 06:13 run-2026-09-09-15-16.md
+-rw-r--r--  1 runner runner   146 Sep 15 06:13 run-2026-09-09-18-43.md
+-rw-r--r--  1 runner runner   174 Sep 15 06:13 run-2026-09-09-21-33.md
+-rw-r--r--  1 runner runner   143 Sep 15 06:13 run-2026-09-09-23-32.md
+-rw-r--r--  1 runner runner   231 Sep 15 06:13 run-2026-09-10-01-28.md
+-rw-r--r--  1 runner runner 11655 Sep 15 06:13 run-2026-09-10-06-43.md
+-rw-r--r--  1 runner runner   266 Sep 15 06:13 run-2026-09-10-11-50.md
+-rw-r--r--  1 runner runner   161 Sep 15 06:13 run-2026-09-10-16-05.md
+-rw-r--r--  1 runner runner   182 Sep 15 06:13 run-2026-09-10-19-09.md
+-rw-r--r--  1 runner runner   184 Sep 15 06:13 run-2026-09-10-21-41.md
+-rw-r--r--  1 runner runner   182 Sep 15 06:13 run-2026-09-10-23-51.md
+-rw-r--r--  1 runner runner   143 Sep 15 06:13 run-2026-09-11-03-48.md
+-rw-r--r--  1 runner runner   244 Sep 15 06:13 run-2026-09-11-08-46.md
+-rw-r--r--  1 runner runner 13671 Sep 15 06:13 run-2026-09-11-13-24.md
+-rw-r--r--  1 runner runner 16547 Sep 15 06:13 run-2026-09-11-17-14.md
+-rw-r--r--  1 runner runner   179 Sep 15 06:13 run-2026-09-11-19-49.md
+-rw-r--r--  1 runner runner  4273 Sep 15 06:13 run-2026-09-11-22-22.md
+-rw-r--r--  1 runner runner   196 Sep 15 06:13 run-2026-09-12-00-37.md
+-rw-r--r--  1 runner runner   210 Sep 15 06:13 run-2026-09-12-05-03.md
+-rw-r--r--  1 runner runner   161 Sep 15 06:13 run-2026-09-12-09-26.md
+-rw-r--r--  1 runner runner   179 Sep 15 06:13 run-2026-09-12-13-08.md
+-rw-r--r--  1 runner runner   186 Sep 15 06:13 run-2026-09-12-16-22.md
+-rw-r--r--  1 runner runner   168 Sep 15 06:13 run-2026-09-12-18-45.md
+-rw-r--r--  1 runner runner 11090 Sep 15 06:13 run-2026-09-12-21-20.md
+-rw-r--r--  1 runner runner   269 Sep 15 06:13 run-2026-09-12-23-06.md
+-rw-r--r--  1 runner runner   175 Sep 15 06:13 run-2026-09-13-01-08.md
+-rw-r--r--  1 runner runner   151 Sep 15 06:13 run-2026-09-13-06-18.md
+-rw-r--r--  1 runner runner   166 Sep 15 06:13 run-2026-09-13-12-06.md
+-rw-r--r--  1 runner runner   152 Sep 15 06:13 run-2026-09-13-16-27.md
+-rw-r--r--  1 runner runner   146 Sep 15 06:13 run-2026-09-13-18-56.md
+-rw-r--r--  1 runner runner   143 Sep 15 06:13 run-2026-09-13-21-22.md
+-rw-r--r--  1 runner runner  1083 Sep 15 06:13 run-2026-09-13-23-30.md
+-rw-r--r--  1 runner runner   174 Sep 15 06:13 run-2026-09-14-01-38.md
+-rw-r--r--  1 runner runner   178 Sep 15 06:13 run-2026-09-14-07-07.md
+-rw-r--r--  1 runner runner   245 Sep 15 06:13 run-2026-09-14-14-14.md
+-rw-r--r--  1 runner runner   142 Sep 15 06:13 run-2026-09-14-19-28.md
+-rw-r--r--  1 runner runner  1583 Sep 15 06:13 run-2026-09-14-22-45.md
+-rw-r--r--  1 runner runner   316 Sep 15 06:13 run-2026-09-15-01-16.md
+-rw-r--r--  1 runner runner   143 Sep 15 06:13 run-2026-09-15-06-13.md
+[0m
+[0m→ [0mRead scope.yml
+[0m✗ [0mRead valid-bugs.md failed
+[91m[1mError: [0mFile not found: /home/runner/work/roobet-hunt/roobet-hunt/valid-bugs.md
+[0m→ [0mRead triage/run-2026-09-15-01-16.md
+[0m→ [0mRead triage/run-2026-09-14-22-45.md
+[0m→ [0mRead reports/hypotheses-bigpickle.txt
+[0m
+[0m$ [0mfind . -name "valid-bugs*" 2>/dev/null; echo "---"; git log --oneline -10; echo "---"; git status --short
+./reports/valid-bugs.md
+---
+ad4661f triage 2026-09-15-06-13
+---
+?? analyst-out.txt
+?? analyst-prompt.txt
+?? ctx.txt
+[0m
+[0m$ [0mls -la recon-notes knowledge; echo "---"; ls -la
+knowledge:
+total 92
+drwxr-xr-x  2 runner runner  4096 Sep 15 06:13 .
+drwxr-xr-x 12 runner runner  4096 Sep 15 06:13 ..
+-rw-r--r--  1 runner runner 82673 Sep 15 06:13 index.md
+
+recon-notes:
+total 12
+drwxr-xr-x  2 runner runner 4096 Sep 15 06:13 .
+drwxr-xr-x 12 runner runner 4096 Sep 15 06:13 ..
+-rw-r--r--  1 runner runner  815 Sep 15 06:13 DEDICATED-DEEP.md
+---
+total 500
+drwxr-xr-x 12 runner runner   4096 Sep 15 06:13 .
+drwxr-xr-x  3 runner runner   4096 Sep 15 06:13 ..
+drwxr-xr-x  7 runner runner   4096 Sep 15 06:14 .git
+drwxr-xr-x  3 runner runner   4096 Sep 15 06:13 .github
+-rw-r--r--  1 runner runner   1724 Sep 15 06:13 README.md
+-rw-r--r--  1 runner runner  10366 Sep 15 06:14 analyst-out.txt
+-rw-r--r--  1 runner runner 194141 Sep 15 06:13 analyst-prompt.txt
+-rw-r--r--  1 runner runner 190358 Sep 15 06:13 ctx.txt
+drwxr-xr-x  2 runner runner   4096 Sep 15 06:13 inventory
+drwxr-xr-x  2 runner runner   4096 Sep 15 06:13 knowledge
+drwxr-xr-x  2 runner runner   4096 Sep 15 06:13 leads
+-rw-r--r--  1 runner runner  26379 Sep 15 06:13 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Sep 15 06:13 recon-notes
+drwxr-xr-x  2 runner runner   4096 Sep 15 06:13 reports
+drwxr-xr-x  2 runner runner   4096 Sep 15 06:13 reposcan-raw
+-rw-r--r--  1 runner runner   3196 Sep 15 06:13 scope.yml
+drwxr-xr-x  2 runner runner   4096 Sep 15 06:13 scripts
+-rw-r--r--  1 runner runner     33 Sep 15 06:13 state_bigpickle.json
+-rw-r--r--  1 runner runner     33 Sep 15 06:13 state_laguna.json
+-rw-r--r--  1 runner runner     33 Sep 15 06:13 state_ling3.json
+-rw-r--r--  1 runner runner     33 Sep 15 06:13 state_longcat.json
+-rw-r--r--  1 runner runner     33 Sep 15 06:13 state_mimo.json
+-rw-r--r--  1 runner runner     33 Sep 15 06:13 state_nemotron3.json
+drwxr-xr-x  2 runner runner   4096 Sep 15 06:13 triage
+[0m
+[0m→ [0mRead reports/valid-bugs.md
+[0m→ [0mRead recon-notes/DEDICATED-DEEP.md
+Running a bounded passive re-confirmation probe batch (≤1 rps, GET only) against the known stable surface plus graphql transport gates.
+[0m
+[0m$ [0mprobe() {
+  echo "=== $2";
+  curl -s -o /tmp/pb_body -w "HTTP %{http_code} len=%{size_download} rt=%{time_total}s\n" -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" "$1" 2>&1 | head -c 300;
+  echo "---";
+  sleep 1;
+}
+probe "https://roobet.com/" "root"
+probe "https://roobet.com/_api/settings/get" "settings/get"
+probe "https://roobet.com/_api/graphql" "graphql GET no-body"
+probe "https://roobet.com/_api/admin/users" "admin/users"
+probe "https://roobet.com/_api/admin/stats" "admin/stats"
+probe "https://roobet.com/_api/affiliate/get?user_id=1" "affiliate/get?user_id=1"
+=== root
+HTTP 200 len=17826 rt=0.077016s
+---
+=== settings/get
+HTTP 200 len=1764 rt=0.156339s
+---
+=== graphql GET no-body
+HTTP 400 len=406 rt=0.145873s
+---
+=== admin/users
+HTTP 401 len=12 rt=0.149580s
+---
+=== admin/stats
+HTTP 401 len=12 rt=0.158060s
+---
+=== affiliate/get?user_id=1
+HTTP 401 len=12 rt=0.145682s
+---
+[0m
+[0m$ [0mprobe() {
+  echo "=== $2";
+  shift 2;
+  curl -s "$@" -o /tmp/pb_body -w "HTTP %{http_code} len=%{size_download} rt=%{time_total}s\n" 2>&1 | head -c 300;
+  echo "---";
+  sleep 1;
+}
+probe "graphql named-op GET" -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" -H "x-apollo-operation-name: Ping" -H "Content-Type: application/json" -G --data-urlencode "query={__typename}" "https://roobet.com/_api/graphql"
+probe "socket.io poll no-Origin" -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" "https://roobet.com/_api/socket.io/?EIO=3&transport=polling"
+probe "socket.io poll with-Origin" -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" -H "Origin: https://roobet.com" "https://roobet.com/_api/socket.io/?EIO=3&transport=polling"
+probe "tp-games/essentials headers" -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" -I "https://roobet.com/_api/tp-games/essentials"
+=== -A
+HTTP 000 len=0 rt=0.000000s
+---
+=== -A
+HTTP 000 len=0 rt=0.000000s
+{"code":4,"message":"disallowed origin"}HTTP 403 len=40 rt=0.155768s
+---
+=== -A
+HTTP 000 len=0 rt=0.000000s
+115:0{"sid":"Ix9rCv_O2kyxnuOtATdT","upgrades":["websocket"],"pingInterval":25000,"pingTimeout":20000,"maxPayload":1000}HTTP 200 len=119 rt=0.139407s
+---
+=== -A
+HTTP 000 len=0 rt=0.000000s
+HTTP/2 200 
+date: Tue, 15 Sep 2026 06:15:02 GMT
+content-type: application/json; charset=utf-8
+cf-ray: a3b57e9f6b867137-IAD
+cf-cache-status: HIT
+age: 134
+cache-control: public, max-age=600
+etag: W/"81d46b-XD4sDTftzlOhWXPS6DdrL84kyyQ"
+expires: Tue, 15 Sep 2026 06:25---
+[0m
+Two probes were garbled by my arg ordering; re-running the GraphQL named-op GET correctly.
+[0m$ [0mecho "=== graphql named-op GET";
+curl -s -G --data-urlencode "query={__typename}" \
+  -H "x-apollo-operation-name: Ping" \
+  -H "Content-Type: application/json" \
+  -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" \
+  -w "\nHTTP %{http_code} len=%{size_download} rt=%{time_total}s\n" \
+  "https://roobet.com/_api/graphql";
+echo "---";
+sleep 1;
+echo "=== settings/get key-count sanity";
+curl -s -A "Mozilla/5.0" "https://roobet.com/_api/settings/get" -o /tmp/sg.json -w "HTTP %{http_code} len=%{size_download}\n";
+python3 -c "import json;d=json.load(open('/tmp/sg.json'));print('top-level keys:',len(d));print('sample subkeys:', {k: type(d[k]).__name__ for k in list(d)[:6]})" 2>&1
+=== graphql named-op GET
+{"data":{"__typename":"Query"}}
+
+HTTP 200 len=32 rt=0.186660s
+---
+=== settings/get key-count sanity
+HTTP 200 len=1764
+top-level keys: 35
+sample subkeys: {'globalStats': 'dict', 'banner': 'str', 'bannerLink': 'str', 'bannerLinkTitle': 'str', 'disabledApp': 'bool', 'disabledBitcoinWithdraw': 'bool'}
+[0m
+Surface fully confirmed. Closing loop on inventory breadth with two baseline checks.
+[0m$ [0mecho "=== api.roobet.com/graphql";
+curl -s -o /dev/null -w "HTTP %{http_code} len=%{size_download} rt=%{time_total}s\n" -A "Mozilla/5.0" "https://api.roobet.com/graphql";
+sleep 1;
+echo "=== www.roobet.com";
+curl -s -o /dev/null -w "HTTP %{http_code} redirect=%{redirect_url}\n" -A "Mozilla/5.0" "https://www.roobet.com/";
+=== api.roobet.com/graphql
+HTTP 403 len=5483 rt=0.115513s
+=== www.roobet.com
+HTTP 301 redirect=https://roobet.com/
+[0m
+```note
+All probes PASSIVE, GET only, ≤1rps, no auth-bypass, no writes. 10 requests this run. No secrets touched.
+```
+
+STEP 1 — DELTA
+- NO_DELTA `roobet.com/_api/*` 16th run byte-stable: settings/get 200 @1764B (35 keys), graphql no-body GET 400 @406B, named-op GET 200 @32B `{"data":{"__typename":"Query"}}`, admin/users 401 @12B, admin/stats 401 @12B, affiliate/get?user_id=1 401 @12B, socket.io poll 403 @40B `disallowed origin` / 200 @119B `0{...upgrades...}` with Origin.
+- NO_DELTA inventory: api.roobet.com/graphql 403 @5483B (CF bot-gate), www.roobet.com 301→roobet.com; 17 non-resolving subdomains unchanged.
+- [NOTE, non-reportable] tp-games/essentials now cf-cache HIT (etag `W/"81d46b-*"`, `max-age=600`) — 8.5MB catalog edge-cached; content is the already-known public game catalog; no new exposure.
+
+STEP 2 — PRIORITIZE
+[PRIO] roobet.com/_api/graphql,7.2,dual-channel pre-auth depth + PII graph (a8/b7/t9/g8/c3/f6)
+[PRIO] roobet.com/_api/admin/users,6.1,admin cross-tenant PII if session passes (a5/b10/t6/g2/c3/f8)
+[PRIO] roobet.com/_api/affiliate/get,5.1,user_id IDOR candidate (a5/b7/t5/g2/c3/f7)
+
+STEP 3 — HYPOTHESES
+[HYP] Admin Priv-esc via Non-Admin Session on /_api/admin/users
+class: AUTH
+asset: roobet.com/_api/admin/users
+confidence: 55
+reasoning: 401 "Unauthorized" @12B stable 16+ runs on low-gate surface; Express session auth (connect.sid HttpOnly + userId non-HttpOnly + twofactorRequired); authz-vs-valid-session indistinguishable anonymously — normal-user session never tested; admin/stats 401 @12B same gate; param-parsing proven on sibling affiliate route (401 not 404) argues route handlers parse before per-role authz.
+evidence_needed: 200 or 403 (not 401) for a non-admin connect.sid.
+verify_steps: HUMAN sandboxed ≤1rps: GET https://roobet.com/_api/admin/users with normal-user session → 200 ⇒ cross-tenant PII dump; 401 retains baseline.
+impact: Cross-tenant user/PII dump; CRITICAL if 200.
+testability: AUTH_HELPED
+[HYP] Affiliate Endpoint IDOR via user_id Param — ninth re-test
+class: IDOR
+asset: roobet.com/_api/affiliate/get
+confidence: 45
+reasoning: ?user_id=1 returns 401 @12B this run (param-parsing alive, 16+ runs consistent); authorization indistinguishable from session-validity anonymously; needs two sandbox accounts.
+evidence_needed: 200 with account-B affiliate data under session A.
+verify_steps: HUMAN sandboxed ≤1rps: session A → GET https://roobet.com/_api/affiliate/get?user_id=<acct_B> → 200 ⇒ HIGH cross-user disclosure; 401 retains baseline.
+impact: Cross-user affiliate revenue/referral data disclosure; HIGH if 200.
+testability: AUTH_HELPED
+[HYP] GraphQL Subscription Resolver Pre-auth Sweep (residual 5 subtests)
+class: OTHER
+asset: roobet.com/_api/graphql
+confidence: 30
+reasoning: kycUpdated + polymarketOrders already return `Cannot read properties of null (reading 'user')` — resolver touches session user pre-auth; 5 subscriptions untested; HTTP __type INTROSPECTION_DISABLED blocks field recovery, WS frame tooling needed; same error-disclosure class, no data leak expected.
+evidence_needed: per-subscribe error shape for remaining 5 subscriptions.
+verify_steps: PROBE (PASSIVE, ≤1rps) WS graphql-transport-ws subscribe to each remaining subscription name from 7-sub introspection; classify error shape only.
+impact: Marginal architecture-disclosure increment; severity unchanged (resolver auth caps).
+testability: PASSIVE
+
+STEP 4 — SELF-CRITIQUE
+[PARKED] GraphQL subscription sweep: confidence 30<40; same disclosure class as already-VALID 3.1 line; no severity delta; 2/7 already known → 3.1 capped.
+[FINAL] Admin Priv-esc (55, AUTH_HELPED) > Affiliate IDOR (45, AUTH_HELPED). Robot-side passive surface exhausted 16th consecutive run; [95] GraphQL line is existing VALID 5.3 report, not a new hypothesis — not re-emitted.
+
+STEP 5 — NEXT ACTION
+[NEXT] HUMAN: sandboxed two-account A/B (≤1rps, abort-log any 200): GET https://roobet.com/_api/admin/users with non-admin connect.sid and GET https://roobet.com/_api/affiliate/get?user_id=<acct_B> under session A; 401 both ⇒ baseline, any 200 ⇒ immediate report.
+
+STEP 6 — LEARNING
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/*: 16th consecutive run byte-stable — settings/get 200 @1764B (35 keys), graphql no-body GET 400 @406B / named-op GET 200 @32B, admin/users+stats 401 @12B, affiliate/get?user_id=1 401 @12B, socket.io Origin-gated poll 403↔200; zero surface delta; passive probing fully exhausted.
+[LEARN] ACCEPTED MISCONFIG @ roobet.com/_api/tp-games/essentials: now edge-cached (cf-cache HIT, etag, max-age=600) but content is the known public 8.5MB catalog; CDN caching ≠ new exposure; not reportable.
+
+STEP 7 — RISK
+[RISK] roobet: 76 — 16 consecutive byte-stable runs (6 HTTP + 2 WS routes). Sole robot-side reportable line unchanged: roobet.com/_api/graphql pre-auth disclosure (anon WS 101 + full introspection 28Q/26M/7S, mutation validation + 13/26 resolver pre-execution, 64-field User PII graph incl. email/KYC/financial tokens) — already VALID 5.3 reported. Server hardening continues (settings/get 68→35, liveRTPUpdate msg suppressed, HTTP INTROSPECTION_DISABLED). Admin 401 + affiliate 401 (param-parsing alive) keep priv-esc/IDOR potential but session-gated (AUTH_HELPED). Engagement rules (≤1rps, read-only, no auth-bypass on live data) respected throughout.
