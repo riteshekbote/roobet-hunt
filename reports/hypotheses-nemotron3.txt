@@ -1,4 +1,4 @@
-## 2026-09-15 19:58:52 UTC [target] (model nemotron3)
+## 2026-09-15 22:59:11 UTC [target] (model nemotron3)
 [PRIO] roobet.com/_api/graphql,9.25,attack_surface=10,business_value=9,tech_exposure=10,gate_ease=10,cloud_surface=5,freshness=9
 [PRIO] roobet.com/_api/admin/users,7.15,attack_surface=8,business_value=10,tech_exposure=7,gate_ease=3,cloud_surface=5,freshness=8
 [PRIO] roobet.com/_api/socket.io,6.40,attack_surface=7,business_value=6,tech_exposure=8,gate_ease=8,cloud_surface=5,freshness=7
@@ -17,7 +17,7 @@ testability: PASSIVE
 class: AUTH
 asset: roobet.com/_api/admin/users
 confidence: 55
-reasoning: _api/admin/users and _api/admin/stats return 401 (not 404) on low-gate surface bypassing Cloudflare bot-management. Auth mechanism is Express.js session cookies (connect.sid HttpOnly + userId non-HttpOnly + twofactorRequired) revealed via /_api/auth/logout. No role validation confirmed; standard user session may grant admin access if authorization checks are missing/weak. affiliate/get parameter tests confirm parameter parsing (401 not 404). 17 consecutive runs confirm 401 baseline stability.
+reasoning: _api/admin/users and _api/admin/stats return 401 (not 404) on low-gate surface bypassing Cloudflare bot-management. Auth mechanism is Express.js session cookies (connect.sid HttpOnly + userId non-HttpOnly + twofactorRequired) revealed via /_api/auth/logout. No role validation confirmed; standard user session may grant admin access if authorization checks are missing/weak. affiliate/get parameter tests confirm parameter parsing (401 not 404). 18 consecutive runs confirm 401 baseline stability.
 evidence_needed: 200 JSON from _api/admin/users or _api/admin/stats with valid user session cookie, or 200 without auth (auth bypass)
 verify_steps: GET https://roobet.com/_api/admin/users -H "Cookie: connect.sid=<valid_session>" (1 rps); GET https://roobet.com/_api/admin/stats -H "Cookie: connect.sid=<valid_session>"; unauthenticated GET to confirm 401 baseline. Read-only GET.
 impact: Admin user enumeration, stats disclosure, potential privilege escalation to admin functions (wallet/bonus/user management) → HIGH-CRITICAL if auth bypass or weak session validation
@@ -26,7 +26,7 @@ testability: AUTH_HELPED
 class: OTHER
 asset: roobet.com/_api/socket.io
 confidence: 70
-reasoning: Engine.io polling handshake (HTTP 200 0{"sid":...,"upgrades":["websocket"]}) with only Origin: https://roobet.com succeeds anonymously. Default namespace / CONNECT pushes live global new_bet feed, settingsUpdated broadcasts, and withdraw flags. GraphQL/admin/user/wallet namespaces return Invalid namespace. No auth required for connection or default namespace subscription. Origin-gated (403 without Origin header). 17 runs confirm mechanistic stability.
+reasoning: Engine.io polling handshake (HTTP 200 0{"sid":...,"upgrades":["websocket"]}) with only Origin: https://roobet.com succeeds anonymously. Default namespace / CONNECT pushes live global new_bet feed, settingsUpdated broadcasts, and withdraw flags. GraphQL/admin/user/wallet namespaces return Invalid namespace. No auth required for connection or default namespace subscription. Origin-gated (403 without Origin header). 18 runs confirm mechanistic stability.
 evidence_needed: Confirmation that sensitive game-state events (bet amounts, user identifiers, win/loss data) are broadcast in default namespace; test if other namespaces accept anonymous connections with crafted payloads
 verify_steps: HTTP GET https://roobet.com/_api/socket.io/?EIO=3&transport=polling -H "Origin: https://roobet.com" → capture handshake sid → WebSocket upgrade to wss://roobet.com/_api/socket.io/?EIO=3&transport=websocket&sid=<sid> → send 40/ (connect default ns) → capture broadcast events for 30s. Read-only, 1 rps.
 impact: Real-time game integrity monitoring data leak (bet patterns, settings changes, withdraw flags) → LOW-MEDIUM standalone; could enable game-state analysis for advantage play if correlated with user identifiers
