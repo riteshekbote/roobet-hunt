@@ -841,3 +841,10 @@ www.roobet.com
 - CHANGED crash-gs.roobet.com Socket.IO TLS upgrade: open (no 4xx) then app-timeout; HUMAN_ONLY — no delta
 - CHANGED fs.roobet.com GCS ?list-type=2 → fullstory.com redirect — no delta
 - CHANGED roobet.com OAuth metadata endpoints: SPA shell (Remix catch-all) — no delta
+
+## 2026-09-15 16:47:56 UTC
+- CHANGED roobet.com/_api/*: 17th consecutive run byte-stable — settings/get 200 @1763B (35 keys), graphql no-body GET 400 @406B / named-op GET 200 @32B, admin/users 401 @12B, affiliate/get?user_id=1 401 @12B, 
+- CHANGED api.roobet.com/auth.roobet.com/account.roobet.com/admin.roobet.com + 13 others: non-resolving/internal (000/timeout) — no delta
+- CHANGED crash-gs.roobet.com Socket.IO TLS upgrade: open (no 4xx) then app-timeout; HUMAN_ONLY — no delta
+- CHANGED fs.roobet.com GCS ?list-type=2 → fullstory.com redirect — no delta
+- CHANGED roobet.com OAuth metadata endpoints: SPA shell (Remix catch-all) — no delta

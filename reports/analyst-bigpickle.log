@@ -19199,3 +19199,33 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 [RISK] roobet: 76 — 17 consecutive byte-stable runs (6 HTTP + 2 WS). Sole robot-side reportable line unchanged: roobet.com/_api/graphql pre-auth disclosure (anon WS 101 + full introspection 28Q/26M/7S, 13/26 resolver pre-execution, 64-field User PII graph) — already VALID 5.3 reported. Server hardening ongoing (settings 68→35, liveRTPUpdate msg suppressed, HTTP INTROSPECTION_DISABLED). Admin/affiliate 401 gates keep priv-esc/IDOR potential alive but session-gated (AUTH_HELPED). Engagement rules (≤1rps, read-only, no live-data auth-bypass) respected throughout.
+===== ANALYST bigpickle 2026-09-15 16:47:56 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m✱ [0mGlob "**/*.md"[90m 100 matches[0m
+[0m✱ [0mGlob "art/**"[90m 0 matches[0m
+[0m
+[0m$ [0mcurl -s -o /dev/null -w "%{http_code} %{size_download}" "https://roobet.com/_api/settings/get" 2>/dev/null
+200 1766
+[0m
+[0m$ [0mcurl -s -o /dev/null -w "%{http_code} %{size_download}" "https://roobet.com/_api/admin/users" 2>/dev/null
+401 12
+[0m
+[0m$ [0mcurl -s -o /dev/null -w "%{http_code} %{size_download}" "https://roobet.com/_api/affiliate/get?user_id=1" 2>/dev/null
+401 12
+[0m
+Let me confirm surface stability with a quick passive probe, then produce the structured output.
+[0m$ [0mcurl -s -o /dev/null -w "%{http_code} %{size_download}" "https://roobet.com/_api/admin/stats" 2>/dev/null
+401 12
+[0m
+[0m$ [0mcurl -s -o /dev/null -w "noop GET: %{http_code} %{size_download}\n" "https://roobet.com/_api/graphql" 2>/dev/null; curl -s -o /dev/null -w "named-op GET: %{http_code} %{size_download}\n" -H "x-apollo-operation-name: __typename" "https://roobet.com/_api/graphql?operationName=%5B__typename%5D&query=%7B__typename%7D" 2>/dev/null
+noop GET: 400 406
+named-op GET: 400 122
+[0m
+[0m$ [0mcurl -s -o /dev/null -w "socket no-Origin: %{http_code} %{size_download}\n" "https://roobet.com/_api/socket.io/?EIO=4&transport=polling" 2>/dev/null
+socket no-Origin: 403 40
+[0m
+[93m[1m! [0mpermission requested: external_directory (/tmp/*); auto-rejecting
+[0m✗ [0mcurl -s -o /tmp/gql_named.txt -w "named-op: %{http_code} %{size_download}\n" -H "x-apollo-operation-name: __typename" "https://roobet.com/_api/graphql?operationName=__typename&query=%7B__typename%7D" 2>/dev/null; echo "--- body ---"; cat /tmp/gql_named.txt failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.
