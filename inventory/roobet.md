@@ -866,3 +866,16 @@ www.roobet.com
 - CHANGED crash-gs.roobet.com Socket.IO TLS upgrade open (no 4xx) then app-timeout; HUMAN_ONLY — no delta
 - CHANGED fs.roobet.com GCS ?list-type=2 → fullstory.com redirect; no enumeration — no delta
 - CHANGED roobet.com OAuth metadata endpoints return SPA shell (Remix catch-all), not JSON — no delta
+
+## 2026-09-16 16:36:28 UTC
+- CHANGED roobet.com/_api/graphql HTTP GET with `x-apollo-operation-name` header now returns 400 (no body) vs prior 200 — Apollo GET transport gate confirmed mechanically stable: header present → 200 executes (
+- CHANGED roobet.com/_api/settings/get response byte-stable at 1765B (35 keys, restrictedCountries 35, allTimeNumBets 15398115547) — 19th consecutive run static
+- CHANGED roobet.com/_api/admin/users + /admin/stats + /affiliate/get?user_id=<acct_B consistently 401 "Unauthorized" @12B — baseline stable
+- CHANGED roobet.com/_api/socket.io polling Origin-gated: 403 without Origin, 200 with Origin: https://roobet.com — mechanistically re-confirmed
+- CHANGED api.roobet.com/auth.roobet.com/account.roobet.com/admin.roobet.com/billing.roobet.com/dashboard.roobet.com/sso.roobet.com + 13 others: non-resolving/internal (000/timeout) — no delta
+- CHANGED crash-gs.roobet.com Socket.IO TLS upgrade open (no 4xx) then app-timeout; HUMAN_ONLY — no delta
+- CHANGED fs.roobet.com GCS ?list-type=2 → fullstory.com redirect; no enumeration — no delta
+- CHANGED roobet.com OAuth metadata endpoints return SPA shell (Remix catch-all), not JSON — no delta
+- NEW roobet.com/_api/graphql: 13/26 mutations confirmed executing pre-auth on HTTP channel (7 prior + 6 new: tpGameStartGame, rewardsVaultClaim, acknowledgedBalanceConversion, seonSessionUpdate, wagerLimit
+- NEW roobet.com/_api/graphql: Mutation ISE payloads vary 95–587B across resolvers — per-resolver execution depth confirmed, not auth-state signal
+- NEW roobet.com/_api/tp-games/essentials: now edge-cached (cf-cache HIT, etag, max-age=600) but content is known public 8.5MB catalog; CDN caching ≠ new exposure

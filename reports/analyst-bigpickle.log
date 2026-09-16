@@ -20158,3 +20158,366 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 - [RISK] roobet: 74 — 20 consecutive byte-stable runs (6 HTTP + 2 WS). Sole robot-side reportable line unchanged and already submitted (VALID: anon WS 101 + full introspection 28Q/26M/7S, 13/26 mutation pre-execution, 64-field User PII graph). Server hardening active (settings 68→35, liveRTPUpdate suppress, HTTP introspection off). Admin priv-esc + affiliate IDOR retain CRITICAL/HIGH ceilings but are session-gated (AUTH_HELPED). Engagement rules (≤1rps, read-only GET, no auth-bypass/mutation on live data) respected.
+===== ANALYST bigpickle 2026-09-16 16:36:28 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mcurl -s -o /dev/null -w '%{http_code} %{size_download}' 'https://roobet.com/_api/settings/get' 2>&1
+200 1763
+[0m
+[0m$ [0mcurl -s -o /dev/null -w '%{http_code} %{size_download}' 'https://roobet.com/_api/admin/users' 2>&1
+401 12
+[0m
+[0m$ [0mcurl -s -o /dev/null -w '%{http_code} %{size_download}' 'https://roobet.com/_api/affiliate/get?user_id=1' 2>&1
+401 12
+[0m
+[0m$ [0mcurl -s -o /dev/null -w '%{http_code} %{size_download}' 'https://roobet.com/_api/graphql' 2>&1
+400 406
+[0m
+[0m$ [0mcurl -s -o /dev/null -w '%{http_code} %{size_download}' -H 'Origin: https://roobet.com' 'https://roobet.com/_api/socket.io/?EIO=4&transport=polling' 2>&1
+200 115
+[0m
+[0m→ [0mRead .
+[0m→ [0mRead state_bigpickle.json
+[0m→ [0mRead scope.yml
+[0m→ [0mRead leads
+[0m→ [0mRead reports
+[0m→ [0mRead reports/valid-bugs.md
+[0m→ [0mRead reports/hypotheses-bigpickle.txt
+[0m
+[0m$ [0mgrep -rl "exchangeRates\|viewerChecks\|userPublicProfile\|currentUser" --include="*.md" --include="*.txt" --include="*.json" /home/runner/work/roobet-hunt/roobet-hunt/ 2>/dev/null | head -20
+/home/runner/work/roobet-hunt/roobet-hunt/triage/run-2026-09-10-06-43.md
+/home/runner/work/roobet-hunt/roobet-hunt/inventory/roobet.md
+/home/runner/work/roobet-hunt/roobet-hunt/knowledge/index.md
+/home/runner/work/roobet-hunt/roobet-hunt/analyst-prompt.txt
+/home/runner/work/roobet-hunt/roobet-hunt/reports/hypotheses-nemotron3.txt
+/home/runner/work/roobet-hunt/roobet-hunt/reports/hypotheses.md
+/home/runner/work/roobet-hunt/roobet-hunt/leads/lead-nemotron3.md
+/home/runner/work/roobet-hunt/roobet-hunt/leads/lead-bigpickle.md
+/home/runner/work/roobet-hunt/roobet-hunt/ctx.txt
+[0m
+[0m$ [0mls -la /home/runner/work/roobet-hunt/roobet-hunt/reposcan-raw/ /home/runner/work/roobet-hunt/roobet-hunt/triage/ 2>/dev/null
+/home/runner/work/roobet-hunt/roobet-hunt/reposcan-raw/:
+total 12
+drwxr-xr-x  2 runner runner 4096 Sep 16 16:29 .
+drwxr-xr-x 12 runner runner 4096 Sep 16 16:29 ..
+-rw-r--r--  1 runner runner   69 Sep 16 16:29 summary.txt
+
+/home/runner/work/roobet-hunt/roobet-hunt/triage/:
+total 432
+drwxr-xr-x  2 runner runner  4096 Sep 16 16:29 .
+drwxr-xr-x 12 runner runner  4096 Sep 16 16:29 ..
+-rw-r--r--  1 runner runner     0 Sep 16 16:29 .gitkeep
+-rw-r--r--  1 runner runner   259 Sep 16 16:29 run-2026-09-02-21-54.md
+-rw-r--r--  1 runner runner   161 Sep 16 16:29 run-2026-09-02-23-55.md
+-rw-r--r--  1 runner runner   228 Sep 16 16:29 run-2026-09-03-03-41.md
+-rw-r--r--  1 runner runner   185 Sep 16 16:29 run-2026-09-03-08-44.md
+-rw-r--r--  1 runner runner   144 Sep 16 16:29 run-2026-09-03-13-23.md
+-rw-r--r--  1 runner runner   263 Sep 16 16:29 run-2026-09-03-17-12.md
+-rw-r--r--  1 runner runner   249 Sep 16 16:29 run-2026-09-03-19-56.md
+-rw-r--r--  1 runner runner   212 Sep 16 16:29 run-2026-09-03-22-28.md
+-rw-r--r--  1 runner runner   183 Sep 16 16:29 run-2026-09-04-00-23.md
+-rw-r--r--  1 runner runner   212 Sep 16 16:29 run-2026-09-04-05-06.md
+-rw-r--r--  1 runner runner   350 Sep 16 16:29 run-2026-09-04-09-44.md
+-rw-r--r--  1 runner runner   228 Sep 16 16:29 run-2026-09-04-14-05.md
+-rw-r--r--  1 runner runner   212 Sep 16 16:29 run-2026-09-04-17-39.md
+-rw-r--r--  1 runner runner   223 Sep 16 16:29 run-2026-09-04-19-53.md
+-rw-r--r--  1 runner runner   164 Sep 16 16:29 run-2026-09-04-22-14.md
+-rw-r--r--  1 runner runner   237 Sep 16 16:29 run-2026-09-05-00-11.md
+-rw-r--r--  1 runner runner   299 Sep 16 16:29 run-2026-09-05-04-39.md
+-rw-r--r--  1 runner runner   179 Sep 16 16:29 run-2026-09-05-08-37.md
+-rw-r--r--  1 runner runner   182 Sep 16 16:29 run-2026-09-05-12-04.md
+-rw-r--r--  1 runner runner   146 Sep 16 16:29 run-2026-09-05-15-21.md
+-rw-r--r--  1 runner runner   154 Sep 16 16:29 run-2026-09-05-17-36.md
+-rw-r--r--  1 runner runner   134 Sep 16 16:29 run-2026-09-05-19-30.md
+-rw-r--r--  1 runner runner   143 Sep 16 16:29 run-2026-09-05-21-41.md
+-rw-r--r--  1 runner runner   202 Sep 16 16:29 run-2026-09-05-23-38.md
+-rw-r--r--  1 runner runner   224 Sep 16 16:29 run-2026-09-06-01-20.md
+-rw-r--r--  1 runner runner   154 Sep 16 16:29 run-2026-09-06-06-30.md
+-rw-r--r--  1 runner runner   176 Sep 16 16:29 run-2026-09-06-11-21.md
+-rw-r--r--  1 runner runner   161 Sep 16 16:29 run-2026-09-06-14-23.md
+-rw-r--r--  1 runner runner   177 Sep 16 16:29 run-2026-09-06-17-20.md
+-rw-r--r--  1 runner runner   146 Sep 16 16:29 run-2026-09-06-19-29.md
+-rw-r--r--  1 runner runner   172 Sep 16 16:29 run-2026-09-06-21-42.md
+-rw-r--r--  1 runner runner   178 Sep 16 16:29 run-2026-09-06-23-37.md
+-rw-r--r--  1 runner runner   173 Sep 16 16:29 run-2026-09-07-01-18.md
+-rw-r--r--  1 runner runner   190 Sep 16 16:29 run-2026-09-07-06-12.md
+-rw-r--r--  1 runner runner  1006 Sep 16 16:29 run-2026-09-07-12-46.md
+-rw-r--r--  1 runner runner   185 Sep 16 16:29 run-2026-09-07-18-10.md
+-rw-r--r--  1 runner runner   156 Sep 16 16:29 run-2026-09-07-21-36.md
+-rw-r--r--  1 runner runner   367 Sep 16 16:29 run-2026-09-07-23-45.md
+-rw-r--r--  1 runner runner   225 Sep 16 16:29 run-2026-09-08-03-48.md
+-rw-r--r--  1 runner runner   147 Sep 16 16:29 run-2026-09-08-08-44.md
+-rw-r--r--  1 runner runner   156 Sep 16 16:29 run-2026-09-08-13-25.md
+-rw-r--r--  1 runner runner   698 Sep 16 16:29 run-2026-09-08-17-29.md
+-rw-r--r--  1 runner runner   186 Sep 16 16:29 run-2026-09-08-20-16.md
+-rw-r--r--  1 runner runner   156 Sep 16 16:29 run-2026-09-08-22-45.md
+-rw-r--r--  1 runner runner   143 Sep 16 16:29 run-2026-09-09-01-07.md
+-rw-r--r--  1 runner runner   193 Sep 16 16:29 run-2026-09-09-06-05.md
+-rw-r--r--  1 runner runner   153 Sep 16 16:29 run-2026-09-09-11-34.md
+-rw-r--r--  1 runner runner   161 Sep 16 16:29 run-2026-09-09-15-16.md
+-rw-r--r--  1 runner runner   146 Sep 16 16:29 run-2026-09-09-18-43.md
+-rw-r--r--  1 runner runner   174 Sep 16 16:29 run-2026-09-09-21-33.md
+-rw-r--r--  1 runner runner   143 Sep 16 16:29 run-2026-09-09-23-32.md
+-rw-r--r--  1 runner runner   231 Sep 16 16:29 run-2026-09-10-01-28.md
+-rw-r--r--  1 runner runner 11655 Sep 16 16:29 run-2026-09-10-06-43.md
+-rw-r--r--  1 runner runner   266 Sep 16 16:29 run-2026-09-10-11-50.md
+-rw-r--r--  1 runner runner   161 Sep 16 16:29 run-2026-09-10-16-05.md
+-rw-r--r--  1 runner runner   182 Sep 16 16:29 run-2026-09-10-19-09.md
+-rw-r--r--  1 runner runner   184 Sep 16 16:29 run-2026-09-10-21-41.md
+-rw-r--r--  1 runner runner   182 Sep 16 16:29 run-2026-09-10-23-51.md
+-rw-r--r--  1 runner runner   143 Sep 16 16:29 run-2026-09-11-03-48.md
+-rw-r--r--  1 runner runner   244 Sep 16 16:29 run-2026-09-11-08-46.md
+-rw-r--r--  1 runner runner 13671 Sep 16 16:29 run-2026-09-11-13-24.md
+-rw-r--r--  1 runner runner 16547 Sep 16 16:29 run-2026-09-11-17-14.md
+-rw-r--r--  1 runner runner   179 Sep 16 16:29 run-2026-09-11-19-49.md
+-rw-r--r--  1 runner runner  4273 Sep 16 16:29 run-2026-09-11-22-22.md
+-rw-r--r--  1 runner runner   196 Sep 16 16:29 run-2026-09-12-00-37.md
+-rw-r--r--  1 runner runner   210 Sep 16 16:29 run-2026-09-12-05-03.md
+-rw-r--r--  1 runner runner   161 Sep 16 16:29 run-2026-09-12-09-26.md
+-rw-r--r--  1 runner runner   179 Sep 16 16:29 run-2026-09-12-13-08.md
+-rw-r--r--  1 runner runner   186 Sep 16 16:29 run-2026-09-12-16-22.md
+-rw-r--r--  1 runner runner   168 Sep 16 16:29 run-2026-09-12-18-45.md
+-rw-r--r--  1 runner runner 11090 Sep 16 16:29 run-2026-09-12-21-20.md
+-rw-r--r--  1 runner runner   269 Sep 16 16:29 run-2026-09-12-23-06.md
+-rw-r--r--  1 runner runner   175 Sep 16 16:29 run-2026-09-13-01-08.md
+-rw-r--r--  1 runner runner   151 Sep 16 16:29 run-2026-09-13-06-18.md
+-rw-r--r--  1 runner runner   166 Sep 16 16:29 run-2026-09-13-12-06.md
+-rw-r--r--  1 runner runner   152 Sep 16 16:29 run-2026-09-13-16-27.md
+-rw-r--r--  1 runner runner   146 Sep 16 16:29 run-2026-09-13-18-56.md
+-rw-r--r--  1 runner runner   143 Sep 16 16:29 run-2026-09-13-21-22.md
+-rw-r--r--  1 runner runner  1083 Sep 16 16:29 run-2026-09-13-23-30.md
+-rw-r--r--  1 runner runner   174 Sep 16 16:29 run-2026-09-14-01-38.md
+-rw-r--r--  1 runner runner   178 Sep 16 16:29 run-2026-09-14-07-07.md
+-rw-r--r--  1 runner runner   245 Sep 16 16:29 run-2026-09-14-14-14.md
+-rw-r--r--  1 runner runner   142 Sep 16 16:29 run-2026-09-14-19-28.md
+-rw-r--r--  1 runner runner  1583 Sep 16 16:29 run-2026-09-14-22-45.md
+-rw-r--r--  1 runner runner   316 Sep 16 16:29 run-2026-09-15-01-16.md
+-rw-r--r--  1 runner runner   143 Sep 16 16:29 run-2026-09-15-06-13.md
+-rw-r--r--  1 runner runner   156 Sep 16 16:29 run-2026-09-15-11-53.md
+-rw-r--r--  1 runner runner   174 Sep 16 16:29 run-2026-09-15-16-35.md
+-rw-r--r--  1 runner runner   183 Sep 16 16:29 run-2026-09-15-19-49.md
+-rw-r--r--  1 runner runner   177 Sep 16 16:29 run-2026-09-15-22-46.md
+-rw-r--r--  1 runner runner   174 Sep 16 16:29 run-2026-09-16-01-10.md
+-rw-r--r--  1 runner runner  1593 Sep 16 16:29 run-2026-09-16-06-11.md
+-rw-r--r--  1 runner runner   209 Sep 16 16:29 run-2026-09-16-11-48.md
+-rw-r--r--  1 runner runner   195 Sep 16 16:29 run-2026-09-16-16-28.md
+[0m
+[0m→ [0mRead triage/run-2026-09-16-11-48.md
+[0m→ [0mRead triage/run-2026-09-16-16-28.md
+[0m
+[0m$ [0mgrep -rl "Query {" /home/runner/work/roobet-hunt/roobet-hunt/knowledge/ /home/runner/work/roobet-hunt/roobet-hunt/reposcan-raw/ /home/runner/work/roobet-hunt/roobet-hunt/leads/ 2>/dev/null | head; grep -rl "introspection\|__schema" /home/runner/work/roobet-hunt/roobet-hunt/knowledge/ 2>/dev/null | head
+/home/runner/work/roobet-hunt/roobet-hunt/knowledge/index.md
+[0m
+[0m$ [0mgrep -rn "exchangeRates\|viewerChecks\|userPublicProfile\|userSystemStatus\|currentUser\|NOT_AUTHENTICATED" /home/runner/work/roobet-hunt/roobet-hunt/knowledge/index.md | head -20
+113:- 2026-09-05 REJECTED OTHER @ roobet.com/_api/graphql data-plane: exchangeRates/viewerChecks/userPublicProfile/userSystemStatus all return NOT_AUTHENTICATED anonymously — resolver auth enforced, no anonymous data leak.
+121:- 2026-09-05 REJECTED OTHER @ roobet.com/_api/graphql data-plane: `exchangeRates`/`viewerChecks`/`userPublicProfile`/`userSystemStatus` all return `NOT_AUTHENTICATED` anonymously — resolver auth enforced, no anonymous data leak.
+137:- 2026-09-06 REJECTED OTHER @ roobet.com/_api/graphql data-plane: `exchangeRates`/`viewerChecks`/`userPublicProfile`/`userSystemStatus` all return `NOT_AUTHENTICATED` anonymously — resolver auth enforced, no anonymous data leak.
+151:- 2026-09-06 ACCEPTED OTHER @ roobet.com/_api/graphql: pre-auth finding (anon WS + introspection) remains the sole robot-side reportable line; resolver-level NOT_AUTHENTICATED caps severity; submission handoff unchanged.
+153:- 2026-09-06 ACCEPTED OTHER @ roobet.com/_api/graphql: pre-auth finding remains sole robot-side reportable line; resolver NOT_AUTHENTICATED caps severity.
+175:- 2026-09-06 REJECTED OTHER @ roobet.com/_api/graphql data-plane: exchangeRates/viewerChecks/userPublicProfile/userSystemStatus all return NOT_AUTHENTICATED anonymously — resolver auth enforced, no anonymous data leak
+196:- 2026-09-07 REJECTED OTHER @ roobet.com/_api/graphql data-plane: exchangeRates/viewerChecks/userPublicProfile/userSystemStatus all return NOT_AUTHENTICATED anonymously — resolver auth enforced, no anonymous data leak
+249:- 2026-09-08 ACCEPTED OTHER @ roobet.com/_api/graphql HTTP POST: `liveRTPUpdate` mutation response changed from 200+"No user with that id"+INTERNAL_SERVER_ERROR to 400+3×INTERNAL_SERVER_ERROR — server patched error message but resolver still executes pre-auth (not 401/NOT_AUTHENTICATED). Severity unchanged.
+265:- 2026-09-08 ACCEPTED OTHER @ roobet.com/_api/graphql HTTP POST: liveRTPUpdate mutation now returns 400 + 3× INTERNAL_SERVER_ERROR (was 200 + "No user with that id" + INTERNAL_SERVER_ERROR) — server patched error message but resolver still executes pre-auth (not 401/NOT_AUTHENTICATED)
+271:- 2026-09-09 ACCEPTED OTHER @ roobet.com/_api/graphql: Zero delta across runs; dual-channel pre-auth GraphQL disclosure remains the sole reportable line; resolver-level NOT_AUTHENTICATED caps severity.
+273:- 2026-09-09 ACCEPTED OTHER @ roobet.com/_api/graphql HTTP POST: liveRTPUpdate mutation now returns 400 + 3× INTERNAL_SERVER_ERROR (was 200 + "No user with that id" + INTERNAL_SERVER_ERROR) — server patched error message but resolver still executes pre-auth (not 401/NOT_AUTHENTICATED)
+287:- 2026-09-09 ACCEPTED OTHER @ roobet.com/_api/graphql: Zero delta across runs; dual-channel pre-auth GraphQL disclosure remains sole reportable line; resolver-level NOT_AUTHENTICATED caps severity.
+291:- 2026-09-09 ACCEPTED OTHER @ roobet.com/_api/graphql HTTP POST: liveRTPUpdate mutation now returns 400 + 3× INTERNAL_SERVER_ERROR (was 200 + "No user with that id" + INTERNAL_SERVER_ERROR) — server patched error message but resolver still executes pre-auth (not 401/NOT_AUTHENTICATED).
+307:- 2026-09-09 REJECTED OTHER @ roobet.com/_api/graphql HTTP GET: `exchangeRates` over GET (`x-apollo-operation-name` bypass, named op) returns NOT_AUTHENTICATED/λnull data — resolver auth gate identical to WS; no HTTP-only anonymous data plane.
+312:- 2026-09-10 ACCEPTED OTHER @ roobet.com/_api/graphql: Zero delta across runs; dual-channel pre-auth GraphQL disclosure remains sole reportable line; resolver-level NOT_AUTHENTICATED caps severity.
+314:- 2026-09-10 ACCEPTED OTHER @ roobet.com/_api/graphql HTTP POST: liveRTPUpdate mutation now returns 400 + 3× INTERNAL_SERVER_ERROR (was 200 + "No user with that id" + INTERNAL_SERVER_ERROR) — server patched error message but resolver still executes pre-auth (not 401/NOT_AUTHENTICATED).
+331:- 2026-09-11 ACCEPTED OTHER @ roobet.com/_api/graphql: Zero delta across runs; dual-channel pre-auth GraphQL disclosure remains sole reportable line; resolver-level NOT_AUTHENTICATED caps severity.
+333:- 2026-09-11 ACCEPTED OTHER @ roobet.com/_api/graphql HTTP POST: liveRTPUpdate mutation now returns 400 + 3× INTERNAL_SERVER_ERROR (was 200 + "No user with that id" + INTERNAL_SERVER_ERROR) — server patched error message but resolver still executes pre-auth (not 401/NOT_AUTHENTICATED).
+350:- 2026-09-11 ACCEPTED OTHER @ roobet.com/_api/graphql HTTP POST: 7/7 tested mutations (liveRTPUpdate, updateUserProfile, placeBet, claimBonus, forfeitCashableBonus, updateEmail, updatePassword) execute pre-auth → INTERNAL_SERVER_ERROR (not 401/NOT_AUTHENTICATED)
+359:- 2026-09-12 ACCEPTED OTHER @ roobet.com/_api/graphql: Zero delta across runs; dual-channel pre-auth GraphQL disclosure remains sole reportable line; resolver-level NOT_AUTHENTICATED caps severity
+[0m
+[0m$ [0mpython3 -c "import websockets; print('websockets OK', websockets.__version__)" 2>&1; python3 -c "import websocket; print('websocket-client OK')" 2>&1; which node 2>&1; node -e "console.log('node OK')" 2>&1
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+ModuleNotFoundError: No module named 'websockets'
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+ModuleNotFoundError: No module named 'websocket'
+/usr/local/bin/node
+node OK
+[0m
+[0m$ [0mnode -e "console.log(typeof WebSocket)" 2>&1
+function
+[0m
+[0m← [0mWrite /tmp/opencode/ws_introspect.mjs
+Wrote file successfully.
+[0m
+[0m$ [0mnode /tmp/opencode/ws_introspect.mjs 2>&1; echo "exit=$?"
+WSERR Received network error or non-101 status code.
+exit=1
+[0m
+[0m← [0mWrite /tmp/opencode/ws_handshake.mjs
+Wrote file successfully.
+[0m
+[0m$ [0mnode /tmp/opencode/ws_handshake.mjs 2>&1; echo "exit=$?"
+UPGRADE 101 proto= graphql-transport-ws accept-ok= true
+RAW "�#\u00118Connection initialisation timeout"
+TIMEOUT
+exit=2
+[0m
+[0m← [0mWrite /tmp/opencode/ws_client.mjs
+Wrote file successfully.
+[0m
+[0m$ [0mnode /tmp/opencode/ws_client.mjs 2>&1; echo "exit=$?"
+MSG {"type":"connection_ack"}
+MSG {"id":"1","type":"next","payload":{"data":{"__schema":{"queryType":{"fields":[{"name":"authenticateUser","description":"Gets the authenticated user and returns the user graph."},{"name":"cashPaymentConfig","description":"Get cash payment configurations for specific country"},{"name":"cashableBonusContributionConfigs","description":"Get all cashable bonus contribution configs"},{"name":"currentUser","description":null},{"name":"exchangeRates","description":"Fetches the list of currency prices in USD."},{"name":"gameTags","description":"Get a list of Game Tags"},{"name":"hacksawBetLevels","descr...[3304B]
+MSG {"id":"1","type":"complete"}
+CLOSE �Going away
+exit=0
+[0m
+[0m$ [0mcd /tmp/opencode && sed -i "s/console.log('MSG', text.length <= 600 ? text : text.slice(0, 600) + '...\[' + text.length + 'B\]');/console.log('MSG', text);/" ws_client.mjs && node ws_client.mjs 2>&1 > /tmp/opencode/introspect.jsonl; echo "exit=$?"; wc -l /tmp/opencode/introspect.jsonl
+TIMEOUT
+exit=2
+3 /tmp/opencode/introspect.jsonl
+[0m
+[0m$ [0mwc -c /tmp/opencode/introspect.jsonl; python3 -c "
+import json,sys
+data=open('/tmp/opencode/introspect.jsonl').read()
+for line in data.splitlines():
+    if line.startswith('MSG '):
+        try:
+            obj=json.loads(line[4:])
+            f=obj['payload']['data']['__schema']['queryType']['fields']
+            print('QUERY_FIELDS', len(f))
+            for x in f: print('QF\t'+x['name'])
+        except Exception as e:
+            print('parsefail', e, line[:100])
+"
+3372 /tmp/opencode/introspect.jsonl
+parsefail 'payload' MSG {"type":"connection_ack"}
+QUERY_FIELDS 29
+QF	authenticateUser
+QF	cashPaymentConfig
+QF	cashableBonusContributionConfigs
+QF	currentUser
+QF	exchangeRates
+QF	gameTags
+QF	hacksawBetLevels
+QF	legalPolicy
+QF	notifications
+QF	playerTagGet
+QF	playerTags
+QF	polymarketHistory
+QF	polymarketOpenOrders
+QF	polymarketPositions
+QF	polymarketUserPortfolio
+QF	polymarketTradingConfig
+QF	slotPotatoActive
+QF	thrillTechJackpotConfig
+QF	stakeEngineFairSeeds
+QF	tpGame
+QF	tpGamesGetAll
+QF	tpGames
+QF	userPublicProfile
+QF	userSystemStatus
+QF	withdrawalNetworkFee
+QF	getSportsbookConfig
+QF	userTippingEligibility
+QF	getUserIsPrivilegedForTipping
+QF	viewerChecks
+parsefail 'payload' MSG {"id":"1","type":"complete"}
+[0m
+[0m← [0mWrite /tmp/opencode/query_sweep.mjs
+Wrote file successfully.
+[0m
+Got the full 29-field Query schema via WS. Now running the passive GET sweep on the 24 untested query fields (1 rps, read-only) to test for resolver-auth divergence.
+[0m$ [0mnode /tmp/opencode/query_sweep.mjs 2>&1; echo "exit=$?"
+RES	authenticateUser	400	95B	codes=[INTERNAL_SERVER_ERROR] data="absent"
+RES	cashPaymentConfig	400	177B	codes=[INTERNAL_SERVER_ERROR|INTERNAL_SERVER_ERROR] data="absent"
+RES	cashableBonusContributionConfigs	400	95B	codes=[INTERNAL_SERVER_ERROR] data="absent"
+RES	gameTags	400	95B	codes=[INTERNAL_SERVER_ERROR] data="absent"
+RES	hacksawBetLevels	400	95B	codes=[INTERNAL_SERVER_ERROR] data="absent"
+RES	legalPolicy	400	177B	codes=[INTERNAL_SERVER_ERROR|INTERNAL_SERVER_ERROR] data="absent"
+RES	notifications	400	95B	codes=[INTERNAL_SERVER_ERROR] data="absent"
+RES	playerTagGet	400	95B	codes=[INTERNAL_SERVER_ERROR] data="absent"
+RES	playerTags	400	177B	codes=[INTERNAL_SERVER_ERROR|INTERNAL_SERVER_ERROR] data="absent"
+RES	polymarketHistory	400	95B	codes=[INTERNAL_SERVER_ERROR] data="absent"
+RES	polymarketOpenOrders	400	95B	codes=[INTERNAL_SERVER_ERROR] data="absent"
+RES	polymarketPositions	400	95B	codes=[INTERNAL_SERVER_ERROR] data="absent"
+RES	polymarketUserPortfolio	400	95B	codes=[INTERNAL_SERVER_ERROR] data="absent"
+RES	polymarketTradingConfig	400	95B	codes=[INTERNAL_SERVER_ERROR] data="absent"
+RES	slotPotatoActive	400	95B	codes=[INTERNAL_SERVER_ERROR] data="absent"
+RES	thrillTechJackpotConfig	400	95B	codes=[INTERNAL_SERVER_ERROR] data="absent"
+RES	stakeEngineFairSeeds	400	177B	codes=[INTERNAL_SERVER_ERROR|INTERNAL_SERVER_ERROR] data="absent"
+RES	tpGame	400	177B	codes=[INTERNAL_SERVER_ERROR|INTERNAL_SERVER_ERROR] data="absent"
+RES	tpGamesGetAll	400	95B	codes=[INTERNAL_SERVER_ERROR] data="absent"
+RES	tpGames	400	95B	codes=[INTERNAL_SERVER_ERROR] data="absent"
+RES	withdrawalNetworkFee	400	259B	codes=[INTERNAL_SERVER_ERROR|INTERNAL_SERVER_ERROR|INTERNAL_SERVER_ERROR] data="absent"
+RES	getSportsbookConfig	400	95B	codes=[INTERNAL_SERVER_ERROR] data="absent"
+RES	userTippingEligibility	400	95B	codes=[INTERNAL_SERVER_ERROR] data="absent"
+RES	getUserIsPrivilegedForTipping	200	139B	codes=[NOT_AUTHENTICATED] data=null
+exit=0
+[0m
+All 24 untested queries returned — 23 executе pre-auth (400 + ISE), 1 gated (200 + NOT_AUTHENTICATED), none returned data. Let me inspect a few full error bodies to confirm no data leak or new internal disclosure.
+[0m$ [0mfor Q in tpGame withdrawalNetworkFee legalPolicy gameTags; do
+  echo "=== $Q ==="
+  curl -s "https://roobet.com/_api/graphql?operationName=Q&query=query%20Q%7B${Q}%7D" -H 'x-apollo-operation-name: Q' -H 'Accept: application/json' | head -c 700
+  echo
+  sleep 1.1
+done
+=== tpGame ===
+{"errors":[{"message":"Internal Server Error","extensions":{"code":"INTERNAL_SERVER_ERROR"}},{"message":"Internal Server Error","extensions":{"code":"INTERNAL_SERVER_ERROR"}}]}
+
+=== withdrawalNetworkFee ===
+{"errors":[{"message":"Internal Server Error","extensions":{"code":"INTERNAL_SERVER_ERROR"}},{"message":"Internal Server Error","extensions":{"code":"INTERNAL_SERVER_ERROR"}},{"message":"Internal Server Error","extensions":{"code":"INTERNAL_SERVER_ERROR"}}]}
+
+=== legalPolicy ===
+{"errors":[{"message":"Internal Server Error","extensions":{"code":"INTERNAL_SERVER_ERROR"}},{"message":"Internal Server Error","extensions":{"code":"INTERNAL_SERVER_ERROR"}}]}
+
+=== gameTags ===
+{"errors":[{"message":"Internal Server Error","extensions":{"code":"INTERNAL_SERVER_ERROR"}}]}
+[0m
+[0m$ [0mcurl -s 'https://roobet.com/_api/graphql?operationName=Q&query=query%20Q%7BgetUserIsPrivilegedForTipping%7D' -H 'x-apollo-operation-name: Q' -H 'Accept: application/json'
+{"errors":[{"message":"Unauthenticated.","path":["getUserIsPrivilegedForTipping"],"extensions":{"code":"NOT_AUTHENTICATED"}}],"data":null}
+[0m
+Query-plane divergence falsified — full sweep done. Emitting structured output.
+
+STEP 1 — DELTA
+- [CHANGED] roobet.com/_api/graphql Query type introspects at 29 fields (was 28): new `getUserIsPrivilegedForTipping` — a 6th resolver confirmed properly gated (`200 NOT_AUTHENTICATED "Unauthenticated."`, path in error).
+- [CHANGED] roobet.com/_api/graphql query data-plane: full 29/29 sweep completed this run — 23/24 previously-untested queries execute pre-auth (GET `400 + INTERNAL_SERVER_ERROR`, 95–259B generic bodies), zero `data != null`. Last passive line now closed.
+- NO_DELTA HTTP routes (settings/get 200 @1763B, admin/users 401 @12B, affiliate/get?user_id=1 401 @12B, graphql no-body 400 @406B, socket.io Origin-gated poll 200 @115B) — 19th+ consecutive static run.
+
+STEP 2 — PRIORITIZE
+- [PRIO] roobet.com/_api/graphql, 6.6, a6/b7/t9/g10/c2/f3 — transport + schema + dual-channel pre-auth disclosure fully mapped; sole reportable robot line
+- [PRIO] roobet.com/_api/admin/users, 4.5, a4/b9/t4/g1/c2/f3 — CRITICAL if non-admin session returns 200; AUTH_HELPED only
+- [PRIO] roobet.com/_api/affiliate/get, 4.0, a4/b7/t3/g1/c2/f3 — IDOR candidate; AUTH_HELPED only
+
+STEP 3 — HYPOTHESES
+[HYP] Admin Priv-esc via Non-Admin Session on /_api/admin/users
+class: AUTH
+asset: roobet.com/_api/admin/users
+confidence: 55
+reasoning: 401 "Unauthorized" @12B stable 20+ runs on low-gate surface (not Cloudflare bot-gated); Express session auth (connect.sid HttpOnly + userId non-HttpOnly); authz vs session-validity indistinguishable anonymously; sibling affiliate route proves handlers parse params pre-authz (401 not 404).
+evidence_needed: 200 or 403 (not 401) for a non-admin connect.sid.
+verify_steps: HUMAN sandboxed ≤1rps, read-only GET: GET https://roobet.com/_api/admin/users with normal-user session cookie → 200 ⇒ cross-tenant PII dump; 401 ⇒ baseline, no new finding.
+impact: Cross-tenant user/PII dump; CRITICAL if 200.
+testability: AUTH_HELPED
+
+[HYP] Affiliate Endpoint IDOR via user_id Param
+class: IDOR
+asset: roobet.com/_api/affiliate/get
+confidence: 45
+reasoning: ?user_id=1 returns 401 @12B (param-parsing alive, 20+ runs consistent); authorization indistinguishable from session-validity anonymously; requires two sandbox accounts.
+evidence_needed: 200 with account-B affiliate data under session A.
+verify_steps: HUMAN sandboxed ≤1rps: session A → GET https://roobet.com/_api/affiliate/get?user_id=<acct_B> → 200 ⇒ cross-user disclosure; 401 ⇒ baseline.
+impact: Cross-user affiliate revenue/referral disclosure; HIGH if 200.
+testability: AUTH_HELPED
+
+STEP 4 — SELF-CRITIQUE
+- [PARKED] Anonymous Query-Plane Divergence via HTTP GET Named-Op Sweep: FALSIFIED this run — all 29/29 Query fields tested anonymously (24 this run); 23 return generic `400+ISE` (resolver pre-executes, no message/stack detail), 6 return `NOT_AUTHENTICATED` (currentUser, exchangeRates, viewerChecks, userPublicProfile, userSystemStatus, getUserIsPrivilegedForTipping); zero `data != null`. Confidence was 38 < 40 gate anyway. Closed.
+- [FINAL] Admin Priv-esc (55, AUTH_HELPED); Affiliate IDOR (45, AUTH_HELPED). Both survive; neither passively actionable.
+
+STEP 5 — NEXT ACTION
+- [NEXT] HUMAN: with a sandboxed non-admin session, read-only GET https://roobet.com/_api/admin/users → 200 vs 401 resolves the top-confidence line; all passive lines closed.
+
+STEP 6 — LEARNING
+- [LEARN] REJECTED OTHER @ roobet.com/_api/graphql: full 29/29 query sweep — 23/24 untested queries return generic `400+INTERNAL_SERVER_ERROR` (95–259B, 1–3× errors, no field/stack/msg detail) or `200 NOT_AUTHENTICATED` (6); no anonymous `data != null`; query-plane divergence falsified; error bodies generic, no new disclosure.
+- [LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql: Query schema grown to 29 fields — `getUserIsPrivilegedForTipping` newly observed as properly auth-gated; schema micro-additions occasional; pre-auth finding unchanged.
+
+STEP 7 — RISK
+- [RISK] roobet: 25 — surface fully bounded and byte-stable across 19+ runs; server actively hardening; only session-gated (AUTH_HELPED) lines carry residual upside; no new misconfig/leak surface found this run.

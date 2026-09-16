@@ -1,9 +1,9 @@
-## 2026-09-16 11:52:30 UTC [target] (model bigpickle)
+## 2026-09-16 16:34:32 UTC [target] (model bigpickle)
 [HYP] Admin Priv-esc via Non-Admin Session on /_api/admin/users
 class: AUTH
 asset: roobet.com/_api/admin/users
 confidence: 55
-reasoning: 401 "Unauthorized" @12B stable 20+ runs on low-gate surface (not Cloudflare bot-gated); Express session auth (connect.sid HttpOnly + userId non-HttpOnly + twofactorRequired); authz vs session-validity indistinguishable anonymously; sibling affiliate route proves handlers parse params pre-authz (401 not 404).
+reasoning: 401 "Unauthorized" @12B stable 20+ runs on low-gate surface (not Cloudflare bot-gated); Express session auth (connect.sid HttpOnly + userId non-HttpOnly); authz vs session-validity indistinguishable anonymously; sibling affiliate route proves handlers parse params pre-authz (401 not 404).
 evidence_needed: 200 or 403 (not 401) for a non-admin connect.sid.
 verify_steps: HUMAN sandboxed ≤1rps, read-only GET: GET https://roobet.com/_api/admin/users with normal-user session cookie → 200 ⇒ cross-tenant PII dump; 401 ⇒ baseline, no new finding.
 impact: Cross-tenant user/PII dump; CRITICAL if 200.
@@ -17,12 +17,3 @@ evidence_needed: 200 with account-B affiliate data under session A.
 verify_steps: HUMAN sandboxed ≤1rps: session A → GET https://roobet.com/_api/affiliate/get?user_id=<acct_B> → 200 ⇒ cross-user disclosure; 401 ⇒ baseline.
 impact: Cross-user affiliate revenue/referral disclosure; HIGH if 200.
 testability: AUTH_HELPED
-[HYP] Anonymous Query-Plane Divergence via HTTP GET Named-Op Sweep
-class: OTHER
-asset: roobet.com/_api/graphql
-confidence: 38
-reasoning: Resolver auth parity confirmed on only 5/28 queries (all NOT_AUTHENTICATED) yet 13/26 mutations pre-execute with error-shape disclosure — query-plane divergence not empirically excluded.
-evidence_needed: any untested query returning data != null anonymously.
-verify_steps: PASSIVE GET https://roobet.com/_api/graphql?operationName=Q&query=query%20Q%7BQ%7D with x-apollo-operation-name:Q, 1 rps, classify data vs NOT_AUTHENTICATED; requires exact field names from saved WS introspection (not present in repo this run).
-impact: If divergence → same disclosure class, severity capped low; if none → closes last passive line.
-testability: PASSIVE
