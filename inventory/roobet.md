@@ -881,3 +881,5 @@ www.roobet.com
 - NEW roobet.com/_api/tp-games/essentials: now edge-cached (cf-cache HIT, etag, max-age=600) but content is known public 8.5MB catalog; CDN caching ≠ new exposure
 
 ## 2026-09-16 20:01:36 UTC
+
+## 2026-09-16 22:47:17 UTC

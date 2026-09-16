@@ -3655,3 +3655,67 @@ evidence_needed: untested query field returning data != null anonymously.
 verify_steps: PASSIVE GET https://roobet.com/_api/graphql?operationName=<realField>&query=query%20<realField>%7B<realField>%7D with x-apollo-operation-name:<realField> at 1 rps; classify data vs NOT_AUTHENTICATED.
 impact: If divergence → same disclosure class, severity capped low by resolver auth; likely none.
 testability: PASSIVE
+## 2026-09-16 22:46:43 UTC [target] (model bigpickle)
+[HYP] Admin Priv-esc via Non-Admin Session on /_api/admin/users
+class: AUTH
+asset: roobet.com/_api/admin/users
+confidence: 55
+reasoning: 401 "Unauthorized" @12B stable 20+ runs on low-gate surface (not Cloudflare bot-gated); Express session auth (connect.sid HttpOnly); admin handlers parse before authz — sibling /_api/affiliate/get proves param-parsing occurs pre-authz (401 not 404).
+evidence_needed: 200 (or 403 other than 401) when calling with a normal-user connect.sid.
+verify_steps: HUMAN sandboxed ≤1rps, read-only GET: GET https://roobet.com/_api/admin/users with normal-user session cookie → 200 ⇒ cross-tenant user/PII dump (CRITICAL); 401 ⇒ baseline, line closed.
+impact: Cross-tenant user/PII + financial dump; CRITICAL if 200.
+testability: AUTH_HELPED
+[HYP] Affiliate Endpoint IDOR via user_id Param
+class: IDOR
+asset: roobet.com/_api/affiliate/get
+confidence: 45
+reasoning: ?user_id=1 and ?affiliate_code= both return 401 @12B (param parsing alive, 20+ runs); authorization indistinguishable from session validity anonymously; needs two sandbox accounts to disambiguate.
+evidence_needed: session A successfully reads account B's affiliate/referral data via ?user_id=<acct_B>.
+verify_steps: HUMAN sandboxed ≤1rps (no data mutation): session A → GET https://roobet.com/_api/affiliate/get?user_id=<acct_B> → 200 with B's data ⇒ cross-user disclosure HIGH; 401 ⇒ baseline.
+impact: Cross-user affiliate revenue/referral disclosure; HIGH if 200.
+testability: AUTH_HELPED
+[HYP] Pre-Auth Resolver Pre-Execution → BOLA on Session-Gated GraphQL Mutations
+class: IDOR
+asset: roobet.com/_api/graphql
+confidence: 50
+reasoning: 13/26 mutations proven to execute resolver code pre-auth (400+INTERNAL_SERVER_ERROR, not NOT_AUTHENTICATED); with a valid connect.sid the same resolvers run authenticated — any missing object-ownership check in the authenticated path is BOLA (e.g. placeBet/wagerLimitUpdate/sendTip on other-account identifiers).
+evidence_needed: authenticated mutation against another user's identifier returns that user's state or mutates it (A/B accounts, read-only first).
+verify_steps: HUMAN sandboxed, 2 accounts: baseline own-object mutations, then same op with account-B identifier under session A; any 200/data-return cross-account ⇒ BOLA (HIGH-CRITICAL); no state-changes issued against live customer data.
+impact: Cross-account balance/wager/entity manipulation; CRITICAL if reachable.
+testability: AUTH_HELPED
+[HYP] Anonymous Query-Plane Divergence via HTTP GET Named-Op Sweep
+class: OTHER
+asset: roobet.com/_api/graphql
+confidence: 30
+reasoning: Divergence class now empirically weakened — 5/5 spot-checked queries (currentUser/exchangeRates/viewerChecks/userPublicProfile/userSystemStatus) all NOT_AUTHENTICATED and 13/13 mutation-class resolvers pre-execute homogeneously; no field-name source in repo to run the exact sweep (WS introspection not persisted).
+evidence_needed: untested query field returning data != null anonymously.
+verify_steps: PASSIVE GET https://roobet.com/_api/graphql?operationName=<realField>&query=query%20<realField>%7B<realField>%7D with x-apollo-operation-name:<realField> at 1 rps; classify data vs NOT_AUTHENTICATED.
+impact: If divergence → same disclosure class, severity capped low by resolver auth; likely none.
+testability: PASSIVE
+[HYP] Pre-Auth Resolver Pre-Execution → BOLA on Session-Gated GraphQL Mutations
+class: IDOR
+asset: roobet.com/_api/graphql
+confidence: 50
+reasoning: 13/26 mutations proven to execute resolver code pre-auth (400+INTERNAL_SERVER_ERROR, not NOT_AUTHENTICATED); a valid connect.sid runs the same resolvers authenticated; any missing object-ownership check in the authenticated path is BOLA (placeBet/wagerLimitUpdate/sendTip on other-account identifiers).
+evidence_needed: authenticated mutation/sending of account-B identifier under session A returns B's state or mutates it.
+verify_steps: HUMAN, 2 sandbox accounts, ≤1rps: session A own-object baseline mutations, then identical op with account-B ids; 200/data-return cross-account ⇒ BOLA. No state changes on live customer data.
+impact: Cross-account balance/wager manipulation; CRITICAL if reachable.
+testability: AUTH_HELPED
+[HYP] Admin Priv-esc via Non-Admin Session on /_api/admin/users
+class: AUTH
+asset: roobet.com/_api/admin/users
+confidence: 55
+reasoning: 401 "Unauthorized" @12B stable 20+ runs on low-gate surface (not Cloudflare bot-gated); Express session auth (connect.sid HttpOnly); sibling affiliate route proves params parse pre-authz, so 401 = session/authz indistinguishable anonymously.
+evidence_needed: 200 (or 403 != 401) with a normal-user connect.sid.
+verify_steps: HUMAN sandboxed ≤1rps, read-only GET: GET https://roobet.com/_api/admin/users with normal-user session cookie → 200 ⇒ cross-tenant dump; 401 ⇒ line closed.
+impact: Cross-tenant user/PII+financial dump; CRITICAL if 200.
+testability: AUTH_HELPED
+[HYP] Affiliate Endpoint IDOR via user_id Param
+class: IDOR
+asset: roobet.com/_api/affiliate/get
+confidence: 45
+reasoning: ?user_id=1 returns 401 @12B (param parsing alive, 20+ runs); authorization vs session-validity indistinguishable anonymously; needs two sandbox accounts.
+evidence_needed: session A reads account B's affiliate/referral data via ?user_id=<acct_B>.
+verify_steps: HUMAN ≤1rps, no mutation: session A → GET https://roobet.com/_api/affiliate/get?user_id=<acct_B> → 200 with B data ⇒ IDOR HIGH; 401 ⇒ baseline.
+impact: Cross-user affiliate revenue/referral disclosure; HIGH if 200.
+testability: AUTH_HELPED

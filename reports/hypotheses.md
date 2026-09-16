@@ -2230,3 +2230,6 @@
 
 ## RANKED HYPOTHESES 2026-09-16 20:01:36 UTC
 - [55] roobet.com/_api/admin/users: Admin Priv-esc via Non-Admin Session on /_api/admin/users (from art/lead_bigpickle.txt)
+
+## RANKED HYPOTHESES 2026-09-16 22:47:17 UTC
+- [55] roobet.com/_api/admin/users: Admin Priv-esc via Non-Admin Session on /_api/admin/users (from art/lead_bigpickle.txt)
