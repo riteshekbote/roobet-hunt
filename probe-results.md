@@ -679,3 +679,12 @@ https://roobet.com/_api/affiliate/get?user_id=<acct_B -> HTTP 401
 https://roobet.com/_api/admin/users -> HTTP 401
 https://roobet.com/_api/affiliate/get?user_id=<acct_B -> HTTP 401
 https://roobet.com/_api/graphql?operationName=Q&query=query%20Q%7BQ%7D -> HTTP 400
+
+## 2026-09-16 11:52:55 UTC
+https://roobet.com -> 200 len=?
+https://roobet.com/_api/graphql -> HTTP 400
+https://roobet.com/_api/admin/users -> HTTP 401
+https://roobet.com/_api/admin/stats -> HTTP 401
+https://roobet.com/_api/socket.io/?EIO=3&transport=polling -> HTTP 400
+https://roobet.com/_api/affiliate/get?user_id=<acct_B -> HTTP 401
+https://roobet.com/_api/graphql?operationName=Q&query=query%20Q%7BQ%7D -> HTTP 400

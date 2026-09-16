@@ -19995,3 +19995,166 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 - [RISK] roobet: 76 — 20 consecutive byte-stable runs (6 HTTP + 2 WS). Sole robot-side reportable line unchanged: roobet.com/_api/graphql pre-auth disclosure (anon WS 101 + full introspection 28Q/26M/7S, 13/26 resolver pre-execution, 64-field User PII graph) — already VALID 5.3. Server hardening ongoing and effective (settings 68→35, liveRTPUpdate msg suppressed, HTTP INTROSPECTION_DISABLED). Admin 401 + affiliate 401 (param-parsing alive) keep priv-esc/IDOR potential but session-gated (AUTH_HELPED). Engagement rules (≤1rps, read-only GET, no auth-bypass/mutation on live data) respected throughout.
+===== ANALYST bigpickle 2026-09-16 11:52:46 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la && ls art/ 2>/dev/null; ls inventory/ 2>/dev/null; ls *.yml *.yaml 2>/dev/null
+total 504
+drwxr-xr-x 12 runner runner   4096 Sep 16 11:48 .
+drwxr-xr-x  3 runner runner   4096 Sep 16 11:48 ..
+drwxr-xr-x  7 runner runner   4096 Sep 16 11:48 .git
+drwxr-xr-x  3 runner runner   4096 Sep 16 11:48 .github
+-rw-r--r--  1 runner runner   1724 Sep 16 11:48 README.md
+-rw-r--r--  1 runner runner     32 Sep 16 11:48 analyst-out.txt
+-rw-r--r--  1 runner runner 200619 Sep 16 11:48 analyst-prompt.txt
+-rw-r--r--  1 runner runner 196836 Sep 16 11:48 ctx.txt
+drwxr-xr-x  2 runner runner   4096 Sep 16 11:48 inventory
+drwxr-xr-x  2 runner runner   4096 Sep 16 11:48 knowledge
+drwxr-xr-x  2 runner runner   4096 Sep 16 11:48 leads
+-rw-r--r--  1 runner runner  28560 Sep 16 11:48 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Sep 16 11:48 recon-notes
+drwxr-xr-x  2 runner runner   4096 Sep 16 11:48 reports
+drwxr-xr-x  2 runner runner   4096 Sep 16 11:48 reposcan-raw
+-rw-r--r--  1 runner runner   3196 Sep 16 11:48 scope.yml
+drwxr-xr-x  2 runner runner   4096 Sep 16 11:48 scripts
+-rw-r--r--  1 runner runner     33 Sep 16 11:48 state_bigpickle.json
+-rw-r--r--  1 runner runner     33 Sep 16 11:48 state_laguna.json
+-rw-r--r--  1 runner runner     33 Sep 16 11:48 state_ling3.json
+-rw-r--r--  1 runner runner     33 Sep 16 11:48 state_longcat.json
+-rw-r--r--  1 runner runner     33 Sep 16 11:48 state_mimo.json
+-rw-r--r--  1 runner runner     33 Sep 16 11:48 state_nemotron3.json
+drwxr-xr-x  2 runner runner   4096 Sep 16 11:48 triage
+roobet.md
+scope.yml
+[0m
+[0m✱ [0mGlob "**/*.{yml,yaml,md}"[90m 100 matches[0m
+[0m→ [0mRead scope.yml
+[0m→ [0mRead leads/lead-bigpickle.md
+[0m→ [0mRead reports/valid-bugs.md
+[0m→ [0mRead triage/run-2026-09-16-06-11.md
+[0m
+[0m$ [0mls -t triage/ | head -3; echo ---; ls knowledge/ leads/ reports/
+run-2026-09-12-21-20.md
+run-2026-09-12-23-06.md
+run-2026-09-13-01-08.md
+---
+knowledge/:
+index.md
+
+leads/:
+lead-bigpickle.md
+lead-laguna.md
+lead-ling3.md
+lead-longcat.md
+lead-mimo.md
+lead-nemotron3.md
+reposcan-roobet.md
+
+reports/:
+analyst-bigpickle.log
+analyst-laguna.log
+analyst-ling3.log
+analyst-longcat.log
+analyst-nemotron3.log
+hypotheses-bigpickle.txt
+hypotheses-laguna.txt
+hypotheses-ling3.txt
+hypotheses-longcat.txt
+hypotheses-nemotron3.txt
+hypotheses.md
+valid-bugs.md
+[0m
+[0m$ [0mcommand -v jq curl; for u in "settings/get" "admin/users" "affiliate/get?user_id=1" "graphql"; do curl -s -o /tmp/probe.out -w "GET /_api/$u => %{http_code} bytes=%{size_download}\n" --max-time 10 "https://roobet.com/_api/$u"; sleep 1.2; done; curl -s -o /tmp/root.out -w "GET / => %{http_code} bytes=%{size_download}\n" --max-time 10 "https://roobet.com/"; echo "--- settings keys:"; jq -r 'keys|length' /tmp/probe.out 2>/dev/null || echo "non-json"
+/usr/bin/jq
+/usr/bin/curl
+GET /_api/settings/get => 200 bytes=1764
+GET /_api/admin/users => 401 bytes=12
+GET /_api/affiliate/get?user_id=1 => 401 bytes=12
+GET /_api/graphql => 400 bytes=406
+GET / => 200 bytes=17826
+--- settings keys:
+1
+[0m
+[0m$ [0mcurl -s --max-time 10 "https://roobet.com/_api/settings/get" -o /tmp/settings.out; wc -c /tmp/settings.out; jq -r 'type' /tmp/settings.out; jq -r 'keys|length' /tmp/settings.out; jq -r 'keys|.[]' /tmp/settings.out | tr '\n' ' '; echo
+1764 /tmp/settings.out
+object
+35
+banner bannerLink bannerLinkTitle countryCode disabledApp disabledBinanceSmartChainWithdraw disabledBitcoinWithdraw disabledDogecoinWithdraw disabledEthereumArbitrumWithdraw disabledEthereumBaseWithdraw disabledEthereumEthereumWithdraw disabledFiatWithdraw disabledLitecoinWithdraw disabledRippleWithdraw disabledSolanaWithdraw disabledSuiWithdraw disabledTetherBinanceSmartChainWithdraw disabledTetherEthereumWithdraw disabledTetherSolanaWithdraw disabledTetherTronWithdraw disabledTronWithdraw disabledUSDCArbitrumWithdraw disabledUSDCBaseWithdraw disabledUSDCBinanceSmartChainWithdraw disabledUSDCEthereumWithdraw disabledUSDCSolanaWithdraw features globalStats ip locale regionCountryCode restrictedCountries restrictedRegion serverTime sessionId
+[0m
+[0m$ [0mwc -l probe-results.md; rg -n "Query|query:|Query28|28" probe-results.md | head -40
+681 probe-results.md
+/bin/bash: line 1: rg: command not found
+[0m
+[0m✱ [0mGrep "(Query|query\b|fields?|name":)"[90m in probe-results.md · 100 matches[0m
+[0m
+[0m$ [0mls reports/ | rg -i "schema|intro"; ls reports/
+/bin/bash: line 1: rg: command not found
+analyst-bigpickle.log
+analyst-laguna.log
+analyst-ling3.log
+analyst-longcat.log
+analyst-nemotron3.log
+hypotheses-bigpickle.txt
+hypotheses-laguna.txt
+hypotheses-ling3.txt
+hypotheses-longcat.txt
+hypotheses-nemotron3.txt
+hypotheses.md
+valid-bugs.md
+[0m
+STEP 1 — DELTA
+- NO_DELTA — probe-verified this run (2026-09-16): `settings/get` 200 @1764B / 35 keys (byte-stable), `admin/users` 401 @12B, `affiliate/get?user_id=1` 401 @12B, `graphql` no-body GET 400 @406B, root 200. Matches 19th-run baseline exactly.
+- [CHANGED] none — server hardening state (settings 68→35, liveRTPUpdate msg suppressed, HTTP INTROSPECTION_DISABLED) unchanged.
+
+STEP 2 — PRIORITIZE
+- [PRIO] roobet.com/_api/graphql,6.15,a6,b8,t10,g5,c3,f1 — pre-auth anon WS+GET disclosure already reported; severity capped, low freshness.
+- [PRIO] roobet.com/_api/admin/users,5.9,a5,b10,t5,g4,c2,f6 — 401 authz-vs-session indistinguishable anon; CRITICAL if non-admin session returns 200.
+- [PRIO] roobet.com/_api/affiliate/get,4.65,a4,b7,t4,g4,c2,f5 — 401 + param-parsing alive; HIGH if cross-user 200.
+
+STEP 3 — HYPOTHESES
+[HYP] Admin Priv-esc via Non-Admin Session on /_api/admin/users
+class: AUTH
+asset: roobet.com/_api/admin/users
+confidence: 55
+reasoning: 401 "Unauthorized" @12B stable 20+ runs on low-gate surface (not Cloudflare bot-gated); Express session auth (connect.sid HttpOnly + userId non-HttpOnly + twofactorRequired); authz vs session-validity indistinguishable anonymously; sibling affiliate route proves handlers parse params pre-authz (401 not 404).
+evidence_needed: 200 or 403 (not 401) for a non-admin connect.sid.
+verify_steps: HUMAN sandboxed ≤1rps, read-only GET: GET https://roobet.com/_api/admin/users with normal-user session cookie → 200 ⇒ cross-tenant PII dump; 401 ⇒ baseline, no new finding.
+impact: Cross-tenant user/PII dump; CRITICAL if 200.
+testability: AUTH_HELPED
+
+[HYP] Affiliate Endpoint IDOR via user_id Param
+class: IDOR
+asset: roobet.com/_api/affiliate/get
+confidence: 45
+reasoning: ?user_id=1 returns 401 @12B (param-parsing alive, 20+ runs consistent); authorization indistinguishable from session-validity anonymously; requires two sandbox accounts.
+evidence_needed: 200 with account-B affiliate data under session A.
+verify_steps: HUMAN sandboxed ≤1rps: session A → GET https://roobet.com/_api/affiliate/get?user_id=<acct_B> → 200 ⇒ cross-user disclosure; 401 ⇒ baseline.
+impact: Cross-user affiliate revenue/referral disclosure; HIGH if 200.
+testability: AUTH_HELPED
+
+[HYP] Anonymous Query-Plane Divergence via HTTP GET Named-Op Sweep
+class: OTHER
+asset: roobet.com/_api/graphql
+confidence: 38
+reasoning: Resolver auth parity confirmed on only 5/28 queries (all NOT_AUTHENTICATED) yet 13/26 mutations pre-execute with error-shape disclosure — query-plane divergence not empirically excluded.
+evidence_needed: any untested query returning data != null anonymously.
+verify_steps: PASSIVE GET https://roobet.com/_api/graphql?operationName=Q&query=query%20Q%7BQ%7D with x-apollo-operation-name:Q, 1 rps, classify data vs NOT_AUTHENTICATED; requires exact field names from saved WS introspection (not present in repo this run).
+impact: If divergence → same disclosure class, severity capped low; if none → closes last passive line.
+testability: PASSIVE
+
+STEP 4 — SELF-CRITIQUE
+- [PARKED] Anonymous Query-Plane Divergence: confidence 38 < 40 threshold AND no local introspection dump (reports/schema-introspection-roobet-2026-09-05.json absent) to name the 23 untested fields reliably; blind-guessed names yield only validation-error/noise; result would only re-confirm the already-VALID 5.3 line.
+- [REJECTED] nemotron3 [95] "Pre-auth GraphQL Mutation Resolver Execution with IDOR/BOLA": re-emission of the already-reported VALID line (reports/valid-bugs.md rows GraphQL Anonymous Introspection 7.5 / Pre-Auth Mutation Execution 5.3); 13/26 resolver pre-execution produces error-shape disclosure only, resolver auth caps severity — not a new hypothesis.
+- [FINAL] 1. Admin Priv-esc via Non-Admin Session (55, AUTH_HELPED) — highest value, session-gated.
+- [FINAL] 2. Affiliate Endpoint IDOR via user_id (45, AUTH_HELPED) — second, session-gated.
+
+STEP 5 — NEXT ACTION
+- [NEXT] HUMAN: sandboxed two-account A/B (≤1rps, read-only GET, abort-log any 200): [1] GET https://roobet.com/_api/admin/users with non-admin connect.sid → 200 ⇒ CRITICAL cross-tenant PII (report via bugs.olivermaicher.eu); [2] session A → GET https://roobet.com/_api/affiliate/get?user_id=<acct_B> → 200 ⇒ HIGH; both 401 ⇒ baseline, passive surface closed.
+
+STEP 6 — LEARNING
+- [LEARN] ACCEPTED OTHER @ roobet.com/_api/*: 20th consecutive run byte-stable, probe-verified this run (settings/get 200 @1764B/35 keys, admin/users 401 @12B, affiliate/get?user_id=1 401 @12B, graphql no-body GET 400 @406B); zero surface delta; passive probing fully exhausted.
+- [LEARN] REJECTED OTHER @ roobet.com/_api/graphql: nemotron3 [95] line = already-VALID 5.3 pre-auth GraphQL disclosure, not a new hypothesis; no new vector; severity unchanged (resolver NOT_AUTHENTICATED caps).
+
+STEP 7 — RISK
+- [RISK] roobet: 74 — 20 consecutive byte-stable runs (6 HTTP + 2 WS). Sole robot-side reportable line unchanged and already submitted (VALID: anon WS 101 + full introspection 28Q/26M/7S, 13/26 mutation pre-execution, 64-field User PII graph). Server hardening active (settings 68→35, liveRTPUpdate suppress, HTTP introspection off). Admin priv-esc + affiliate IDOR retain CRITICAL/HIGH ceilings but are session-gated (AUTH_HELPED). Engagement rules (≤1rps, read-only GET, no auth-bypass/mutation on live data) respected.
