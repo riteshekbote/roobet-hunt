@@ -19941,3 +19941,57 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 - [RISK] roobet: 76 — 20 consecutive byte-stable runs (6 HTTP + 2 WS routes). Sole robot-side reportable line unchanged: roobet.com/_api/graphql pre-auth disclosure (anon WS 101 + full introspection 28Q/26M/7S, 13/26 resolver pre-execution, 64-field User PII graph) — already VALID 5.3 reported. Server hardening sustained (settings 68→35, liveRTPUpdate msg suppressed, HTTP INTROSPECTION_DISABLED). Admin 401 + affiliate 401 (param-parsing alive) keep priv-esc/IDOR potential but session-gated (AUTH_HELPED). Engagement rules (≤1rps, read-only GET, no mutating/auth-bypass tests on live data) respected throughout.
+===== ANALYST bigpickle 2026-09-16 06:13:19 UTC =====
+[0m
+> build · big-pickle
+[0m
+STEP 1 — DELTA
+- NO_DELTA: Context re-emits run-19 observations only (settings/get 200 @1764B/35 keys, graphql no-body GET 400 @406B / named-op 200 @32B, admin/users+stats 401 @12B, affiliate/get?user_id=1 401 @12B, socket.io Origin-gated 403↔200; 6 HTTP + 2 WS). No new host, route, header, or byte delta introduced this run.
+
+STEP 2 — PRIORITIZE
+- [PRIO] roobet.com/_api/graphql,5.85,tech_exposure(GraphQL WS+HTTP+GET, 64-field User PII graph, 7 subs)
+- [PRIO] roobet.com/_api/admin/users,3.90,business_value(CRITICAL if 200; CRITICAL-class authz)
+- [PRIO] roobet.com/_api/affiliate/get,3.00,business_value(cross-user revenue disclosure if 200)
+
+STEP 3 — HYPOTHESES
+[HYP] Admin Priv-esc via Non-Admin Session on /_api/admin/users
+class: AUTH
+asset: roobet.com/_api/admin/users
+confidence: 55
+reasoning: 401 "Unauthorized" @12B stable 20 runs on low-gate surface (not Cloudflare bot-gated); Express session auth (connect.sid HttpOnly + userId non-HttpOnly + twofactorRequired); authz vs session-validity indistinguishable anonymously; sibling affiliate route proves handlers parse params pre-authz (401 not 404).
+evidence_needed: 200 or 403 (not 401) for a non-admin connect.sid.
+verify_steps: HUMAN sandboxed ≤1rps: GET https://roobet.com/_api/admin/users with normal-user session → 200 ⇒ cross-tenant PII dump; 401 retains baseline.
+impact: Cross-tenant user/PII dump; CRITICAL if 200.
+testability: AUTH_HELPED
+[HYP] Affiliate Endpoint IDOR via user_id Param
+class: IDOR
+asset: roobet.com/_api/affiliate/get
+confidence: 45
+reasoning: ?user_id=1 returns 401 @12B (param-parsing alive, 20 runs consistent); authorization indistinguishable from session-validity anonymously; requires two sandbox accounts.
+evidence_needed: 200 with account-B affiliate data under session A.
+verify_steps: HUMAN sandboxed ≤1rps: session A → GET https://roobet.com/_api/affiliate/get?user_id=<acct_B> → 200 ⇒ HIGH; 401 retains baseline.
+impact: Cross-user affiliate revenue/referral disclosure; HIGH if 200.
+testability: AUTH_HELPED
+[HYP] Anonymous Query-Plane Divergence via HTTP GET Named-Op Sweep
+class: OTHER
+asset: roobet.com/_api/graphql
+confidence: 40
+reasoning: Introspection exposes Query 28 fields; resolver auth parity spot-checked on only 5 queries (currentUser/exchangeRates/viewerChecks/userPublicProfile/userSystemStatus — all NOT_AUTHENTICATED); 13/26 mutations proven to pre-execute resolver code anonymously; ~23 queries never tested anonymously over the GET channel (gate: x-apollo-operation-name + named op).
+evidence_needed: any untested query returning data != null (not NOT_AUTHENTICATED) anonymously.
+verify_steps: PROBE (PASSIVE, GET, ≤1rps): for each remaining query field Q, GET https://roobet.com/_api/graphql?operationName=Q&query=query%20Q%7BQ%7D with header x-apollo-operation-name:Q; classify data vs NOT_AUTHENTICATED; no mutations, read-only.
+impact: Anonymous exposure of query-specific data; MEDIUM-HIGH if any field diverges.
+testability: PASSIVE
+
+STEP 4 — SELF-CRITIQUE
+- [PARKED] GraphQL Subscription Resolver Pre-auth Sweep: confidence 30<40; same disclosure class as already-VALID 5.3; 2/7 subs characterized; marginal increment only.
+- [FINAL] Admin Priv-esc (55, AUTH_HELPED) > Affiliate IDOR (45, AUTH_HELPED) > Query-plane sweep (40, PASSIVE). nemotron3 [95] GraphQL line = same already-VALID 5.3 disclosure, not a new hypothesis, not re-emitted.
+
+STEP 5 — NEXT ACTION
+- [NEXT] HUMAN: sandboxed two-account A/B (≤1rps, read-only GET, abort-log any 200): [1] GET https://roobet.com/_api/admin/users with non-admin connect.sid → 200 ⇒ CRITICAL cross-tenant PII; [2] GET https://roobet.com/_api/affiliate/get?user_id=<acct_B> under session A → 200 ⇒ HIGH cross-user affiliate. Both 401 ⇒ baseline, no new finding. Robot-side passive: execute the Query-plane GET sweep (PROBE above) in parallel if sanctioned.
+
+STEP 6 — LEARNING
+- [LEARN] ACCEPTED OTHER @ roobet.com/_api/*: 20th review byte-stable — no new host/route/byte delta; only previously-emitted hypotheses (Admin 55, Affiliate 45) plus new Query-plane sweep (40) remain; passive surface otherwise exhausted.
+- [LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql: resolver auth parity spot-checked on 5/28 queries; residual divergence risk confined to ~23 untested query fields on the GET channel — bounded, GET-only, read-only testable.
+
+STEP 7 — RISK
+- [RISK] roobet: 76 — 20 consecutive byte-stable runs (6 HTTP + 2 WS). Sole robot-side reportable line unchanged: roobet.com/_api/graphql pre-auth disclosure (anon WS 101 + full introspection 28Q/26M/7S, 13/26 resolver pre-execution, 64-field User PII graph) — already VALID 5.3. Server hardening ongoing and effective (settings 68→35, liveRTPUpdate msg suppressed, HTTP INTROSPECTION_DISABLED). Admin 401 + affiliate 401 (param-parsing alive) keep priv-esc/IDOR potential but session-gated (AUTH_HELPED). Engagement rules (≤1rps, read-only GET, no auth-bypass/mutation on live data) respected throughout.
