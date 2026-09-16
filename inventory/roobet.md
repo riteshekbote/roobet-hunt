@@ -879,3 +879,5 @@ www.roobet.com
 - NEW roobet.com/_api/graphql: 13/26 mutations confirmed executing pre-auth on HTTP channel (7 prior + 6 new: tpGameStartGame, rewardsVaultClaim, acknowledgedBalanceConversion, seonSessionUpdate, wagerLimit
 - NEW roobet.com/_api/graphql: Mutation ISE payloads vary 95–587B across resolvers — per-resolver execution depth confirmed, not auth-state signal
 - NEW roobet.com/_api/tp-games/essentials: now edge-cached (cf-cache HIT, etag, max-age=600) but content is known public 8.5MB catalog; CDN caching ≠ new exposure
+
+## 2026-09-16 20:01:36 UTC

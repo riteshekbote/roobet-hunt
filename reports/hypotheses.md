@@ -2227,3 +2227,6 @@
 - LEARN: PARKED api.roobet.com Cloudflare bypass: Requires valid browser headers/session/turnstile to test
 - LEARN: PARKED auth.roobet.com/account.roobet.com/admin.roobet.com: Subdomains unresponsive; no attack surface confirmed
 - LEARN: PARKED crash-gs.roobet.com unauthenticated socket: Requires browser/WS tooling, HUMAN_ONLY
+
+## RANKED HYPOTHESES 2026-09-16 20:01:36 UTC
+- [55] roobet.com/_api/admin/users: Admin Priv-esc via Non-Admin Session on /_api/admin/users (from art/lead_bigpickle.txt)

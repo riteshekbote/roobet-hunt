@@ -696,3 +696,8 @@ https://roobet.com/_api/admin/users -> HTTP 401
 https://roobet.com/_api/admin/stats -> HTTP 401
 https://roobet.com/_api/socket.io/?EIO=3&transport=polling -> HTTP 400
 https://roobet.com/_api/affiliate/get?user_id=<acct_B -> HTTP 401
+
+## 2026-09-16 20:01:40 UTC
+https://roobet.com/_api/admin/users -> HTTP 401
+https://roobet.com/_api/affiliate/get?user_id=<acct_B -> HTTP 401
+https://roobet.com/_api/graphql?operationName=<realField>&query=query%20<realField>%7B<realField>%7D -> HTTP 400
