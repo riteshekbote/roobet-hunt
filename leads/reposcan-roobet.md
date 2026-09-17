@@ -298,3 +298,12 @@ TARGET_ORG not configured for roobet; skipping public-org deep scan.
 TARGET_ORG not configured for roobet; skipping public-org deep scan.
 ## REPOSCAN 2026-09-16 22:49:34 UTC
 TARGET_ORG not configured for roobet; skipping public-org deep scan.
+## REPOSCAN 2026-09-17 01:14:14 UTC
+[HYP] No findings — zero candidate repos to audit
+class: N/A
+asset: N/A
+confidence: N/A
+reasoning: No Roobet-owned public GitHub repositories exist. cands.txt = "no org candidates"; scope.yml github_orgs = none-configured; org ID 46298934 has 0 public repos. No source code is available to grep for secrets, hardcoded creds, or insecure patterns.
+impact: N/A
+verify_steps: 1) curl -s "https://api.github.com/orgs/ROOBET" | jq '.public_repos' → 0. 2) Populate cands.txt with repo URLs if an org is discovered.
+TARGET_ORG not configured for roobet; skipping public-org deep scan.
