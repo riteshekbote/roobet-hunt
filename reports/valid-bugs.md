@@ -32,3 +32,7 @@
   - | Q4 Provable | NO — requires valid session + exact POST body; cannot test without auth |
   - | Q7 Reasonable triager | NO — no proof of bypass; endpoints require valid session |
   - **Verdict: HOLD** — Needs browser-phase with valid session. Cannot validate passively.
+
+- 2 lead(s) marked VALID at 2026-09-17 22:45:53 UTC
+  - **Verdict: VALID** — Pre-auth mutation execution is a genuine finding.
+  - | Pre-Auth Mutation Execution | **VALID** | 5.3 Medium | Genuine finding; report to bugs.olivermaicher.eu |
