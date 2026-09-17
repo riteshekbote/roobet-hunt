@@ -895,3 +895,7 @@ www.roobet.com
 - CHANGED roobet.com/_api/graphql: Mutation ISE payloads vary 95–587B across resolvers — per-resolver execution depth confirmed, not auth-state signal
 - CHANGED roobet.com/_api/tp-games/essentials: now edge-cached (cf-cache HIT, etag, max-age=600) but content is known public 8.5MB catalog; CDN caching ≠ new exposure
 - CHANGED roobet.com/_api/settings/get: input reflection NEGATIVE re-confirmed (XFF/?sessionId/Referer/Cookie inert; ip=server egress, sessionId rotates, auth cookie=connect.sid) — no reflection/fixation vector
+
+## 2026-09-17 11:56:28 UTC
+- CHANGED roobet.com/_api/graphql HTTP GET read-plane: exchangeRates/viewerChecks/userPublicProfile now return 400+INTERNAL_SERVER_ERROR (was 200+NOT_AUTHENTICATED) — server hardened; resolvers crash (null dere
+- CHANGED roobet.com/_api/settings/get: allTimeNumBets ~15.45B (15446376925) — up from ~15.398B (09-13); 35 keys, 1766B, byte-stable delta.

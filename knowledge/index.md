@@ -509,3 +509,9 @@
 - 2026-09-17 PARKED api.roobet.com Cloudflare bypass: Requires valid browser headers/session/turnstile to test
 - 2026-09-17 PARKED auth.roobet.com/account.roobet.com/admin.roobet.com: Subdomains unresponsive; no attack surface confirmed
 - 2026-09-17 PARKED crash-gs.roobet.com unauthenticated socket: Requires browser/WS tooling, HUMAN_ONLY
+- 2026-09-17 ACCEPTED OTHER @ roobet.com/_api/graphql HTTP GET read-plane: exchangeRates/viewerChecks/userPublicProfile now return 400+INTERNAL_SERVER_ERROR (was 200+NOT_AUTHENTICATED) — server hardened; resolvers crash with null dereference instead of structured auth error; HTTP-only change (WS channel unverified, HUMAN_ONLY). Severity unchanged.
+- 2026-09-17 ACCEPTED OTHER @ roobet.com/_api/*: 21st consecutive run byte-stable on core routes; settings/get 200@1766B (35 keys, allTimeNumBets ~15.45B), admin/users 401@12B, affiliate/get?user_id=1 401@12B, socket.io Origin-gated, graphql named-op GET 200@32B. 14 new route candidates all 404.
+- 2026-09-17 ACCEPTED OTHER @ roobet.com/_api/settings/get: allTimeNumBets grew from ~15.398B to ~15.446B (normal ~48M growth over 4 days); config surface otherwise byte-stable.
+- 2026-09-17 ACCEPTED MISCONFIG @ roobet.com: Server actively hardening — liveRTPUpdate msg suppressed (09-08), HTTP introspection disabled (09-06), settings/get trimmed 68→35 (09-08), read-plane resolvers now ISE instead of NOT_AUTHENTICATED (this run). Hardening trend reduces exploitable surface.
+- 2026-09-17 ACCEPTED OTHER @ roobet.com/_api/graphql HTTP GET read-plane: exchangeRates/viewerChecks/userPublicProfile now return 400+INTERNAL_SERVER_ERROR (was 200+NOT_AUTHENTICATED) — server hardened; resolvers crash null-deref instead of structured auth error; HTTP-only change.
+- 2026-09-17 ACCEPTED OTHER @ roobet.com/_api/*: 21st consecutive run byte-stable core; settings/get 200@1766B (35 keys, allTimeNumBets ~15.45B), 14 new route candidates all 404; passive probing fully exhausted.
