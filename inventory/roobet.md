@@ -905,3 +905,14 @@ www.roobet.com
 - CHANGED roobet.com/_api/settings/get: allTimeNumBets ~15.45B (15446376925) — up from ~15.398B (09-13); 35 keys, 1766B, byte-stable delta
 - CHANGED roobet.com/_api/*: 21st consecutive run byte-stable core; settings/get 200@1766B (35 keys), 14 new route candidates all 404; passive probing fully exhausted
 - CHANGED Server actively hardening trend confirmed: liveRTPUpdate msg suppressed (09-08), HTTP introspection disabled (09-06), settings/get trimmed 68→35 (09-08), read-plane resolvers now ISE instead of NOT_AU
+
+## 2026-09-17 19:52:56 UTC
+- NEW Server hardening trend confirmed: read-plane resolvers (exchangeRates/viewerChecks/userPublicProfile) now return 400+INTERNAL_SERVER_ERROR instead of 200+NOT_AUTHENTICATED (HTTP channel only, WS unver
+- NEW roobet.com/_api/settings/get: allTimeNumBets increased ~15.398B → ~15.446B (~48M/4 days); 35-key schema byte-stable across 21+ runs
+- NEW 22nd consecutive run byte-stable on all core routes (settings/get 200@1765B, admin/users 401, affiliate/get?user_id=1 401, graphql GET 400/named-op 200, socket.io Origin-gated); 14 new route candidate
+- CHANGED roobet.com/_api/graphql HTTP GET gate mechanically stable: x-apollo-operation-name present → 200 executes (32B), omitted → 400@406B; resolver pre-execution reachable pre-auth on HTTP channel
+- CHANGED roobet.com/_api/socket.io polling Origin-gated: 403 without Origin, 200 with Origin: https://roobet.com — mechanistically re-confirmed
+- CHANGED api.roobet.com/auth.roobet.com/account.roobet.com/admin.roobet.com + 13 others: non-resolving/internal (000/timeout) — no delta
+- CHANGED crash-gs.roobet.com Socket.IO TLS upgrade open (no 4xx) then app-timeout; HUMAN_ONLY — no delta
+- CHANGED fs.roobet.com GCS ?list-type=2 → fullstory.com redirect; no enumeration — no delta
+- CHANGED roobet.com OAuth metadata endpoints return SPA shell (Remix catch-all), not JSON — no delta

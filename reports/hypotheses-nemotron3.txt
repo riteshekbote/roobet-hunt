@@ -1,8 +1,13 @@
-## 2026-09-17 16:36:44 UTC [target] (model nemotron3)
-[CHANGED] roobet.com/_api/graphql HTTP GET read-plane: exchangeRates/viewerChecks/userPublicProfile now return 400+INTERNAL_SERVER_ERROR (was 200+NOT_AUTHENTICATED) — server hardened; resolvers crash null-deref instead of structured auth error; HTTP-only change
-[CHANGED] roobet.com/_api/settings/get: allTimeNumBets ~15.45B (15446376925) — up from ~15.398B (09-13); 35 keys, 1766B, byte-stable delta
-[CHANGED] roobet.com/_api/*: 21st consecutive run byte-stable core; settings/get 200@1766B (35 keys), 14 new route candidates all 404; passive probing fully exhausted
-[CHANGED] Server actively hardening trend confirmed: liveRTPUpdate msg suppressed (09-08), HTTP introspection disabled (09-06), settings/get trimmed 68→35 (09-08), read-plane resolvers now ISE instead of NOT_AUTHENTICATED (this run)
+## 2026-09-17 19:52:45 UTC [target] (model nemotron3)
+[NEW] Server hardening trend confirmed: read-plane resolvers (exchangeRates/viewerChecks/userPublicProfile) now return 400+INTERNAL_SERVER_ERROR instead of 200+NOT_AUTHENTICATED (HTTP channel only, WS unverified) — null-deref crash replaces structured auth error
+[NEW] roobet.com/_api/settings/get: allTimeNumBets increased ~15.398B → ~15.446B (~48M/4 days); 35-key schema byte-stable across 21+ runs
+[NEW] 22nd consecutive run byte-stable on all core routes (settings/get 200@1765B, admin/users 401, affiliate/get?user_id=1 401, graphql GET 400/named-op 200, socket.io Origin-gated); 14 new route candidates all 404; passive probing fully exhausted
+[CHANGED] roobet.com/_api/graphql HTTP GET gate mechanically stable: x-apollo-operation-name present → 200 executes (32B), omitted → 400@406B; resolver pre-execution reachable pre-auth on HTTP channel
+[CHANGED] roobet.com/_api/socket.io polling Origin-gated: 403 without Origin, 200 with Origin: https://roobet.com — mechanistically re-confirmed
+[CHANGED] api.roobet.com/auth.roobet.com/account.roobet.com/admin.roobet.com + 13 others: non-resolving/internal (000/timeout) — no delta
+[CHANGED] crash-gs.roobet.com Socket.IO TLS upgrade open (no 4xx) then app-timeout; HUMAN_ONLY — no delta
+[CHANGED] fs.roobet.com GCS ?list-type=2 → fullstory.com redirect; no enumeration — no delta
+[CHANGED] roobet.com OAuth metadata endpoints return SPA shell (Remix catch-all), not JSON — no delta
 [PRIO] roobet.com/_api/graphql,9.25,attack_surface=10,business_value=9,tech_exposure=10,gate_ease=10,cloud_surface=5,freshness=9
 [PRIO] roobet.com/_api/admin/users,7.30,attack_surface=8,business_value=10,tech_exposure=7,gate_ease=3,cloud_surface=5,freshness=8
 [PRIO] roobet.com/_api/socket.io,6.85,attack_surface=7,business_value=6,tech_exposure=8,gate_ease=8,cloud_surface=5,freshness=7
@@ -21,7 +26,7 @@ testability: PASSIVE
 class: AUTH
 asset: roobet.com/_api/admin/users
 confidence: 55
-reasoning: _api/admin/users and _api/admin/stats return 401 (not 404) on low-gate surface bypassing Cloudflare bot-management. Auth mechanism is Express.js session cookies (connect.sid HttpOnly + userId non-HttpOnly + twofactorRequired) revealed via /_api/auth/logout. No role validation confirmed; standard user session may grant admin access if authorization checks are missing/weak. affiliate/get parameter tests confirm parameter parsing (401 not 404). 21 consecutive runs confirm 401 baseline stability.
+reasoning: _api/admin/users and _api/admin/stats return 401 (not 404) on low-gate surface bypassing Cloudflare bot-management. Auth mechanism is Express.js session cookies (connect.sid HttpOnly + userId non-HttpOnly + twofactorRequired) revealed via /_api/auth/logout. No role validation confirmed; standard user session may grant admin access if authorization checks are missing/weak. affiliate/get parameter tests confirm parameter parsing (401 not 404). 22 consecutive runs confirm 401 baseline stability.
 evidence_needed: 200 JSON from _api/admin/users or _api/admin/stats with valid user session cookie, or 200 without auth (auth bypass)
 verify_steps: GET https://roobet.com/_api/admin/users -H "Cookie: connect.sid=<valid_session>" (1 rps); GET https://roobet.com/_api/admin/stats -H "Cookie: connect.sid=<valid_session>"; unauthenticated GET to confirm 401 baseline. Read-only GET.
 impact: Admin user enumeration, stats disclosure, potential privilege escalation to admin functions (wallet/bonus/user management) → HIGH-CRITICAL if auth bypass or weak session validation
@@ -30,7 +35,7 @@ testability: AUTH_HELPED
 class: OTHER
 asset: roobet.com/_api/socket.io
 confidence: 70
-reasoning: Engine.io polling handshake (HTTP 200 `0{"sid":...,"upgrades":["websocket"]}`) with only Origin: https://roobet.com succeeds anonymously. Default namespace / CONNECT pushes live global new_bet feed, settingsUpdated broadcasts, and withdraw flags. GraphQL/admin/user/wallet namespaces return Invalid namespace. No auth required for connection or default namespace subscription. Origin-gated (403 without Origin header). 21 runs confirm mechanistic stability.
+reasoning: Engine.io polling handshake (HTTP 200 `0{"sid":...,"upgrades":["websocket"]}`) with only Origin: https://roobet.com succeeds anonymously. Default namespace / CONNECT pushes live global new_bet feed, settingsUpdated broadcasts, and withdraw flags. GraphQL/admin/user/wallet namespaces return Invalid namespace. No auth required for connection or default namespace subscription. Origin-gated (403 without Origin header). 22 runs confirm mechanistic stability.
 evidence_needed: Confirmation that sensitive game-state events (bet amounts, user identifiers, win/loss data) are broadcast in default namespace; test if other namespaces accept anonymous connections with crafted payloads
 verify_steps: HTTP GET https://roobet.com/_api/socket.io/?EIO=3&transport=polling -H "Origin: https://roobet.com" → capture handshake sid → WebSocket upgrade to wss://roobet.com/_api/socket.io/?EIO=3&transport=websocket&sid=<sid> → send 40/ (connect default ns) → capture broadcast events for 30s. Read-only, 1 rps.
 impact: Real-time game integrity monitoring data leak (bet patterns, settings changes, withdraw flags) → LOW-MEDIUM standalone; could enable game-state analysis for advantage play if correlated with user identifiers
