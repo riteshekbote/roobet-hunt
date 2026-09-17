@@ -491,3 +491,5 @@
 - 2026-09-16 PARKED api.roobet.com Cloudflare bypass: Requires valid browser headers/session/turnstile to test
 - 2026-09-16 PARKED auth.roobet.com/account.roobet.com/admin.roobet.com: Subdomains unresponsive; no attack surface confirmed
 - 2026-09-16 PARKED crash-gs.roobet.com unauthenticated socket: Requires browser/WS tooling, HUMAN_ONLY
+- 2026-09-17 ACCEPTED OTHER @ roobet.com/_api/*: 20th consecutive run byte-stable — settings/get 200 @1765B (35 keys), admin/users 401 @12B, affiliate/get?user_id=1 401 @12B, socket.io no-Origin 403 @40B, graphql named-op GET 200 @141B NOT_AUTHENTICATED (resolver auth parity HTTP=WS re-confirmed); zero surface delta; passive probing fully exhausted.
+- 2026-09-17 ACCEPTED OTHER @ roobet.com/_api/settings/get: input reflection NEGATIVE re-confirmed (XFF/?sessionId/Referer/Cookie inert; ip=server egress, sessionId rotates, auth cookie=connect.sid) — no reflection/fixation vector.

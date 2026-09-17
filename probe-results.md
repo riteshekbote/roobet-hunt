@@ -706,3 +706,7 @@ https://roobet.com/_api/graphql?operationName=<realField>&query=query%20<realFie
 https://roobet.com/_api/admin/users -> HTTP 401
 https://roobet.com/_api/affiliate/get?user_id=<acct_B -> HTTP 401
 https://roobet.com/_api/graphql?operationName=<realField>&query=query%20<realField>%7B<realField>%7D -> HTTP 400
+
+## 2026-09-17 01:13:40 UTC
+https://roobet.com/_api/admin/users -> HTTP 401
+https://roobet.com/_api/affiliate/get?user_id=<acct_B -> HTTP 401

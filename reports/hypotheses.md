@@ -2233,3 +2233,9 @@
 
 ## RANKED HYPOTHESES 2026-09-16 22:47:17 UTC
 - [55] roobet.com/_api/admin/users: Admin Priv-esc via Non-Admin Session on /_api/admin/users (from art/lead_bigpickle.txt)
+
+## RANKED HYPOTHESES 2026-09-17 01:13:37 UTC
+- [55] roobet.com/_api/admin/users: Admin Priv-esc via Non-Admin Session on /_api/admin/users (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): HUMAN: High-value line A — with a normal-user connect.sid at ≤1rps, read-only: GET https://roobet.com/_api/admin/users (200 ⇒ CRITICAL cross-tenant dump; 401 ⇒ 
+- LEARN: ACCEPTED OTHER @ roobet.com/_api/*: 20th consecutive run byte-stable — settings/get 200 @1765B (35 keys), admin/users 401 @12B, affiliate/get?user_id=1 401 @12B
+- LEARN: ACCEPTED OTHER @ roobet.com/_api/settings/get: input reflection NEGATIVE re-confirmed (XFF/?sessionId/Referer/Cookie inert; ip=server egress, sessionId rotates,
