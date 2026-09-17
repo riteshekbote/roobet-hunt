@@ -22644,3 +22644,117 @@ verify_steps: HUMAN 2 sandbox accounts ≤1rps read-only GET.
 impact: HIGH cross-user affiliate disclosure if 200.
 testability: AUTH_HELPED
 ```
+===== ANALYST bigpickle 2026-09-17 16:37:27 UTC =====
+[0m
+> build · big-pickle
+[0m
+I'll start with a minimal read-only confirmation pass against the known low-gate surface (≤1 rps, GET only) to ground the delta step, matching the established 21-run baseline.
+[0m$ [0mprobe() {
+  label="$1"; url="$2"; shift 2
+  out=$(curl -s -o /tmp/opencode/probe.out -w '%{http_code}' --max-time 20 "$@" "$url")
+  size=$(wc -c < /tmp/opencode/probe.out)
+  printf '%s : HTTP %s @%sB\n' "$label" "$out" "$size"
+}
+probe root https://roobet.com/
+sleep 1.3
+probe settings https://roobet.com/_api/settings/get
+sleep 1.3
+probe admin/users https://roobet.com/_api/admin/users
+sleep 1.3
+probe affiliate 'https://roobet.com/_api/affiliate/get?user_id=1'
+sleep 1.3
+probe gql-nobody https://roobet.com/_api/graphql
+sleep 1.3
+probe gql-named 'https://roobet.com/_api/graphql?operationName=Control&query=%7B__typename%7D' -H 'x-apollo-operation-name: Control' -H 'Accept: application/json'
+sleep 1.3
+probe sockio-no-origin 'https://roobet.com/_api/socket.io/?EIO=4&transport=polling' -H 'User-Agent: Mozilla/5.0'
+sleep 1.3
+probe sockio-origin 'https://roobet.com/_api/socket.io/?EIO=4&transport=polling' -H 'Origin: https://roobet.com' -H 'User-Agent: Mozilla/5.0'
+root : HTTP 200 @17880B
+settings : HTTP 200 @1765B
+admin/users : HTTP 401 @12B
+affiliate : HTTP 401 @12B
+gql-nobody : HTTP 400 @406B
+gql-named : HTTP 400 @117B
+sockio-no-origin : HTTP 403 @40B
+sockio-origin : HTTP 200 @115B
+[0m
+Two deltas worth examining — `gql-named` returned 400@117B (was 200@32B in prior runs). Let me capture that body to see if the Apollo GET gate changed.
+[0m$ [0mcurl -s --max-time 20 -H 'x-apollo-operation-name: Control' -H 'Accept: application/json' 'https://roobet.com/_api/graphql?operationName=Control&query=%7B__typename%7D' | head -c 600
+printf '\n--- named-op variant 2 (header-only, query in body b64) ---\n'
+curl -s --max-time 20 -H 'x-apollo-operation-name: Control' -H 'Content-Type: application/json' -d '{"operationName":"Control","query":"{__typename}"}' 'https://roobet.com/_api/graphql' | head -c 600
+printf '\n--- no-header GET body ---\n'
+curl -s --max-time 20 'https://roobet.com/_api/graphql?operationName=Control&query=%7B__typename%7D' | head -c 600
+{"errors":[{"message":"Unknown operation named \"Control\".","extensions":{"code":"OPERATION_RESOLUTION_FAILURE"}}]}
+
+--- named-op variant 2 (header-only, query in body b64) ---
+{"errors":[{"message":"Unknown operation named \"Control\".","extensions":{"code":"OPERATION_RESOLUTION_FAILURE"}}]}
+
+--- no-header GET body ---
+{"errors":[{"message":"This operation has been blocked as a potential Cross-Site Request Forgery (CSRF). Please either specify a 'content-type' header (with a type that is not one of application/x-www-form-urlencoded, multipart/form-data, text/plain) or provide a non-empty value for one of the following headers: x-apollo-operation-name, apollo-require-preflight\n","extensions":{"code":"BAD_REQUEST"}}]}
+[0m
+The 400 is `OPERATION_RESOLUTION_FAILURE` — "Unknown operation named Control". My probe sent an anonymous doc with a mismatched operation name (artifact), not a gate change. The CSRF body confirms the gate is still live. Retesting with a properly-named operation:
+[0m$ [0mcurl -s --max-time 20 -H 'x-apollo-operation-name: Control' -H 'Accept: application/json' 'https://roobet.com/_api/graphql?operationName=Control&query=query%20Control%7B__typename%7D' | head -c 200
+printf '\n'
+{"data":{"__typename":"Query"}}
+[0m
+Probe confirmation complete. The "delta" was my own probe artifact (`OPERATION_RESOLUTION_FAILURE` from an anonymous doc + mismatched operationName); corrected named-op probe returns 200 `{"data":{"__typename":"Query"}}` — gate intact. All core routes match the 21-run baseline.
+
+---
+
+STEP 1 — DELTA
+- NO_DELTA core surface (22nd run byte-stable): `settings/get` 200@1765B (35-key band), `admin/users` 401@12B, `affiliate/get?user_id=1` 401@12B, `graphql` no-header GET 400@406B CSRF-body intact, `graphql` named-op GET 200@32B, `socket.io` Origin-gated 403@40B↔200@115B handshake, root 200 SPA.
+- REJECTED delta: first named-op probe returned 400@117B `OPERATION_RESOLUTION_FAILURE "Unknown operation named Control"` — anonymous doc + mismatched `operationName`, a probe construction artifact; corrected with named document ⇒ 200@32B.
+
+STEP 2 — PRIORITIZE
+- [PRIO] roobet.com/_api/graphql,5.9,dual-channel-graphql-resolver-execution
+- [PRIO] roobet.com/_api/admin/users,4.25,admin-authz-cross-tenant
+- [PRIO] roobet.com/_api/affiliate/get,3.35,affiliate-idor-param
+
+STEP 3 — HYPOTHESES
+[HYP] Pre-Auth GraphQL Resolver Execution — Read-Plane Hardening Regression (Canary for Further Hardening)
+class: OTHER
+asset: roobet.com/_api/graphql
+confidence: 90
+reasoning: Transport gate mechanically intact this run (named-op x-apollo-operation-name ⇒ 200@32B, omitted ⇒ 400@406B). 09-17 read-plane change (exchangeRates/viewerChecks/userPublicProfile HTTP GET: 200+NOT_AUTHENTICATED → 400+INTERNAL_SERVER_ERROR, null-deref on session.user) is the only surface break in 22 runs. 13/26 mutations execute pre-auth → ISE. Sole robot-side reportable line, already VALID 5.3.
+evidence_needed: WS read-plane channel value (NOT_AUTHENTICATED vs ISE) to confirm/cross-check HTTP-only hardening scope; remaining 13 mutations for resolver map completeness.
+verify_steps: PASSIVE — already verified; WS side needs graphql-transport-ws frames (HUMAN_ONLY).
+impact: Full pre-auth resolver execution map (54 ops) + architecture disclosure; PII-graph severity only if session compromise. Low standalone severity.
+testability: PASSIVE
+
+[HYP] Admin Priv-esc via Non-Admin Session on /_api/admin/users
+class: AUTH
+asset: roobet.com/_api/admin/users
+confidence: 55
+reasoning: 401@12B stable 22 runs on low-gate surface; Express session auth (connect.sid HttpOnly); sibling affiliate/get proves params parse pre-authz; 401 session-absent vs authz-denied indistinguishable anonymously.
+evidence_needed: HTTP 200 (or 403≠401) with a normal-user connect.sid.
+verify_steps: HUMAN sandboxed ≤1rps read-only GET with session cookie.
+impact: CRITICAL cross-tenant user/PII+financial dump if 200.
+testability: AUTH_HELPED
+
+[HYP] Affiliate Endpoint IDOR via user_id Param
+class: IDOR
+asset: roobet.com/_api/affiliate/get
+confidence: 45
+reasoning: ?user_id=1 / ?affiliate_code= both 401@12B (param parsing alive, 22 runs); authz vs session-validity indistinguishable anonymously.
+evidence_needed: Session A reads account B's affiliate/referral data via ?user_id=<acct_B>.
+verify_steps: HUMAN 2 sandbox accounts ≤1rps read-only GET.
+impact: HIGH cross-user affiliate/revenue disclosure if 200.
+testability: AUTH_HELPED
+
+STEP 4 — SELF-CRITIQUE
+- [PARKED] WS read-plane cross-divergence probe (graphql HTTP ISE vs WS NOT_AUTHENTICATED parity check): needs graphql-transport-ws frame tooling, HUMAN_ONLY, no passive path.
+- [PARKED] Subdomain/misc: api.roobet.com CF bypass (turnstile/browser-only), auth/account/admin subdomains (non-resolving), crash-gs socket (HUMAN_ONLY). Unchanged.
+- [FINAL] 1. GraphQL Pre-Auth Resolver Execution (90, PASSIVE) — sole reportable line, VALID 5.3.
+- [FINAL] 2. Admin Priv-esc via Non-Admin Session (55, AUTH_HELPED) — highest-value session-gated line.
+- [FINAL] 3. Affiliate IDOR via user_id (45, AUTH_HELPED) — second session-gated line.
+
+STEP 5 — NEXT ACTION
+[NEXT] HUMAN: With a normal-user connect.sid, ≤1rps read-only: GET https://roobet.com/_api/admin/users → 200 = CRITICAL cross-tenant dump (report immediately); 401 = close line, then same session GET https://roobet.com/_api/affiliate/get?user_id=<acct_B> → 200 with B's data = IDOR HIGH; 401 = baseline and program surface fully bounded.
+
+STEP 6 — LEARNING
+[LEARN] REJECTED OTHER @ roobet.com/_api/graphql first named-op probe: 400@117B `OPERATION_RESOLUTION_FAILURE Unknown operation named Control` = probe artifact (anonymous doc + mismatched operationName), not server change; corrected named-op GET 200@32B confirms gate intact.
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/*: 22nd consecutive run byte-stable — settings/get 200@1765B (35-key band), admin/users 401@12B, affiliate/get?user_id=1 401@12B, graphql 400@406B / named-op 200@32B, socket.io Origin-gated 403↔200; zero surface delta; passive probing fully exhausted.
+
+STEP 7 — RISK
+[RISK] roobet: 28 — Surface static 22 runs, server actively hardening (introspection off via HTTP, settings trimmed, error text suppressed, read-plane ISE), sole robot-side reportable line low-severity (resolver auth enforced), remaining high-value hypotheses (admin/affiliate) strictly session-gated; risk at steady-state floor for this program.

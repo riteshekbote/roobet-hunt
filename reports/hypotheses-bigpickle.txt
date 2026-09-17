@@ -1,185 +1,32 @@
-## 2026-09-17 11:56:16 UTC [target] (model bigpickle)
-[PARKED] Subdomain/misc hypotheses (api.roobet.com bypass, auth/account/admin subdomains, crash-gs socket): unchanged, non-resolving or HUMAN_ONLY, no passive path.
-[FINAL] Admin Priv-esc (55), Affiliate IDOR (45), GraphQL BOLA (50) — all AUTH_HELPED, no robot-side step possible; passive surface fully exhausted.
-[NEXT] HUMAN: High-value line A — with a normal-user connect.sid at ≤1rps, read-only: GET https://roobet.com/_api/admin/users (200 ⇒ CRITICAL cross-tenant dump; 401 ⇒ close line). Same session also re-tests https://roobet.com/_api/affiliate/get?user_id=<acct_B> for IDOR.
-[LEARN] ACCEPTED OTHER @ roobet.com/_api/*: 20th consecutive run byte-stable — settings/get 200 @1765B (35 keys), admin/users 401 @12B, affiliate/get?user_id=1 401 @12B, socket.io no-Origin 403 @40B, graphql named-op GET 200 @141B NOT_AUTHENTICATED (resolver auth parity HTTP=WS re-confirmed); zero surface delta; passive probing fully exhausted.
-[LEARN] ACCEPTED OTHER @ roobet.com/_api/settings/get: input reflection NEGATIVE re-confirmed (XFF/?sessionId/Referer/Cookie inert; ip=server egress, sessionId rotates, auth cookie=connect.sid) — no reflection/fixation vector.
-[RISK] roobet: 30 — Surface static 20+ runs, server hardening observed (settings trim 68→35, liveRTPUpdate msg suppressed, HTTP introspection disabled), sole reportable line is low-severity pre-auth GraphQL disclosure; remaining high-value hypotheses all session-gated and require AUTH_HELPED live testing.
-[HYP] No findings — zero candidate repos to audit
-class: OTHER
-asset: github.com/ROOBET
-confidence: 100
-reasoning: GitHub org ROOBET has 0 public repositories. No source code is exposed.
-impact: N/A
-verify_steps: curl -s "https://api.github.com/orgs/ROOBET" | jq '.public_repos' → 0
-[HYP] No Roobet GitHub org configured — zero candidate repos to audit
-class: OTHER
-asset: cands.txt / scope.yml
-confidence: 100
-reasoning: |
-impact: N/A — no source code to audit; finding documents absence of configured targets
-verify_steps: |
-[HYP] No source code available — reposcan null run
-class: OTHER
-asset: cands.txt / scope.yml
-confidence: 100
-reasoning: cands.txt contains "no org candidates"; scope.yml has github_orgs: none-configured; GitHub org ROOBET has 0 public repos. No source code exists to audit for secrets, hardcoded creds, or insecure patterns.
-impact: N/A
-verify_steps: |
-[HYP] No source code to audit — GitHub org ROOBET has zero public repos
-class: OTHER
-asset: github.com/ROOBET (org ID 46298934)
-confidence: 100
-reasoning: |
-impact: N/A — absence of exposed source reduces attack surface but prevents this scan vector
-[HYP] Admin Priv-esc via Non-Admin Session on /_api/admin/users
-class: AUTH
-asset: roobet.com/_api/admin/users
-confidence: 55
-reasoning: 401 "Unauthorized" @12B stable 21 runs on low-gate surface (not Cloudflare bot-gated); Express session auth (connect.sid HttpOnly, userId non-HttpOnly via /_api/auth/logout); sibling /_api/affiliate/get proves params parse pre-authz, so 401 = session-absent vs authz-denied indistinguishable anonymously.
-evidence_needed: 200 (or 403 != 401) when called with a normal-user connect.sid.
-verify_steps: HUMAN sandboxed ≤1rps, read-only: GET https://roobet.com/_api/admin/users with normal-user session cookie → 200 ⇒ cross-tenant user/PII+financial dump; 401 ⇒ baseline, line closed.
-impact: Cross-tenant user/PII+financial dump; CRITICAL if 200.
-testability: AUTH_HELPED
-[HYP] Affiliate Endpoint IDOR via user_id Param
-class: IDOR
-asset: roobet.com/_api/affiliate/get
-confidence: 45
-reasoning: ?user_id=1 and ?affiliate_code= both 401 @12B (param parsing alive, 21 runs); authorization vs session-validity indistinguishable anonymously; needs two sandbox accounts.
-evidence_needed: session A reads account B's affiliate/referral data via ?user_id=<acct_B>.
-verify_steps: HUMAN sandboxed ≤1rps, no mutation: session A → GET https://roobet.com/_api/affiliate/get?user_id=<acct_B> → 200 with B data ⇒ IDOR HIGH; 401 ⇒ baseline.
-impact: Cross-user affiliate revenue/referral disclosure; HIGH if 200.
-testability: AUTH_HELPED
-[HYP] Pre-Auth Resolver Pre-Execution → BOLA on Session-Gated GraphQL Mutations
-class: IDOR
-asset: roobet.com/_api/graphql
-confidence: 50
-reasoning: 13/26 mutations proven to execute resolver code pre-auth (400+INTERNAL_SERVER_ERROR, not NOT_AUTHENTICATED); a valid connect.sid runs the same resolvers authenticated; missing object-ownership check in the authenticated path = BOLA (placeBet/wagerLimitUpdate/sendTip on other-account identifiers).
-evidence_needed: authenticated op with account-B identifier under session A returns/mutates B's state.
-verify_steps: HUMAN, 2 sandbox accounts, ≤1rps: session A own-object baseline, then same op with account-B ids; any 200/cross-account data ⇒ BOLA (HIGH-CRITICAL); no state changes on live customer data.
-impact: Cross-account balance/wager/entity manipulation; CRITICAL if reachable.
-testability: AUTH_HELPED
-[HYP] Pre-auth GraphQL Mutation Resolver Execution with IDOR/BOLA Surface via HTTP Channel
-class: OTHER
-asset: roobet.com/_api/graphql
-confidence: 95
-reasoning: HTTP POST to /_api/graphql executes 13/26 mutation resolvers pre-auth (liveRTPUpdate, updateUserProfile, placeBet, claimBonus, forfeitCashableBonus, updateEmail, updatePassword, tpGameStartGame, rewardsVaultClaim, acknowledgedBalanceConversion, seonSessionUpdate, wagerLimitUpdate, sendTip) — all return 400 + INTERNAL_SERVER_ERROR (not 401/NOT_AUTHENTICATED). Apollo GET transport enabled (CSRF bypass via x-apollo-operation-name). Full introspection only on WS (graphql-transport-ws, 101+connection_ack, no socketToken). 26 mutations pass GraphQL validation anonymously, leaking InputType shapes/enums/custom scalars. User type exposes 64 fields incl. KYC PII, financial, auth tokens, role flags. Resolver auth enforced on data-plane (NOT_AUTHENTICATED on exchangeRates/viewerChecks/userPublicProfile/userSystemStatus). Mutation ISE payloads vary 95–587B across resolvers — per-resolver execution depth confirmed.
-evidence_needed: Differentiate error structures across mutations to rule out ID oracle; confirm no state-changing side effects occur pre-auth (read-only probes only); test remaining 13 untested mutations for homogeneous pre-auth execution pattern
-verify_steps: POST https://roobet.com/_api/graphql -H "Content-Type: application/json" -H "x-apollo-operation-name: rewardsVaultClaim" -d '{"query":"mutation { rewardsVaultClaim(input:{vaultId:\"test\"}) }"}' → capture error structure; repeat for sendTip, acknowledgedBalanceConversion. Single request each, read-only, 1 rps.
-impact: Pre-auth mutation resolver execution on HTTP channel maps attack surface for session-assisted IDOR/BOLA/privilege escalation. Severity: MEDIUM (pre-auth schema + resolver reachability) — capped by resolver auth on data-plane. No anonymous ID oracle confirmed.
-testability: PASSIVE
-[HYP] Admin API Privilege Escalation via Low-Gate _api/admin/* Routes
-class: AUTH
-asset: roobet.com/_api/admin/users
-confidence: 55
-reasoning: _api/admin/users and _api/admin/stats return 401 (not 404) on low-gate surface bypassing Cloudflare bot-management. Auth mechanism is Express.js session cookies (connect.sid HttpOnly + userId non-HttpOnly + twofactorRequired) revealed via /_api/auth/logout. No role validation confirmed; standard user session may grant admin access if authorization checks are missing/weak. affiliate/get parameter tests confirm parameter parsing (401 not 404). 20 consecutive runs confirm 401 baseline stability.
-evidence_needed: 200 JSON from _api/admin/users or _api/admin/stats with valid user session cookie, or 200 without auth (auth bypass)
-verify_steps: GET https://roobet.com/_api/admin/users -H "Cookie: connect.sid=<valid_session>" (1 rps); GET https://roobet.com/_api/admin/stats -H "Cookie: connect.sid=<valid_session>"; unauthenticated GET to confirm 401 baseline. Read-only GET.
-impact: Admin user enumeration, stats disclosure, potential privilege escalation to admin functions (wallet/bonus/user management) → HIGH-CRITICAL if auth bypass or weak session validation
-testability: AUTH_HELPED
-[HYP] Unauthenticated Realtime Game State Exposure via _api/socket.io Default Namespace
-class: OTHER
-asset: roobet.com/_api/socket.io
-confidence: 70
-reasoning: Engine.io polling handshake (HTTP 200 `0{"sid":...,"upgrades":["websocket"]}`) with only Origin: https://roobet.com succeeds anonymously. Default namespace / CONNECT pushes live global new_bet feed, settingsUpdated broadcasts, and withdraw flags. GraphQL/admin/user/wallet namespaces return Invalid namespace. No auth required for connection or default namespace subscription. Origin-gated (403 without Origin header). 20 runs confirm mechanistic stability.
-evidence_needed: Confirmation that sensitive game-state events (bet amounts, user identifiers, win/loss data) are broadcast in default namespace; test if other namespaces accept anonymous connections with crafted payloads
-verify_steps: HTTP GET https://roobet.com/_api/socket.io/?EIO=3&transport=polling -H "Origin: https://roobet.com" → capture handshake sid → WebSocket upgrade to wss://roobet.com/_api/socket.io/?EIO=3&transport=websocket&sid=<sid> → send 40/ (connect default ns) → capture broadcast events for 30s. Read-only, 1 rps.
-impact: Real-time game integrity monitoring data leak (bet patterns, settings changes, withdraw flags) → LOW-MEDIUM standalone; could enable game-state analysis for advantage play if correlated with user identifiers
-testability: HUMAN_ONLY
-[PARKED] Admin API Privilege Escalation via Low-Gate _api/admin/* Routes: requires valid session cookie (AUTH_HELPED) — no passive path to verify auth bypass; engagement rules prohibit session theft or auth-bypass on live data
-[PARKED] Unauthenticated Realtime Game State Exposure via _api/socket.io: requires WebSocket tooling for full broadcast capture (HUMAN_ONLY per engagement rules) — passive HTTP handshake confirmed but WS frame analysis needs browser/WS client
-[FINAL] 1. roobet.com/_api/graphql: Pre-auth GraphQL Mutation Resolver Execution with IDOR/BOLA Surface via HTTP Channel (95, PASSIVE)
-[FINAL] 2. roobet.com/_api/admin/users: Admin Privilege Escalation via Low-Gate _api/admin/* Routes (55, AUTH_HELPED)
-[FINAL] 3. roobet.com/_api/socket.io: Unauthenticated Realtime Game State Exposure via _api/socket.io Default Namespace (70, HUMAN_ONLY)
-[NEXT] PROBE: POST https://roobet.com/_api/graphql -H "Content-Type: application/json" -H "x-apollo-operation-name: rewardsVaultClaim" -d '{"query":"mutation { rewardsVaultClaim(input:{vaultId:\"test\"}) }"}' → capture error structure; test if rewards mutations execute pre-auth with distinguishable error patterns. Single connection, read-only, 1 rps.
-[LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql: Zero delta across runs; dual-channel pre-auth GraphQL disclosure remains sole reportable line; resolver-level NOT_AUTHENTICATED caps severity
-[LEARN] ACCEPTED OTHER @ roobet.com/_api/*: Surface static (6 HTTP + 2 WS); config dump stable (35 keys), liveRTPUpdate error message patched (400+3×INTERNAL_SERVER_ERROR); remaining high-value lines session-gated
-[LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql HTTP POST: 13/26 tested mutations execute pre-auth → INTERNAL_SERVER_ERROR (not 401/NOT_AUTHENTICATED)
-[LEARN] ACCEPTED OTHER @ roobet.com/_api/settings/get: response stable at 35 keys (down from 68); globalStats.allTimeNumBets ~15.3B; restrictedCountries 35 entries
-[LEARN] ACCEPTED OTHER @ roobet.com/_api/admin/users: base path consistently returns 401 (prior 404s were probe URL artifacts)
-[LEARN] ACCEPTED OTHER @ roobet.com/_api/affiliate/get: parameter tests ?user_id/affiliate_code return 401 not 404 — confirms parameter parsing on low-gate surface
-[LEARN] ACCEPTED OTHER @ roobet.com/_api/socket.io: polling transport Origin-gated — 403 disallowed origin without Origin: https://roobet.com, 200 with it
-[LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql GET: CSRF preflight confirmed via error body — requires non-form content-type or x-apollo-operation-name/apollo-require-preflight
-[LEARN] REJECTED OTHER @ roobet.com/_api/*: 6 new family candidates (admin/affiliates, admin/games, admin/config, affiliate/stats, auth/me, auth/session) all 404 SPA shell — route families bounded
-[LEARN] REJECTED MISCONFIG @ roobet.com: OAuth metadata endpoints return SPA shell (catch-all route), not JSON configuration
-[LEARN] REJECTED MISCONFIG @ fs.roobet.com: GCS bucket ?list-type=2 redirects to fullstory.com; no object enumeration possible
-[LEARN] REJECTED OTHER @ api.roobet.com: GraphQL endpoint blocked by Cloudflare bot management (403) without valid Origin/Referer/browser session
-[LEARN] ACCEPTED MISCONFIG @ roobet.com: Remix catch-all route masks potential API endpoints under /api/* paths
-[LEARN] PARKED api.roobet.com Cloudflare bypass: Requires valid browser headers/session/turnstile to test
-[LEARN] PARKED auth.roobet.com/account.roobet.com/admin.roobet.com: Subdomains unresponsive; no attack surface confirmed
-[LEARN] PARKED crash-gs.roobet.com unauthenticated socket: Requires browser/WS tooling, HUMAN_ONLY
-[RISK] roobet: 78 — Main API (api.roobet.com) and auth/account/admin subdomains remain gated or unresponsive. Critical delta: roobet.com/_api/graphql exposes anonymous GraphQL WS transport + full schema introspection (28Q/26M/7S) + mutation validation error disclosure (InputType schemas) + subscription internal errors + User type with 64 PII/financial/token fields — all bypassing Cloudflare entirely. HTTP channel confirmed live with Apollo GET transport (CSRF bypass via x-apollo-operation-name) and mutation resolver execution pre-auth (13/26 tested mutations → INTERNAL_SERVER_ERROR, resolver reaches internal logic). _api/socket.io exposes anonymous realtime feed (Origin-gated). Admin/affiliate endpoints on same low-gate surface = elevated IDOR/privilege escalation risk. Auth = Express.js session cookies; no bypass without valid session. No confirmed reportable vuln yet; mutation attack surface fully mapped for session-assisted testing. Engagement rules (≤1 rps, read-only, no auth-bypass on live data) respected.
-[CHANGED] roobet.com/_api/graphql HTTP GET read-plane: exchangeRates/viewerChecks/userPublicProfile now return 400+INTERNAL_SERVER_ERROR (was 200+NOT_AUTHENTICATED) — server hardened; resolvers crash (null dereference on session.user) instead of returning structured auth error. Control __typename still 200@32B. Mutations unchanged (400+ISE).
-[CHANGED] roobet.com/_api/settings/get: allTimeNumBets ~15.45B (15446376925) — up from ~15.398B (09-13); 35 keys, 1766B, byte-stable delta.
-[PRIO] roobet.com/_api/graphql, 7.8, attack_surface:9 business_value:8 tech_exposure:9 gate_ease:3 cloud_surface:4 freshness:8
-[PRIO] roobet.com/_api/admin/users, 5.5, attack_surface:5 business_value:9 tech_exposure:4 gate_ease:2 cloud_surface:2 freshness:4
-[PRIO] roobet.com/_api/affiliate/get, 5.0, attack_surface:4 business_value:7 tech_exposure:3 gate_ease:2 cloud_surface:2 freshness:4
-[HYP] Pre-Auth GraphQL Resolver Execution — Read-Plane Hardening Regression Creates Enhanced Disclosure Vector
+## 2026-09-17 16:37:16 UTC [target] (model bigpickle)
+[HYP] Pre-Auth GraphQL Resolver Execution — Read-Plane Hardening Regression (Canary for Further Hardening)
 class: OTHER
 asset: roobet.com/_api/graphql
 confidence: 90
-reasoning: exchangeRates/viewerChecks/userPublicProfile previously returned 200+NOT_AUTHENTICATED (structured auth gate) on HTTP GET; now return 400+INTERNAL_SERVER_ERROR (unhandled null dereference on session.user). Server hardened mutation error messages (liveRTPUpdate msg suppressed 09-08) but introduced inconsistent resolver crash on read-plane HTTP GET. Control __typename query still returns 200@32B confirming Apollo GET transport live. Named-op CSRF bypass via x-apollo-operation-name header still operational. All 13/26 tested mutations unchanged (400+ISE). 21 runs of zero surface delta confirmed broken by this hardening change.
-evidence_needed: Confirm WS channel still returns NOT_AUTHENTICATED (not ISE) for same resolvers — would prove HTTP-only hardening gap; test remaining 13 untested mutations for same ISE pattern.
-verify_steps: (HUMAN/WS required for WS channel test) — passive HTTP: GET exchangeRates with x-apollo-operation-name header → 400+ISE confirmed. Already verified this run.
-impact: Server regression introduces unhandled null-reference error path on HTTP read-plane; resolver execution confirmed pre-auth; architectural disclosure (null session.user access pattern) enhances attacker knowledge of auth implementation. Low standalone severity (no data leak), but combined with mutation ISE pattern provides complete pre-auth resolver execution map across all 54 operations.
+reasoning: Transport gate mechanically intact this run (named-op x-apollo-operation-name ⇒ 200@32B, omitted ⇒ 400@406B). 09-17 read-plane change (exchangeRates/viewerChecks/userPublicProfile HTTP GET: 200+NOT_AUTHENTICATED → 400+INTERNAL_SERVER_ERROR, null-deref on session.user) is the only surface break in 22 runs. 13/26 mutations execute pre-auth → ISE. Sole robot-side reportable line, already VALID 5.3.
+evidence_needed: WS read-plane channel value (NOT_AUTHENTICATED vs ISE) to confirm/cross-check HTTP-only hardening scope; remaining 13 mutations for resolver map completeness.
+verify_steps: PASSIVE — already verified; WS side needs graphql-transport-ws frames (HUMAN_ONLY).
+impact: Full pre-auth resolver execution map (54 ops) + architecture disclosure; PII-graph severity only if session compromise. Low standalone severity.
 testability: PASSIVE
 [HYP] Admin Priv-esc via Non-Admin Session on /_api/admin/users
 class: AUTH
 asset: roobet.com/_api/admin/users
 confidence: 55
-reasoning: 401 "Unauthorized" @12B stable 22 runs on low-gate surface (not Cloudflare bot-gated); Express session auth (connect.sid HttpOnly, userId non-HttpOnly via /_api/auth/logout); sibling /_api/affiliate/get proves params parse pre-authz, so 401 = session-absent vs authz-denied indistinguishable anonymously.
-evidence_needed: 200 (or 403 != 401) when called with a normal-user connect.sid.
-verify_steps: HUMAN sandboxed ≤1rps, read-only: GET https://roobet.com/_api/admin/users with normal-user session cookie → 200 ⇒ cross-tenant user/PII+financial dump; 401 ⇒ baseline, line closed.
-impact: Cross-tenant user/PII+financial dump; CRITICAL if 200.
-testability: AUTH_HELPED
-[HYP] Affiliate Endpoint IDOR via user_id Param
-class: IDOR
-asset: roobet.com/_api/affiliate/get
-confidence: 45
-reasoning: ?user_id=1 and ?affiliate_code= both 401 @12B (param parsing alive, 22 runs); authorization vs session-validity indistinguishable anonymously; needs two sandbox accounts.
-evidence_needed: session A reads account B's affiliate/referral data via ?user_id=<acct_B>.
-verify_steps: HUMAN sandboxed ≤1rps, no mutation: session A → GET https://roobet.com/_api/affiliate/get?user_id=<acct_B> → 200 with B data ⇒ IDOR HIGH; 401 ⇒ baseline.
-impact: Cross-user affiliate revenue/referral disclosure; HIGH if 200.
-testability: AUTH_HELPED
-[FINAL] 1. roobet.com/_api/graphql: Pre-Auth Resolver Execution — Read-Plane Hardening Regression (90, PASSIVE) — server behavioral change confirmed this run; all evidence traceable to own probes; severity capped by no anonymous data leak.
-[FINAL] 2. roobet.com/_api/admin/users: Admin Priv-esc via Non-Admin Session (55, AUTH_HELPED) — requires live session to test; 22-run baseline stable.
-[FINAL] 3. roobet.com/_api/affiliate/get: Affiliate IDOR via user_id (45, AUTH_HELPED) — requires 2 sandbox accounts; 22-run baseline stable.
-[PARKED] Subdomain/misc hypotheses (api.roobet.com bypass, auth/account/admin subdomains, crash-gs socket): unchanged, non-resolving or HUMAN_ONLY, no passive path.
-[NEXT] HUMAN: With a normal-user connect.sid at ≤1rps, read-only: (1) GET https://roobet.com/_api/admin/users → 200 = CRITICAL cross-tenant dump; 401 = close line. (2) Same session: GET https://roobet.com/_api/affiliate/get?user_id=<acct_B> → 200 with B data = IDOR HIGH; 401 = baseline. These two lines exhaust the high-value AUTH_HELPED surface. If both 401: the program's entire passive+session-gated surface has been bounded and no reportable vulnerability exists without admin credentials.
-[LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql HTTP GET read-plane: exchangeRates/viewerChecks/userPublicProfile now return 400+INTERNAL_SERVER_ERROR (was 200+NOT_AUTHENTICATED) — server hardened; resolvers crash with null dereference instead of structured auth error; HTTP-only change (WS channel unverified, HUMAN_ONLY). Severity unchanged.
-[LEARN] ACCEPTED OTHER @ roobet.com/_api/*: 21st consecutive run byte-stable on core routes; settings/get 200@1766B (35 keys, allTimeNumBets ~15.45B), admin/users 401@12B, affiliate/get?user_id=1 401@12B, socket.io Origin-gated, graphql named-op GET 200@32B. 14 new route candidates all 404.
-[LEARN] ACCEPTED OTHER @ roobet.com/_api/settings/get: allTimeNumBets grew from ~15.398B to ~15.446B (normal ~48M growth over 4 days); config surface otherwise byte-stable.
-[LEARN] ACCEPTED MISCONFIG @ roobet.com: Server actively hardening — liveRTPUpdate msg suppressed (09-08), HTTP introspection disabled (09-06), settings/get trimmed 68→35 (09-08), read-plane resolvers now ISE instead of NOT_AUTHENTICATED (this run). Hardening trend reduces exploitable surface.
-[RISK] roobet: 28 — Surface static 21+ runs; sole robot-side reportable line (pre-auth GraphQL disclosure) now with enhanced disclosure vector (read-plane ISE regression) but severity capped low by resolver auth enforcement; remaining high-value hypotheses (admin/IDOR/BOLA) all require AUTH_HELPED live testing; server actively hardening.
-[NEXT] HUMAN: High-value line A — with a normal-user connect.sid at ≤1rps, read-only: GET https://roobet.com/_api/admin/users (200 ⇒ CRITICAL cross-tenant dump; 401 ⇒ close line). Same session also re-tests https://roobet.com/_api/affiliate/get?user_id=<acct_B> for IDOR.
-[FINAL] Admin Priv-esc (55), Affiliate IDOR (45), GraphQL BOLA (50) — all AUTH_HELPED, no robot-side step possible; passive surface fully exhausted.
-[LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql HTTP GET read-plane: exchangeRates/viewerChecks/userPublicProfile now return 400+INTERNAL_SERVER_ERROR (was 200+NOT_AUTHENTICATED) — server hardened; resolvers crash null-deref instead of structured auth error; HTTP-only change.
-[LEARN] ACCEPTED OTHER @ roobet.com/_api/*: 21st consecutive run byte-stable core; settings/get 200@1766B (35 keys, allTimeNumBets ~15.45B), 14 new route candidates all 404; passive probing fully exhausted.
-[RISK] roobet: 28 — Surface static 21+ runs, server actively hardening, sole reportable line low-severity pre-auth GraphQL disclosure; remaining hypotheses session-gated.
-[HYP] Pre-Auth GraphQL Resolver Execution — Read-Plane Hardening Regression Creates Enhanced Disclosure Vector
-class: OTHER
-asset: roobet.com/_api/graphql
-confidence: 90
-reasoning: read-plane exchangeRates/viewerChecks/userPublicProfile changed 200+NOT_AUTHENTICATED → 400+INTERNAL_SERVER_ERROR on HTTP GET; server crashed null deref on session.user; mutations unchanged; control __typename 200@32B; CSRF gate operational; 21-run surface delta broken by hardening.
-evidence_needed: Confirm WS channel still NOT_AUTHENTICATED; test remaining 13 mutations.
-verify_steps: Already verified passively this run.
-impact: Architectural disclosure enhanced; pre-auth resolver map complete for all 54 operations; low standalone severity.
-testability: PASSIVE
-[HYP] Admin Priv-esc via Non-Admin Session on /_api/admin/users
-class: AUTH
-asset: roobet.com/_api/admin/users
-confidence: 55
-reasoning: 401@12B stable 22 runs on low-gate surface; Express session auth; 401 session-absent vs authz-denied indistinguishable anonymously.
-evidence_needed: 200 with normal-user connect.sid.
+reasoning: 401@12B stable 22 runs on low-gate surface; Express session auth (connect.sid HttpOnly); sibling affiliate/get proves params parse pre-authz; 401 session-absent vs authz-denied indistinguishable anonymously.
+evidence_needed: HTTP 200 (or 403≠401) with a normal-user connect.sid.
 verify_steps: HUMAN sandboxed ≤1rps read-only GET with session cookie.
-impact: CRITICAL cross-tenant dump if 200.
+impact: CRITICAL cross-tenant user/PII+financial dump if 200.
 testability: AUTH_HELPED
 [HYP] Affiliate Endpoint IDOR via user_id Param
 class: IDOR
 asset: roobet.com/_api/affiliate/get
 confidence: 45
-reasoning: ?user_id=1 401@12B param parsing alive 22 runs; authz vs session-validity indistinguishable.
-evidence_needed: Session A reads B's affiliate data via ?user_id=<acct_B>.
+reasoning: ?user_id=1 / ?affiliate_code= both 401@12B (param parsing alive, 22 runs); authz vs session-validity indistinguishable anonymously.
+evidence_needed: Session A reads account B's affiliate/referral data via ?user_id=<acct_B>.
 verify_steps: HUMAN 2 sandbox accounts ≤1rps read-only GET.
-impact: HIGH cross-user affiliate disclosure if 200.
+impact: HIGH cross-user affiliate/revenue disclosure if 200.
 testability: AUTH_HELPED
+[NEXT] HUMAN: With a normal-user connect.sid, ≤1rps read-only: GET https://roobet.com/_api/admin/users → 200 = CRITICAL cross-tenant dump (report immediately); 401 = close line, then same session GET https://roobet.com/_api/affiliate/get?user_id=<acct_B> → 200 with B's data = IDOR HIGH; 401 = baseline and program surface fully bounded.
+[LEARN] REJECTED OTHER @ roobet.com/_api/graphql first named-op probe: 400@117B `OPERATION_RESOLUTION_FAILURE Unknown operation named Control` = probe artifact (anonymous doc + mismatched operationName), not server change; corrected named-op GET 200@32B confirms gate intact.
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/*: 22nd consecutive run byte-stable — settings/get 200@1765B (35-key band), admin/users 401@12B, affiliate/get?user_id=1 401@12B, graphql 400@406B / named-op 200@32B, socket.io Origin-gated 403↔200; zero surface delta; passive probing fully exhausted.
+[RISK] roobet: 28 — Surface static 22 runs, server actively hardening (introspection off via HTTP, settings trimmed, error text suppressed, read-plane ISE), sole robot-side reportable line low-severity (resolver auth enforced), remaining high-value hypotheses (admin/affiliate) strictly session-gated; risk at steady-state floor for this program.

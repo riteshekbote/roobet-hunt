@@ -899,3 +899,9 @@ www.roobet.com
 ## 2026-09-17 11:56:28 UTC
 - CHANGED roobet.com/_api/graphql HTTP GET read-plane: exchangeRates/viewerChecks/userPublicProfile now return 400+INTERNAL_SERVER_ERROR (was 200+NOT_AUTHENTICATED) — server hardened; resolvers crash (null dere
 - CHANGED roobet.com/_api/settings/get: allTimeNumBets ~15.45B (15446376925) — up from ~15.398B (09-13); 35 keys, 1766B, byte-stable delta.
+
+## 2026-09-17 16:37:27 UTC
+- CHANGED roobet.com/_api/graphql HTTP GET read-plane: exchangeRates/viewerChecks/userPublicProfile now return 400+INTERNAL_SERVER_ERROR (was 200+NOT_AUTHENTICATED) — server hardened; resolvers crash null-deref
+- CHANGED roobet.com/_api/settings/get: allTimeNumBets ~15.45B (15446376925) — up from ~15.398B (09-13); 35 keys, 1766B, byte-stable delta
+- CHANGED roobet.com/_api/*: 21st consecutive run byte-stable core; settings/get 200@1766B (35 keys), 14 new route candidates all 404; passive probing fully exhausted
+- CHANGED Server actively hardening trend confirmed: liveRTPUpdate msg suppressed (09-08), HTTP introspection disabled (09-06), settings/get trimmed 68→35 (09-08), read-plane resolvers now ISE instead of NOT_AU
