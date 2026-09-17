@@ -22839,3 +22839,19 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 [RISK] roobet: 28 — Surface static 23 runs, server actively hardening (read-plane resolvers now ISE, error text suppressed, config trimmed), sole reportable line low-severity pre-auth GraphQL disclosure already VALID 5.3, all high-value hypotheses strictly session-gated; risk at steady-state floor.
+===== ANALYST bigpickle 2026-09-17 22:45:52 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mfor u in "https://roobet.com/_api/settings/get" "https://roobet.com/_api/admin/users" "https://roobet.com/_api/affiliate/get?user_id=1"; do code=$(curl -s -o /tmp/r.txt -w "%{http_code}" -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" --max-time 15 "$u"); sz=$(wc -c < /tmp/r.txt); echo "$code $sz $u"; sleep 1; done
+200 1764 https://roobet.com/_api/settings/get
+401 12 https://roobet.com/_api/admin/users
+401 12 https://roobet.com/_api/affiliate/get?user_id=1
+[0m
+[0m$ [0mcode=$(curl -s -o /tmp/r2.txt -w "%{http_code}" -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" -H "x-apollo-operation-name: exchangeRates" --max-time 15 "https://roobet.com/_api/graphql?query=%7BexchangeRates%7B%7D%7D"); sz=$(wc -c < /tmp/r2.txt); echo "named-op GET: $code @$sz"; sleep 1; code2=$(curl -s -o /tmp/r3.txt -w "%{http_code}" -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" --max-time 15 "https://roobet.com/_api/socket.io/"); sz2=$(wc -c < /tmp/r3.txt); echo "socket.io no-Origin: $code2 @$sz2"
+named-op GET: 500 @188
+socket.io no-Origin: 400 @40
+[0m
+[93m[1m! [0mpermission requested: external_directory (/tmp/*); auto-rejecting
+[0m✗ [0mcat /tmp/r2.txt; echo "---"; code=$(curl -s -o /tmp/r4.txt -w "%{http_code}" -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" -H "x-apollo-operation-name: __typename" --max-time 15 "https://roobet.com/_api/graphql?query=%7B__typename%7D"); sz=$(wc -c < /tmp/r4.txt); echo "typename probe: $code @$sz"; cat /tmp/r4.txt failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.
