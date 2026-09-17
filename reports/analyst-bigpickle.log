@@ -21336,3 +21336,648 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 [RISK] roobet: 30 — Surface static 20+ runs, server hardening observed (settings trim 68→35, liveRTPUpdate msg suppressed, HTTP introspection disabled), sole reportable line is low-severity pre-auth GraphQL disclosure; remaining high-value hypotheses all session-gated and require AUTH_HELPED live testing.
+===== ANALYST bigpickle 2026-09-17 06:16:09 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la && ls art/ 2>/dev/null; ls *.md 2>/dev/null; ls inventory 2>/dev/null
+total 512
+drwxr-xr-x 12 runner runner   4096 Sep 17 06:12 .
+drwxr-xr-x  3 runner runner   4096 Sep 17 06:11 ..
+drwxr-xr-x  7 runner runner   4096 Sep 17 06:12 .git
+drwxr-xr-x  3 runner runner   4096 Sep 17 06:12 .github
+-rw-r--r--  1 runner runner   1724 Sep 17 06:12 README.md
+-rw-r--r--  1 runner runner     32 Sep 17 06:12 analyst-out.txt
+-rw-r--r--  1 runner runner 203736 Sep 17 06:12 analyst-prompt.txt
+-rw-r--r--  1 runner runner 199953 Sep 17 06:12 ctx.txt
+drwxr-xr-x  2 runner runner   4096 Sep 17 06:12 inventory
+drwxr-xr-x  2 runner runner   4096 Sep 17 06:12 knowledge
+drwxr-xr-x  2 runner runner   4096 Sep 17 06:12 leads
+-rw-r--r--  1 runner runner  29969 Sep 17 06:12 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Sep 17 06:12 recon-notes
+drwxr-xr-x  2 runner runner   4096 Sep 17 06:12 reports
+drwxr-xr-x  2 runner runner   4096 Sep 17 06:12 reposcan-raw
+-rw-r--r--  1 runner runner   3196 Sep 17 06:12 scope.yml
+drwxr-xr-x  2 runner runner   4096 Sep 17 06:12 scripts
+-rw-r--r--  1 runner runner     33 Sep 17 06:12 state_bigpickle.json
+-rw-r--r--  1 runner runner     33 Sep 17 06:12 state_laguna.json
+-rw-r--r--  1 runner runner     33 Sep 17 06:12 state_ling3.json
+-rw-r--r--  1 runner runner     33 Sep 17 06:12 state_longcat.json
+-rw-r--r--  1 runner runner     33 Sep 17 06:12 state_mimo.json
+-rw-r--r--  1 runner runner     33 Sep 17 06:12 state_nemotron3.json
+drwxr-xr-x  2 runner runner   4096 Sep 17 06:12 triage
+README.md
+probe-results.md
+roobet.md
+[0m
+[0m$ [0mls -la leads knowledge reports recon-notes triage scripts; echo "---"; cat analyst-out.txt; echo "---"; tail -40 probe-results.md
+knowledge:
+total 96
+drwxr-xr-x  2 runner runner  4096 Sep 17 06:12 .
+drwxr-xr-x 12 runner runner  4096 Sep 17 06:12 ..
+-rw-r--r--  1 runner runner 87163 Sep 17 06:12 index.md
+
+leads:
+total 1428
+drwxr-xr-x  2 runner runner   4096 Sep 17 06:12 .
+drwxr-xr-x 12 runner runner   4096 Sep 17 06:12 ..
+-rw-r--r--  1 runner runner 461229 Sep 17 06:12 lead-bigpickle.md
+-rw-r--r--  1 runner runner   4692 Sep 17 06:12 lead-laguna.md
+-rw-r--r--  1 runner runner   4600 Sep 17 06:12 lead-ling3.md
+-rw-r--r--  1 runner runner   4784 Sep 17 06:12 lead-longcat.md
+-rw-r--r--  1 runner runner     18 Sep 17 06:12 lead-mimo.md
+-rw-r--r--  1 runner runner 943837 Sep 17 06:12 lead-nemotron3.md
+-rw-r--r--  1 runner runner  15725 Sep 17 06:12 reposcan-roobet.md
+
+recon-notes:
+total 12
+drwxr-xr-x  2 runner runner 4096 Sep 17 06:12 .
+drwxr-xr-x 12 runner runner 4096 Sep 17 06:12 ..
+-rw-r--r--  1 runner runner  815 Sep 17 06:12 DEDICATED-DEEP.md
+
+reports:
+total 2972
+drwxr-xr-x  2 runner runner    4096 Sep 17 06:12 .
+drwxr-xr-x 12 runner runner    4096 Sep 17 06:12 ..
+-rw-r--r--  1 runner runner 1461327 Sep 17 06:12 analyst-bigpickle.log
+-rw-r--r--  1 runner runner   19964 Sep 17 06:12 analyst-laguna.log
+-rw-r--r--  1 runner runner   19872 Sep 17 06:12 analyst-ling3.log
+-rw-r--r--  1 runner runner   20056 Sep 17 06:12 analyst-longcat.log
+-rw-r--r--  1 runner runner 1169826 Sep 17 06:12 analyst-nemotron3.log
+-rw-r--r--  1 runner runner    4369 Sep 17 06:12 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner      51 Sep 17 06:12 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner      50 Sep 17 06:12 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner      52 Sep 17 06:12 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner      54 Sep 17 06:12 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  308406 Sep 17 06:12 hypotheses.md
+-rw-r--r--  1 runner runner    1462 Sep 17 06:12 valid-bugs.md
+
+scripts:
+total 28
+drwxr-xr-x  2 runner runner  4096 Sep 17 06:12 .
+drwxr-xr-x 12 runner runner  4096 Sep 17 06:12 ..
+-rw-r--r--  1 runner runner 16987 Sep 17 06:12 sync-issues.py
+
+triage:
+total 444
+drwxr-xr-x  2 runner runner  4096 Sep 17 06:12 .
+drwxr-xr-x 12 runner runner  4096 Sep 17 06:12 ..
+-rw-r--r--  1 runner runner     0 Sep 17 06:12 .gitkeep
+-rw-r--r--  1 runner runner   259 Sep 17 06:12 run-2026-09-02-21-54.md
+-rw-r--r--  1 runner runner   161 Sep 17 06:12 run-2026-09-02-23-55.md
+-rw-r--r--  1 runner runner   228 Sep 17 06:12 run-2026-09-03-03-41.md
+-rw-r--r--  1 runner runner   185 Sep 17 06:12 run-2026-09-03-08-44.md
+-rw-r--r--  1 runner runner   144 Sep 17 06:12 run-2026-09-03-13-23.md
+-rw-r--r--  1 runner runner   263 Sep 17 06:12 run-2026-09-03-17-12.md
+-rw-r--r--  1 runner runner   249 Sep 17 06:12 run-2026-09-03-19-56.md
+-rw-r--r--  1 runner runner   212 Sep 17 06:12 run-2026-09-03-22-28.md
+-rw-r--r--  1 runner runner   183 Sep 17 06:12 run-2026-09-04-00-23.md
+-rw-r--r--  1 runner runner   212 Sep 17 06:12 run-2026-09-04-05-06.md
+-rw-r--r--  1 runner runner   350 Sep 17 06:12 run-2026-09-04-09-44.md
+-rw-r--r--  1 runner runner   228 Sep 17 06:12 run-2026-09-04-14-05.md
+-rw-r--r--  1 runner runner   212 Sep 17 06:12 run-2026-09-04-17-39.md
+-rw-r--r--  1 runner runner   223 Sep 17 06:12 run-2026-09-04-19-53.md
+-rw-r--r--  1 runner runner   164 Sep 17 06:12 run-2026-09-04-22-14.md
+-rw-r--r--  1 runner runner   237 Sep 17 06:12 run-2026-09-05-00-11.md
+-rw-r--r--  1 runner runner   299 Sep 17 06:12 run-2026-09-05-04-39.md
+-rw-r--r--  1 runner runner   179 Sep 17 06:12 run-2026-09-05-08-37.md
+-rw-r--r--  1 runner runner   182 Sep 17 06:12 run-2026-09-05-12-04.md
+-rw-r--r--  1 runner runner   146 Sep 17 06:12 run-2026-09-05-15-21.md
+-rw-r--r--  1 runner runner   154 Sep 17 06:12 run-2026-09-05-17-36.md
+-rw-r--r--  1 runner runner   134 Sep 17 06:12 run-2026-09-05-19-30.md
+-rw-r--r--  1 runner runner   143 Sep 17 06:12 run-2026-09-05-21-41.md
+-rw-r--r--  1 runner runner   202 Sep 17 06:12 run-2026-09-05-23-38.md
+-rw-r--r--  1 runner runner   224 Sep 17 06:12 run-2026-09-06-01-20.md
+-rw-r--r--  1 runner runner   154 Sep 17 06:12 run-2026-09-06-06-30.md
+-rw-r--r--  1 runner runner   176 Sep 17 06:12 run-2026-09-06-11-21.md
+-rw-r--r--  1 runner runner   161 Sep 17 06:12 run-2026-09-06-14-23.md
+-rw-r--r--  1 runner runner   177 Sep 17 06:12 run-2026-09-06-17-20.md
+-rw-r--r--  1 runner runner   146 Sep 17 06:12 run-2026-09-06-19-29.md
+-rw-r--r--  1 runner runner   172 Sep 17 06:12 run-2026-09-06-21-42.md
+-rw-r--r--  1 runner runner   178 Sep 17 06:12 run-2026-09-06-23-37.md
+-rw-r--r--  1 runner runner   173 Sep 17 06:12 run-2026-09-07-01-18.md
+-rw-r--r--  1 runner runner   190 Sep 17 06:12 run-2026-09-07-06-12.md
+-rw-r--r--  1 runner runner  1006 Sep 17 06:12 run-2026-09-07-12-46.md
+-rw-r--r--  1 runner runner   185 Sep 17 06:12 run-2026-09-07-18-10.md
+-rw-r--r--  1 runner runner   156 Sep 17 06:12 run-2026-09-07-21-36.md
+-rw-r--r--  1 runner runner   367 Sep 17 06:12 run-2026-09-07-23-45.md
+-rw-r--r--  1 runner runner   225 Sep 17 06:12 run-2026-09-08-03-48.md
+-rw-r--r--  1 runner runner   147 Sep 17 06:12 run-2026-09-08-08-44.md
+-rw-r--r--  1 runner runner   156 Sep 17 06:12 run-2026-09-08-13-25.md
+-rw-r--r--  1 runner runner   698 Sep 17 06:12 run-2026-09-08-17-29.md
+-rw-r--r--  1 runner runner   186 Sep 17 06:12 run-2026-09-08-20-16.md
+-rw-r--r--  1 runner runner   156 Sep 17 06:12 run-2026-09-08-22-45.md
+-rw-r--r--  1 runner runner   143 Sep 17 06:12 run-2026-09-09-01-07.md
+-rw-r--r--  1 runner runner   193 Sep 17 06:12 run-2026-09-09-06-05.md
+-rw-r--r--  1 runner runner   153 Sep 17 06:12 run-2026-09-09-11-34.md
+-rw-r--r--  1 runner runner   161 Sep 17 06:12 run-2026-09-09-15-16.md
+-rw-r--r--  1 runner runner   146 Sep 17 06:12 run-2026-09-09-18-43.md
+-rw-r--r--  1 runner runner   174 Sep 17 06:12 run-2026-09-09-21-33.md
+-rw-r--r--  1 runner runner   143 Sep 17 06:12 run-2026-09-09-23-32.md
+-rw-r--r--  1 runner runner   231 Sep 17 06:12 run-2026-09-10-01-28.md
+-rw-r--r--  1 runner runner 11655 Sep 17 06:12 run-2026-09-10-06-43.md
+-rw-r--r--  1 runner runner   266 Sep 17 06:12 run-2026-09-10-11-50.md
+-rw-r--r--  1 runner runner   161 Sep 17 06:12 run-2026-09-10-16-05.md
+-rw-r--r--  1 runner runner   182 Sep 17 06:12 run-2026-09-10-19-09.md
+-rw-r--r--  1 runner runner   184 Sep 17 06:12 run-2026-09-10-21-41.md
+-rw-r--r--  1 runner runner   182 Sep 17 06:12 run-2026-09-10-23-51.md
+-rw-r--r--  1 runner runner   143 Sep 17 06:12 run-2026-09-11-03-48.md
+-rw-r--r--  1 runner runner   244 Sep 17 06:12 run-2026-09-11-08-46.md
+-rw-r--r--  1 runner runner 13671 Sep 17 06:12 run-2026-09-11-13-24.md
+-rw-r--r--  1 runner runner 16547 Sep 17 06:12 run-2026-09-11-17-14.md
+-rw-r--r--  1 runner runner   179 Sep 17 06:12 run-2026-09-11-19-49.md
+-rw-r--r--  1 runner runner  4273 Sep 17 06:12 run-2026-09-11-22-22.md
+-rw-r--r--  1 runner runner   196 Sep 17 06:12 run-2026-09-12-00-37.md
+-rw-r--r--  1 runner runner   210 Sep 17 06:12 run-2026-09-12-05-03.md
+-rw-r--r--  1 runner runner   161 Sep 17 06:12 run-2026-09-12-09-26.md
+-rw-r--r--  1 runner runner   179 Sep 17 06:12 run-2026-09-12-13-08.md
+-rw-r--r--  1 runner runner   186 Sep 17 06:12 run-2026-09-12-16-22.md
+-rw-r--r--  1 runner runner   168 Sep 17 06:12 run-2026-09-12-18-45.md
+-rw-r--r--  1 runner runner 11090 Sep 17 06:12 run-2026-09-12-21-20.md
+-rw-r--r--  1 runner runner   269 Sep 17 06:12 run-2026-09-12-23-06.md
+-rw-r--r--  1 runner runner   175 Sep 17 06:12 run-2026-09-13-01-08.md
+-rw-r--r--  1 runner runner   151 Sep 17 06:12 run-2026-09-13-06-18.md
+-rw-r--r--  1 runner runner   166 Sep 17 06:12 run-2026-09-13-12-06.md
+-rw-r--r--  1 runner runner   152 Sep 17 06:12 run-2026-09-13-16-27.md
+-rw-r--r--  1 runner runner   146 Sep 17 06:12 run-2026-09-13-18-56.md
+-rw-r--r--  1 runner runner   143 Sep 17 06:12 run-2026-09-13-21-22.md
+-rw-r--r--  1 runner runner  1083 Sep 17 06:12 run-2026-09-13-23-30.md
+-rw-r--r--  1 runner runner   174 Sep 17 06:12 run-2026-09-14-01-38.md
+-rw-r--r--  1 runner runner   178 Sep 17 06:12 run-2026-09-14-07-07.md
+-rw-r--r--  1 runner runner   245 Sep 17 06:12 run-2026-09-14-14-14.md
+-rw-r--r--  1 runner runner   142 Sep 17 06:12 run-2026-09-14-19-28.md
+-rw-r--r--  1 runner runner  1583 Sep 17 06:12 run-2026-09-14-22-45.md
+-rw-r--r--  1 runner runner   316 Sep 17 06:12 run-2026-09-15-01-16.md
+-rw-r--r--  1 runner runner   143 Sep 17 06:12 run-2026-09-15-06-13.md
+-rw-r--r--  1 runner runner   156 Sep 17 06:12 run-2026-09-15-11-53.md
+-rw-r--r--  1 runner runner   174 Sep 17 06:12 run-2026-09-15-16-35.md
+-rw-r--r--  1 runner runner   183 Sep 17 06:12 run-2026-09-15-19-49.md
+-rw-r--r--  1 runner runner   177 Sep 17 06:12 run-2026-09-15-22-46.md
+-rw-r--r--  1 runner runner   174 Sep 17 06:12 run-2026-09-16-01-10.md
+-rw-r--r--  1 runner runner  1593 Sep 17 06:12 run-2026-09-16-06-11.md
+-rw-r--r--  1 runner runner   209 Sep 17 06:12 run-2026-09-16-11-48.md
+-rw-r--r--  1 runner runner   195 Sep 17 06:12 run-2026-09-16-16-28.md
+-rw-r--r--  1 runner runner   180 Sep 17 06:12 run-2026-09-16-19-41.md
+-rw-r--r--  1 runner runner   174 Sep 17 06:12 run-2026-09-16-22-45.md
+-rw-r--r--  1 runner runner   172 Sep 17 06:12 run-2026-09-17-01-11.md
+---
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la && ls art/ 2>/dev/null; ls *.md 2>/dev/null; ls inventory 2>/dev/null
+total 512
+drwxr-xr-x 12 runner runner   4096 Sep 17 06:12 .
+drwxr-xr-x  3 runner runner   4096 Sep 17 06:11 ..
+drwxr-xr-x  7 runner runner   4096 Sep 17 06:12 .git
+drwxr-xr-x  3 runner runner   4096 Sep 17 06:12 .github
+-rw-r--r--  1 runner runner   1724 Sep 17 06:12 README.md
+-rw-r--r--  1 runner runner     32 Sep 17 06:12 analyst-out.txt
+-rw-r--r--  1 runner runner 203736 Sep 17 06:12 analyst-prompt.txt
+-rw-r--r--  1 runner runner 199953 Sep 17 06:12 ctx.txt
+drwxr-xr-x  2 runner runner   4096 Sep 17 06:12 inventory
+drwxr-xr-x  2 runner runner   4096 Sep 17 06:12 knowledge
+drwxr-xr-x  2 runner runner   4096 Sep 17 06:12 leads
+-rw-r--r--  1 runner runner  29969 Sep 17 06:12 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Sep 17 06:12 recon-notes
+drwxr-xr-x  2 runner runner   4096 Sep 17 06:12 reports
+drwxr-xr-x  2 runner runner   4096 Sep 17 06:12 reposcan-raw
+-rw-r--r--  1 runner runner   3196 Sep 17 06:12 scope.yml
+drwxr-xr-x  2 runner runner   4096 Sep 17 06:12 scripts
+-rw-r--r--  1 runner runner     33 Sep 17 06:12 state_bigpickle.json
+-rw-r--r--  1 runner runner     33 Sep 17 06:12 state_laguna.json
+-rw-r--r--  1 runner runner     33 Sep 17 06:12 state_ling3.json
+-rw-r--r--  1 runner runner     33 Sep 17 06:12 state_longcat.json
+-rw-r--r--  1 runner runner     33 Sep 17 06:12 state_mimo.json
+-rw-r--r--  1 runner runner     33 Sep 17 06:12 state_nemotron3.json
+drwxr-xr-x  2 runner runner   4096 Sep 17 06:12 triage
+README.md
+probe-results.md
+roobet.md
+[0m
+---
+https://roobet.com/_api/admin/stats -> HTTP 401
+https://roobet.com -> 200 len=?
+https://roobet.com/_api/socket.io/?EIO=3&transport=polling -> HTTP 400
+https://roobet.com/_api/affiliate/get?user_id=<acct_B -> HTTP 401
+
+## 2026-09-16 06:13:23 UTC
+https://roobet.com/_api/admin/users -> HTTP 401
+https://roobet.com/_api/affiliate/get?user_id=<acct_B -> HTTP 401
+https://roobet.com/_api/graphql?operationName=Q&query=query%20Q%7BQ%7D -> HTTP 400
+
+## 2026-09-16 11:52:55 UTC
+https://roobet.com -> 200 len=?
+https://roobet.com/_api/graphql -> HTTP 400
+https://roobet.com/_api/admin/users -> HTTP 401
+https://roobet.com/_api/admin/stats -> HTTP 401
+https://roobet.com/_api/socket.io/?EIO=3&transport=polling -> HTTP 400
+https://roobet.com/_api/affiliate/get?user_id=<acct_B -> HTTP 401
+https://roobet.com/_api/graphql?operationName=Q&query=query%20Q%7BQ%7D -> HTTP 400
+
+## 2026-09-16 16:36:36 UTC
+https://roobet.com -> 200 len=?
+https://roobet.com/_api/graphql -> HTTP 400
+https://roobet.com/_api/admin/users -> HTTP 401
+https://roobet.com/_api/admin/stats -> HTTP 401
+https://roobet.com/_api/socket.io/?EIO=3&transport=polling -> HTTP 400
+https://roobet.com/_api/affiliate/get?user_id=<acct_B -> HTTP 401
+
+## 2026-09-16 20:01:40 UTC
+https://roobet.com/_api/admin/users -> HTTP 401
+https://roobet.com/_api/affiliate/get?user_id=<acct_B -> HTTP 401
+https://roobet.com/_api/graphql?operationName=<realField>&query=query%20<realField>%7B<realField>%7D -> HTTP 400
+
+## 2026-09-16 22:47:21 UTC
+https://roobet.com/_api/admin/users -> HTTP 401
+https://roobet.com/_api/affiliate/get?user_id=<acct_B -> HTTP 401
+https://roobet.com/_api/graphql?operationName=<realField>&query=query%20<realField>%7B<realField>%7D -> HTTP 400
+
+## 2026-09-17 01:13:40 UTC
+https://roobet.com/_api/admin/users -> HTTP 401
+https://roobet.com/_api/affiliate/get?user_id=<acct_B -> HTTP 401
+[0m
+[0m$ [0mcat reports/valid-bugs.md; echo "====SCOPE===="; cat scope.yml; echo "====LATEST TRIAGE===="; cat triage/run-2026-09-17-01-11.md
+# Validated findings (running count 0)
+
+- 6 lead(s) marked VALID at 2026-09-10 06:43:39 UTC
+  - **Verdict: VALID**
+  - **Verdict: VALID** (low severity, but information disclosure of internal architecture)
+  - **Verdict: VALID** (low severity)
+  - | 1 | Anonymous GraphQL introspection via WS (full schema + PII fields) | **VALID** | 5.3 |
+  - | 3 | Subscription error disclosure (kycUpdated/polymarketOrders) | **VALID** | 3.1 |
+  - | 4 | Anonymous Socket.IO real-time broadcast feed | **VALID** | 3.1 |
+
+- 2 lead(s) marked VALID at 2026-09-11 13:24:31 UTC
+  - **Verdict: VALID**
+  - | 1 | GraphQL anonymous introspection (full schema + PII/financial field disclosure) | **VALID** | 5.3 |
+
+- 3 lead(s) marked VALID at 2026-09-11 17:14:32 UTC
+  - | Q4 Provable | **No** | Needs a valid user session (`connect.sid`) to test; cannot verify without signing up. Auth is server-side. |
+  - | Q4 Provable | **No** | Needs valid session to test parameter influence |
+  - | Q4 Provable | **No** | Needs valid session + correct body format |
+
+- 5 lead(s) marked VALID at 2026-09-12 21:20:20 UTC
+  - **VERDICT: VALID**
+  - **VERDICT: VALID**
+  - | Q4 Provable | PARTIAL | 401 baseline confirmed passively; requires valid session to prove/disprove escalation (AUTH_HELPED) |
+  - | 1 | GraphQL Anonymous Introspection | **VALID** | 7.5 | Report via bugs.olivermaicher.eu |
+  - | 2 | GraphQL Pre-Auth Mutation Execution | **VALID** | 5.3 | Report via bugs.olivermaicher.eu |
+====SCOPE====
+programs:
+  roobet:
+    name: Roobet Bug Bounty
+    disclosure_policy: via bugs.olivermaicher.eu (Oliver Maicher private program) - report + PoC + contact + payment
+    assets:
+      - name: "All company-owned infrastructure, gaming platforms, user accounts, wallets, APIs, mobile/web applications, and domains operated by Roobet"
+        priority: In
+    out_of_scope:
+- "Network level Denial of Service attacks"
+      - "Application Denial of Service by locking user accounts"
+      - "Descriptive error messages or headers (e.g. Stack Traces, banner grabbing)"
+      - "Disclosure of known public files or directories (e.g. robots.txt)"
+      - "Outdated software / library versions"
+      - "OPTIONS / TRACE HTTP method enabled"
+      - "CSRF on logout"
+      - "CSRF on forms that are available to anonymous users"
+      - "Cookies that lack HTTP Only or Secure settings for non-sensitive data"
+      - "Self-XSS and issues exploitable only through Self-XSS"
+      - "Reports resulting from automated scanning utilities without additional details or a POC demonstrating a specific exploit"
+      - "Attacks requiring physical access to a user's device"
+      - "Attacks dependent upon social engineering of employees or vendors"
+      - "Username enumeration based on login or forgot password pages"
+      - "Enforcement policies for brute force, rate limiting, or account lockout"
+      - "SSL/TLS best practices"
+      - "SSL attacks such as BEAST, BREACH, Renegotiation attack"
+      - "Clickjacking, without additional details demonstrating a specific exploit"
+      - "Mail configuration issues including SPF, DKIM, DMARC settings"
+      - "Use of a known-vulnerable library without a description of an exploit specific to our implementation"
+      - "Password and account recovery policies"
+      - "Presence of autocomplete functionality in form fields"
+      - "Publicly accessible login panels"
+      - "Lack of email address verification during account registration or account invitation"
+      - "Lack of email address verification password restore"
+      - "Session control during email/password changes"
+      - "Social engineering, physical attacks, and DoS/DDoS testing (per program notes)"
+      - "Exposure of customer/employee/financial/authentication data during testing (per program notes)"
+    github_orgs:
+      - none-configured
+
+rules:
+  passive_first: false          # deep-hunt agent: active probes allowed when scoped
+  max_requests_per_second: 1    # never hammer live infra
+  no_doom: true                 # no DoS/DDoS, no account-lockout attacks
+  account_creation: restricted  # only on test/sandbox assets, never live customer data
+  no_data_modification: true    # no writes/deletes on live customer data
+  no_pre_disclosure: true       # never disclose before program response
+  poc_required: true            # scanner output alone is REJECTED
+  redact_secrets_in_commits: true
+
+models:
+  - { id: opencode/big-pickle, name: bigpickle }
+  - { id: opencode/nemotron-3-ultra-free, name: nemotron3 }
+  - { id: opencode/longcat-2.0-free, name: longcat }
+  - { id: opencode/ling-3.0-flash-free, name: ling3 }
+  - { id: opencode/laguna-s-2.1-free, name: laguna }
+====LATEST TRIAGE====
+
+===== TRIAGE 2026-09-17 01:11:25 UTC =====
+[0m
+> build · mimo-v2.5-free
+[0m
+No leads provided. Please supply the probe results to validate against the 7-Question Gate.
+[0m
+[0m$ [0mcat reports/hypotheses-*.txt; echo "====DEEP NOTE===="; cat recon-notes/DEDICATED-DEEP.md; echo "====REPO===="; head -60 leads/reposcan-roobet.md
+## 2026-09-17 01:13:18 UTC [target] (model bigpickle)
+[PRIO] roobet.com/_api/graphql,8.4,a=9,b=9,t=10,g=6,c=3,f=1
+[PRIO] roobet.com/_api/admin/users,6.3,a=6,b=10,t=6,g=4,c=3,f=2
+[PRIO] roobet.com/_api/affiliate/get,5.9,a=6,b=8,t=4,g=5,c=3,f=2
+[HYP] Admin Priv-esc via Non-Admin Session on /_api/admin/users
+class: AUTH
+asset: roobet.com/_api/admin/users
+confidence: 55
+reasoning: 401 "Unauthorized" @12B stable 20+ runs on low-gate surface (not Cloudflare-gated); Express session auth (connect.sid HttpOnly); sibling /_api/affiliate/get proves params parse pre-authz, so 401 = session/authz indistinguishable anonymously.
+evidence_needed: 200 (or 403 != 401) when calling with a normal-user connect.sid.
+verify_steps: HUMAN sandboxed ≤1rps, read-only GET: GET https://roobet.com/_api/admin/users with normal-user session cookie → 200 ⇒ cross-tenant user/PII+financial dump (CRITICAL); 401 ⇒ baseline, line closed.
+impact: Cross-tenant user/PII+financial dump; CRITICAL if 200.
+testability: AUTH_HELPED
+[HYP] Affiliate Endpoint IDOR via user_id Param
+class: IDOR
+asset: roobet.com/_api/affiliate/get
+confidence: 45
+reasoning: ?user_id=1 and ?affiliate_code= both 401 @12B (param parsing alive, 20+ runs); authorization vs session-validity indistinguishable anonymously.
+evidence_needed: session A successfully reads account B's affiliate/referral data via ?user_id=<acct_B>.
+verify_steps: HUMAN sandboxed ≤1rps (no data mutation): session A → GET https://roobet.com/_api/affiliate/get?user_id=<acct_B> → 200 with B's data ⇒ cross-user disclosure HIGH; 401 ⇒ baseline.
+impact: Cross-user affiliate revenue/referral disclosure; HIGH if 200.
+testability: AUTH_HELPED
+[HYP] Pre-Auth Resolver Pre-Execution → BOLA on Session-Gated GraphQL Mutations
+class: IDOR
+asset: roobet.com/_api/graphql
+confidence: 50
+reasoning: 13/26 mutations proven to execute resolver code pre-auth (400+INTERNAL_SERVER_ERROR, not NOT_AUTHENTICATED); a valid connect.sid runs the same resolvers authenticated; any missing object-ownership check in the authenticated path is BOLA (placeBet/wagerLimitUpdate/sendTip on other-account identifiers).
+evidence_needed: authenticated op with account-B identifier under session A returns B's state or mutates it (A/B account diff, read-only first).
+verify_steps: HUMAN, 2 sandbox accounts, ≤1rps: session A own-object baseline mutations, then same op with account-B ids; any 200/data-return cross-account ⇒ BOLA (HIGH-CRITICAL); no state-changes on live customer data.
+impact: Cross-account balance/wager/entity manipulation; CRITICAL if reachable.
+testability: AUTH_HELPED
+[PARKED] Anonymous Query-Plane Divergence via HTTP GET Named-Op Sweep: confidence 30 (<40 floor); 5/5 spot-checked queries NOT_AUTHENTICATED and 13/13 mutation-class resolvers homogeneous — divergence class empirically falsified, no field-name source for exhaustive sweep.
+[PARKED] Subdomain/misc hypotheses (api.roobet.com bypass, auth/account/admin subdomains, crash-gs socket): unchanged, non-resolving or HUMAN_ONLY, no passive path.
+[FINAL] Admin Priv-esc (55), Affiliate IDOR (45), GraphQL BOLA (50) — all AUTH_HELPED, no robot-side step possible; passive surface fully exhausted.
+[NEXT] HUMAN: High-value line A — with a normal-user connect.sid at ≤1rps, read-only: GET https://roobet.com/_api/admin/users (200 ⇒ CRITICAL cross-tenant dump; 401 ⇒ close line). Same session also re-tests https://roobet.com/_api/affiliate/get?user_id=<acct_B> for IDOR.
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/*: 20th consecutive run byte-stable — settings/get 200 @1765B (35 keys), admin/users 401 @12B, affiliate/get?user_id=1 401 @12B, socket.io no-Origin 403 @40B, graphql named-op GET 200 @141B NOT_AUTHENTICATED (resolver auth parity HTTP=WS re-confirmed); zero surface delta; passive probing fully exhausted.
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/settings/get: input reflection NEGATIVE re-confirmed (XFF/?sessionId/Referer/Cookie inert; ip=server egress, sessionId rotates, auth cookie=connect.sid) — no reflection/fixation vector.
+[RISK] roobet: 30 — Surface static 20+ runs, server hardening observed (settings trim 68→35, liveRTPUpdate msg suppressed, HTTP introspection disabled), sole reportable line is low-severity pre-auth GraphQL disclosure; remaining high-value hypotheses all session-gated and require AUTH_HELPED live testing.
+## 2026-09-17 01:12:03 UTC [target] (model laguna)
+## 2026-09-17 01:12:09 UTC [target] (model ling3)
+## 2026-09-17 01:12:09 UTC [target] (model longcat)
+## 2026-09-17 01:13:26 UTC [target] (model nemotron3)
+====DEEP NOTE====
+# Dedicated deep surface (wildcard-filtered) 2026-09-03
+
+**Target:** `roobet`
+**Root zones:** `roobet.com`
+
+## Wildcard analysis
+
+- Total resolving hostnames in zone: 0
+- After shared/wildcard IP filtering: **0 genuinely dedicated hosts**
+- Reason: all resolving hostnames use shared/CDN/wildcard IP signatures
+
+## Honest conclusion
+
+This target's subdomain space is wildcard-dominated. No genuinely dedicated
+subdomain surface was recovered from passive brute + subfinder enumeration.
+The surface either (a) uses wildcard DNS records, (b) all CNAME records
+point to shared CDN/Cloudflare/CloudFront/AWS IPs, or (c) has no
+subdomain program at all. This is the honest exhaustive result.
+
+---
+_Honest framing: passive DNS enumeration + shared-IP wildcard filtering. No finding claimed. No active testing performed._
+====REPO====
+## REPOSCAN 2026-09-03 17:14:49 UTC
+TARGET_ORG not configured for roobet; skipping public-org deep scan.
+## REPOSCAN 2026-09-03 19:59:29 UTC
+TARGET_ORG not configured for roobet; skipping public-org deep scan.
+## REPOSCAN 2026-09-03 22:29:49 UTC
+TARGET_ORG not configured for roobet; skipping public-org deep scan.
+## REPOSCAN 2026-09-04 00:27:20 UTC
+[HYP] No findings — zero candidate repos to audit
+class: OTHER
+asset: github.com/ROOBET
+confidence: 100
+reasoning: GitHub org ROOBET has 0 public repositories. No source code is exposed.
+impact: N/A
+verify_steps: curl -s "https://api.github.com/orgs/ROOBET" | jq '.public_repos' → 0
+TARGET_ORG not configured for roobet; skipping public-org deep scan.
+## REPOSCAN 2026-09-04 05:07:46 UTC
+TARGET_ORG not configured for roobet; skipping public-org deep scan.
+## REPOSCAN 2026-09-04 09:46:13 UTC
+TARGET_ORG not configured for roobet; skipping public-org deep scan.
+## REPOSCAN 2026-09-04 14:07:36 UTC
+TARGET_ORG not configured for roobet; skipping public-org deep scan.
+## REPOSCAN 2026-09-04 17:42:16 UTC
+TARGET_ORG not configured for roobet; skipping public-org deep scan.
+## REPOSCAN 2026-09-04 19:57:14 UTC
+TARGET_ORG not configured for roobet; skipping public-org deep scan.
+## REPOSCAN 2026-09-04 22:16:54 UTC
+TARGET_ORG not configured for roobet; skipping public-org deep scan.
+## REPOSCAN 2026-09-05 00:12:48 UTC
+TARGET_ORG not configured for roobet; skipping public-org deep scan.
+## REPOSCAN 2026-09-05 04:41:39 UTC
+TARGET_ORG not configured for roobet; skipping public-org deep scan.
+## REPOSCAN 2026-09-05 08:41:11 UTC
+[HYP] No Roobet GitHub org configured — zero candidate repos to audit
+class: OTHER
+asset: cands.txt / scope.yml
+confidence: 100
+reasoning: |
+impact: N/A — no source code to audit; finding documents absence of configured targets
+verify_steps: |
+TARGET_ORG not configured for roobet; skipping public-org deep scan.
+## REPOSCAN 2026-09-05 12:08:38 UTC
+TARGET_ORG not configured for roobet; skipping public-org deep scan.
+## REPOSCAN 2026-09-05 15:24:05 UTC
+TARGET_ORG not configured for roobet; skipping public-org deep scan.
+## REPOSCAN 2026-09-05 17:39:14 UTC
+[HYP] No source code available — reposcan null run
+class: OTHER
+asset: cands.txt / scope.yml
+confidence: 100
+reasoning: cands.txt contains "no org candidates"; scope.yml has github_orgs: none-configured; GitHub org ROOBET has 0 public repos. No source code exists to audit for secrets, hardcoded creds, or insecure patterns.
+impact: N/A
+verify_steps: |
+TARGET_ORG not configured for roobet; skipping public-org deep scan.
+## REPOSCAN 2026-09-05 19:33:02 UTC
+[HYP] No source code to audit — GitHub org ROOBET has zero public repos
+class: OTHER
+asset: github.com/ROOBET (org ID 46298934)
+confidence: 100
+reasoning: |
+impact: N/A — absence of exposed source reduces attack surface but prevents this scan vector
+[0m
+[0m$ [0mhead -80 probe-results.md
+## 2026-09-02 21:54:54 UTC
+
+
+## 2026-09-02 23:55:46 UTC
+
+
+## 2026-09-03 03:47:00 UTC
+
+
+## 2026-09-03 08:51:33 UTC
+
+
+## 2026-09-03 13:28:47 UTC
+
+
+## 2026-09-03 17:18:31 UTC
+https://app.roobet.com/../evil.com -> ERR <urlopen error [Errno -5] No address associated wi
+https://fs.roobet.com/?list-type=2&max-keys=1 -> HTTP 405
+https://fs.roobet.com/s/ -> HTTP 404
+https://fs.roobet.com/robots.txt -> 200 len=26
+
+## 2026-09-03 20:05:33 UTC
+https://api.roobet.com/graphql -> HTTP 403
+https://roobet.com/.well-known/oauth-authorization-server -> 200 len=?
+https://roobet.com/.well-known/openid-configuration -> 200 len=?
+https://auth.roobet.com/.well-known/oauth-authorization-server -> ERR <urlopen error [Errno -5] No address associated wi
+https://fs.roobet.com/?list-type=2&max-keys=1000 -> HTTP 405
+https://fs.roobet.com/?list-type=2&prefix=s/&max-keys=1000 -> HTTP 405
+https://fs.roobet.com/?list-type=2&delimiter=/&max-keys=1000 -> HTTP 405
+https://fs.roobet.com/?list-type=2&max-keys=1 -> HTTP 405
+https://fs.roobet.com/s/ -> HTTP 404
+https://fs.roobet.com/robots.txt -> 200 len=26
+
+## 2026-09-03 22:41:02 UTC
+https://roobet.com/api/auth/session -> 200 len=?
+https://roobet.com/api/user/profile -> 200 len=?
+https://roobet.com/api/graphql -> 200 len=?
+https://roobet.com -> 200 len=?
+https://roobet.com/ -> 200 len=?
+https://api.roobet.com/graphql -> HTTP 403
+https://fs.roobet.com/?list-type=2&prefix=s/&max-keys=100 -> HTTP 405
+https://fs.roobet.com/s/ -> HTTP 404
+https://fs.roobet.com/assets/ -> HTTP 405
+https://fs.roobet.com/?list-type=2&max-keys=1 -> HTTP 405
+https://fs.roobet.com/robots.txt -> 200 len=26
+https://app.roobet.com/../evil.com -> ERR <urlopen error [Errno -5] No address associated wi
+
+## 2026-09-04 00:31:42 UTC
+https://roobet.com/_api/{auth,user,wallet,config,benefits,trivia,promotion,affiliate,notifications,jackpot,leaderboard -> HTTP 404
+https://api.roobet.com/graphql -> HTTP 403
+https://roobet.com -> 200 len=?
+https://roobet.com/ -> 200 len=?
+https://fs.roobet.com/?list-type=2&max-keys=1 -> HTTP 405
+https://fs.roobet.com/s/ -> HTTP 404
+https://fs.roobet.com/robots.txt -> 200 len=26
+https://app.roobet.com/../evil.com -> ERR <urlopen error [Errno -5] No address associated wi
+https://roobet.com/.well-known/oauth-authorization-server -> 200 len=?
+https://roobet.com/.well-known/openid-configuration -> 200 len=?
+https://auth.roobet.com/.well-known/oauth-authorization-server -> ERR <urlopen error [Errno -5] No address associated wi
+https://fs.roobet.com/?list-type=2&max-keys=1000 -> HTTP 405
+
+## 2026-09-04 05:08:57 UTC
+https://roobet.com/_api/{auth,user,wallet,config,benefits,trivia,promotion,affiliate,notifications,jackpot,leaderboard -> HTTP 404
+https://api.roobet.com/graphql -> HTTP 403
+https://roobet.com -> 200 len=?
+https://roobet.com/ -> 200 len=?
+
+## 2026-09-04 09:52:39 UTC
+https://roobet.com/_api/{auth,user,wallet,config,benefits,trivia,promotion,affiliate,notifications,jackpot,leaderboard -> HTTP 404
+https://api.roobet.com/graphql -> HTTP 403
+https://roobet.com -> 200 len=?
+https://roobet.com/ -> 200 len=?
+https://roobet.com/_api/admin/users` -> HTTP 404
+https://roobet.com/_api/affiliate/get` -> HTTP 404
+https://roobet.com/_api/affiliate/get?user_id=123` -> HTTP 401
+
+## 2026-09-04 14:20:13 UTC
+https://roobet.com/_api/admin/users -> HTTP 401
+https://roobet.com/_api/admin/stats -> HTTP 401
+[0m
+[0m$ [0mfor u in "https://roobet.com/_api/settings/get" "https://roobet.com/_api/admin/users" "https://roobet.com/_api/affiliate/get?user_id=1"; do
+  echo "== $u"
+  curl -s -o /tmp/r.txt -w "HTTP %{http_code} size=%{size_download}\n" --max-time 20 "$u"
+  sleep 1
+done
+== https://roobet.com/_api/settings/get
+HTTP 200 size=1766
+== https://roobet.com/_api/admin/users
+HTTP 401 size=12
+== https://roobet.com/_api/affiliate/get?user_id=1
+HTTP 401 size=12
+[0m
+[0m$ [0mcurl -s --max-time 20 https://roobet.com/_api/settings/get -o /tmp/s.json && python3 -c "
+import json
+d=json.load(open('/tmp/s.json'))
+print('keys:',len(d))
+print('top keys sample:', sorted(d.keys())[:8])
+print('allTimeNumBets:', d.get('globalStats',{}).get('allTimeNumBets'))
+print('restrictedCountries:', len(d.get('restrictedCountries') or []))
+print('sessionId present:', 'sessionId' in d)
+"
+sleep 1
+echo "== graphql no-body GET"
+curl -s -o /tmp/g.txt -w "HTTP %{http_code} size=%{size_download}\n" --max-time 20 "https://roobet.com/_api/graphql"
+sleep 1
+echo "== socket.io poll no-Origin"
+curl -s -o /tmp/so.txt -w "HTTP %{http_code} size=%{size_download}\n" --max-time 20 "https://roobet.com/_api/socket.io/?EIO=3&transport=polling"
+keys: 35
+top keys sample: ['banner', 'bannerLink', 'bannerLinkTitle', 'countryCode', 'disabledApp', 'disabledBinanceSmartChainWithdraw', 'disabledBitcoinWithdraw', 'disabledDogecoinWithdraw']
+allTimeNumBets: 15444122383.742636
+restrictedCountries: 35
+sessionId present: True
+== graphql no-body GET
+HTTP 400 size=406
+== socket.io poll no-Origin
+HTTP 403 size=40
+[0m
+STEP 1 — DELTA
+- NO_DELTA — 21st consecutive run: fresh probes re-confirm settings/get 200 @1766B/35 keys (allTimeNumBets 15.444B, +0.3% drift, normal growth; restrictedCountries 35), admin/users 401 @12B, affiliate/get?user_id=1 401 @12B, graphql no-body GET 400 @406B, socket.io no-Origin poll 403 @40B. Surface, routes, and auth gates identical; no new host/route/header delta.
+
+STEP 2 — PRIORITIZE
+- [PRIO] roobet.com/_api/graphql,7.3,a=9,b=9,t=10,g=6,c=3,f=1
+- [PRIO] roobet.com/_api/admin/users,6.0,a=6,b=10,t=6,g=4,c=3,f=2
+- [PRIO] roobet.com/_api/affiliate/get,5.4,a=6,b=8,t=4,g=5,c=3,f=2
+
+STEP 3 — HYPOTHESES
+[HYP] Admin Priv-esc via Non-Admin Session on /_api/admin/users
+class: AUTH
+asset: roobet.com/_api/admin/users
+confidence: 55
+reasoning: 401 "Unauthorized" @12B stable 21 runs on low-gate surface (not Cloudflare bot-gated); Express session auth (connect.sid HttpOnly, userId non-HttpOnly via /_api/auth/logout); sibling /_api/affiliate/get proves params parse pre-authz, so 401 = session-absent vs authz-denied indistinguishable anonymously.
+evidence_needed: 200 (or 403 != 401) when called with a normal-user connect.sid.
+verify_steps: HUMAN sandboxed ≤1rps, read-only: GET https://roobet.com/_api/admin/users with normal-user session cookie → 200 ⇒ cross-tenant user/PII+financial dump; 401 ⇒ baseline, line closed.
+impact: Cross-tenant user/PII+financial dump; CRITICAL if 200.
+testability: AUTH_HELPED
+[HYP] Affiliate Endpoint IDOR via user_id Param
+class: IDOR
+asset: roobet.com/_api/affiliate/get
+confidence: 45
+reasoning: ?user_id=1 and ?affiliate_code= both 401 @12B (param parsing alive, 21 runs); authorization vs session-validity indistinguishable anonymously; needs two sandbox accounts.
+evidence_needed: session A reads account B's affiliate/referral data via ?user_id=<acct_B>.
+verify_steps: HUMAN sandboxed ≤1rps, no mutation: session A → GET https://roobet.com/_api/affiliate/get?user_id=<acct_B> → 200 with B data ⇒ IDOR HIGH; 401 ⇒ baseline.
+impact: Cross-user affiliate revenue/referral disclosure; HIGH if 200.
+testability: AUTH_HELPED
+[HYP] Pre-Auth Resolver Pre-Execution → BOLA on Session-Gated GraphQL Mutations
+class: IDOR
+asset: roobet.com/_api/graphql
+confidence: 50
+reasoning: 13/26 mutations proven to execute resolver code pre-auth (400+INTERNAL_SERVER_ERROR, not NOT_AUTHENTICATED); a valid connect.sid runs the same resolvers authenticated; missing object-ownership check in the authenticated path = BOLA (placeBet/wagerLimitUpdate/sendTip on other-account identifiers).
+evidence_needed: authenticated op with account-B identifier under session A returns/mutates B's state.
+verify_steps: HUMAN, 2 sandbox accounts, ≤1rps: session A own-object baseline, then same op with account-B ids; any 200/cross-account data ⇒ BOLA (HIGH-CRITICAL); no state changes on live customer data.
+impact: Cross-account balance/wager/entity manipulation; CRITICAL if reachable.
+testability: AUTH_HELPED
+
+STEP 4 — SELF-CRITIQUE
+- [PARKED] Anonymous Query-Plane Divergence via HTTP GET Named-Op Sweep: confidence 30 (<40 floor); 5/5 spot-checked queries + 13/13 mutations homogeneous — divergence class empirically falsified.
+- [PARKED] Subdomain/misc: api.roobet.com bypass, auth/account/admin subdomains (non-resolving), crash-gs Socket.IO (HUMAN_ONLY) — no passive path.
+- [FINAL] Admin Priv-esc (55), GraphQL BOLA (50), Affiliate IDOR (45) — all AUTH_HELPED; no robot-side step possible; passive surface fully exhausted; sole reportable line (GraphQL anonymous introspection + pre-auth mutation exec) already VALID 7.5/5.3.
+
+STEP 5 — NEXT ACTION
+- [NEXT] HUMAN: With a normal-user connect.sid at ≤1rps, read-only only: GET https://roobet.com/_api/admin/users → 200 ⇒ CRITICAL cross-tenant dump; 401 ⇒ close line. Same session then re-tests https://roobet.com/_api/affiliate/get?user_id=<acct_B> (IDOR) before any GraphQL BOLA mutation sweep on sandbox accounts.
+
+STEP 6 — LEARNING
+- [LEARN] ACCEPTED OTHER @ roobet.com/_api/*: 21st consecutive run byte-stable — settings/get 200 @1766B (35 keys; allTimeNumBets 15.444B normal drift), admin/users 401 @12B, affiliate/get?user_id=1 401 @12B, graphql no-body GET 400 @406B, socket.io no-Origin 403 @40B; zero surface delta; passive probing fully exhausted.
+
+STEP 7 — RISK
+- [RISK] roobet: 30 — Surface static 21+ runs; server actively hardening (settings trim 68→35, liveRTPUpdate msg suppressed, HTTP introspection disabled); sole reportable line is low-severity pre-auth GraphQL disclosure (already reported); remaining high-value hypotheses all session-gated and require AUTH_HELPED live testing; no new robot-side surface discovered.

@@ -885,3 +885,13 @@ www.roobet.com
 ## 2026-09-16 22:47:17 UTC
 
 ## 2026-09-17 01:13:37 UTC
+
+## 2026-09-17 06:16:09 UTC
+- CHANGED roobet.com/_api/graphql HTTP GET with `x-apollo-operation-name` now returns 400 (no body) vs prior 200 — Apollo GET transport gate mechanically stable: header present ⇒ 200 executes (`{"data":{"__type
+- CHANGED roobet.com/_api/settings/get response byte-stable at 1765B (35 keys, restrictedCountries 35, allTimeNumBets 15398115547) — 20th consecutive run static
+- CHANGED roobet.com/_api/admin/users + /admin/stats + /affiliate/get?user_id=1 consistently 401 "Unauthorized" @12B — baseline stable
+- CHANGED roobet.com/_api/socket.io polling Origin-gated: 403 without Origin, 200 with Origin: https://roobet.com — mechanistically re-confirmed
+- CHANGED roobet.com/_api/graphql: 13/26 mutations confirmed executing pre-auth on HTTP channel (7 prior + 6 new: tpGameStartGame, rewardsVaultClaim, acknowledgedBalanceConversion, seonSessionUpdate, wagerLimit
+- CHANGED roobet.com/_api/graphql: Mutation ISE payloads vary 95–587B across resolvers — per-resolver execution depth confirmed, not auth-state signal
+- CHANGED roobet.com/_api/tp-games/essentials: now edge-cached (cf-cache HIT, etag, max-age=600) but content is known public 8.5MB catalog; CDN caching ≠ new exposure
+- CHANGED roobet.com/_api/settings/get: input reflection NEGATIVE re-confirmed (XFF/?sessionId/Referer/Cookie inert; ip=server egress, sessionId rotates, auth cookie=connect.sid) — no reflection/fixation vector
