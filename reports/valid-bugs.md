@@ -23,3 +23,12 @@
   - | Q4 Provable | PARTIAL | 401 baseline confirmed passively; requires valid session to prove/disprove escalation (AUTH_HELPED) |
   - | 1 | GraphQL Anonymous Introspection | **VALID** | 7.5 | Report via bugs.olivermaicher.eu |
   - | 2 | GraphQL Pre-Auth Mutation Execution | **VALID** | 5.3 | Report via bugs.olivermaicher.eu |
+
+- 7 lead(s) marked VALID at 2026-09-17 19:56:11 UTC
+  - | Q4 Provable | PARTIALLY — 401 baseline confirmed without auth; requires valid session cookie (connect.sid) to test if standard user grants admin access. Cannot prove non-invasively without a test ac
+  - **Verdict: HOLD** — Promising lead (admin routes on non-Cloudflare-gated surface). Needs browser-phase verification with a valid Roobet session to test if standard user auth grants admin access. Canno
+  - | Q4 Provable | PARTIALLY — parameter acceptance confirmed (401 not 404); needs valid session to test IDOR |
+  - **Verdict: HOLD** — IDOR candidate. Needs browser-phase with valid session + two test accounts to confirm cross-user data access.
+  - | Q4 Provable | NO — requires valid session + exact POST body; cannot test without auth |
+  - | Q7 Reasonable triager | NO — no proof of bypass; endpoints require valid session |
+  - **Verdict: HOLD** — Needs browser-phase with valid session. Cannot validate passively.
