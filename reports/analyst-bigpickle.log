@@ -23297,3 +23297,69 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 - [RISK] roobet: 28 — Surface static 24 runs, server actively hardening (read-plane resolvers now ISE, error text suppressed, config trimmed 68→35, HTTP introspection disabled), sole reportable line low-severity pre-auth GraphQL disclosure already VALID 5.3, all high-value hypotheses strictly session-gated; risk at steady-state floor for this program.
+===== ANALYST bigpickle 2026-09-18 11:33:06 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mfor u in "https://roobet.com/_api/settings/get" "https://roobet.com/_api/graphql?query=%7B__typename%7D&extensions=%7B%7D"; do curl -s -o /dev/null -w "%{http_code} %{size_download}\n" "$u"; sleep 1; done
+200 1763
+400 406
+[0m
+[0m$ [0mcurl -s -o /dev/null -w "named-op: %{http_code} %{size_download}\n" "https://roobet.com/_api/graphql?query=%7B__typename%7D" -H "x-apollo-operation-name: prior"; sleep 1; curl -s -o /dev/null -w "admin: %{http_code} %{size_download}\n" "https://roobet.com/_api/admin/users"; sleep 1; curl -s -o /dev/null -w "aff: %{http_code} %{size_download}\n" "https://roobet.com/_api/affiliate/get?user_id=1"
+named-op: 200 32
+admin: 401 12
+aff: 401 12
+[0m
+STEP 1 — DELTA
+Fresh probes (this run) vs 23-run baseline: all byte-identical.
+- settings/get 200@1763B (35 keys) — byte-stable, 24th run
+- graphql no-body GET 400@406B / named-op GET 200@32B — gate intact
+- admin/users 401@12B, affiliate/get?user_id=1 401@12B — unchanged
+NO_DELTA — surface fully static; 24th consecutive byte-stable run.
+
+STEP 2 — PRIORITIZE
+[PRIO] roobet.com/_api/graphql, 6.2, tech_exposure(9)+gate_ease(8) — only pre-auth line; 13/26 mutations execute ISE; WS full introspection still sole channel
+[PRIO] roobet.com/_api/admin/users, 5.4, business_value(7)+attack_surface(7) — 401-gated admin family; only AUTH_HELPED path to CRITICAL remains
+[PRIO] roobet.com/_api/affiliate/get, 4.5, business_value(6) — param parsing alive, authz vs session-validity indistinguishable anonymously
+
+STEP 3 — HYPOTHESES
+[HYP] Pre-Auth GraphQL Resolver Execution — 24th-run regression watch
+class: OTHER
+asset: roobet.com/_api/graphql
+confidence: 90
+reasoning: gate intact this run (named-op GET 200@32B, omitted 400@406B); 13/26 mutations pre-auth→ISE; 09-17 read-plane hardened 200+NOT_AUTHENTICATED→400+ISE; sole functional break in 24 runs = hardening, not exposure.
+evidence_needed: WS read-plane channel value; remaining 13 mutations for full resolver map.
+verify_steps: PASSIVE re-probe done this run (200@32B/400@406B); WS frames require ws tooling — HUMAN_ONLY.
+impact: complete pre-auth resolver execution map (54 ops) + architecture disclosure; LOW standalone (resolver auth caps data-plane).
+testability: AUTH_HELPED
+[HYP] Admin Priv-esc via Non-Admin Session on /_api/admin/users
+class: AUTH
+asset: roobet.com/_api/admin/users
+confidence: 55
+reasoning: 401@12B stable 24 runs; sibling affiliate/get proves param parsing pre-authz; 401 session-absent vs authz-denied indistinguishable anonymously.
+evidence_needed: HTTP 200 (or 403≠401) with a normal-user connect.sid.
+verify_steps: HUMAN sandboxed ≤1rps read-only GET with session cookie.
+impact: CRITICAL cross-tenant user/PII+financial dump if 200.
+testability: AUTH_HELPED
+[HYP] Affiliate Endpoint IDOR via user_id Param
+class: IDOR
+asset: roobet.com/_api/affiliate/get
+confidence: 45
+reasoning: ?user_id=1 returns 401@12B (param parsing alive, 24 runs); authz vs session-validity indistinguishable anonymously.
+evidence_needed: Session A reads account B's affiliate/referral data via ?user_id=<acct_B>.
+verify_steps: HUMAN 2 sandbox accounts ≤1rps read-only GET.
+impact: HIGH cross-user affiliate/revenue disclosure if 200.
+testability: AUTH_HELPED
+
+STEP 4 — SELF-CRITIQUE
+[PARKED] Admin priv-esc / affiliate IDOR: confidence 55/45, both AUTH_HELPED — no passive test possible; queued for HUMAN; do not re-probe.
+[FINAL] Pre-auth GraphQL resolver execution (90) sole survivor; already VALID 5.3 filed; severity capped by resolver auth.
+
+STEP 5 — NEXT ACTION
+[NEXT] HUMAN: With a normal-user connect.sid, ≤1rps read-only: GET https://roobet.com/_api/admin/users → 200 = CRITICAL cross-tenant dump (report immediately); 401 = close line, then same session GET https://roobet.com/_api/affiliate/get?user_id=<acct_B> → 200 with B's data = IDOR HIGH; 401 = surface fully bounded.
+
+STEP 6 — LEARNING
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/*: 24th consecutive run byte-stable — settings/get 200@1763B (35 keys), graphql 400@406B / named-op 200@32B, admin/users 401@12B, affiliate/get?user_id=1 401@12B; zero surface delta; passive probing fully exhausted.
+
+STEP 7 — RISK
+[RISK] roobet: 28 — 24 consecutive byte-stable runs, server actively hardening (read-plane resolvers ISE, error text suppressed, config trimmed 68→35), sole reportable line is low-severity pre-auth GraphQL disclosure already VALID 5.3, all high-value hypotheses strictly session-gated; risk at steady-state floor.
