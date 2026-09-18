@@ -36,3 +36,11 @@
 - 2 lead(s) marked VALID at 2026-09-17 22:45:53 UTC
   - **Verdict: VALID** — Pre-auth mutation execution is a genuine finding.
   - | Pre-Auth Mutation Execution | **VALID** | 5.3 Medium | Genuine finding; report to bugs.olivermaicher.eu |
+
+- 6 lead(s) marked VALID at 2026-09-18 11:29:57 UTC
+  - **Verdict: VALID**
+  - **Verdict: VALID**
+  - **Verdict: VALID**
+  - | 1 | GraphQL pre-auth mutation (`liveRTPUpdate`) | **VALID** | 6.5 |
+  - | 2 | GraphQL anonymous full introspection | **VALID** | 5.3 |
+  - | 3 | GraphQL User type PII/financial field disclosure | **VALID** | 5.3 |
