@@ -947,3 +947,14 @@ www.roobet.com
 - CHANGED 23rd consecutive run byte-stable on all core routes (settings/get 200@1763B, admin/users 401, affiliate/get?user_id=1 401, graphql GET 400/named-op 200, socket.io Origin-gated); 14 new route candidate
 - CHANGED Server hardening trend confirmed: liveRTPUpdate error msg suppressed (09-08), HTTP introspection disabled (09-06), settings/get trimmed 68→35 keys (09-08), read-plane resolvers now ISE instead of NOT_
 - CHANGED roobet.com/_api/graphql HTTP GET gate mechanically stable: x-apollo-operation-name present → 200 executes (32B), omitted → 400@406B; resolver pre-execution reachable pre-auth on HTTP channel (confirme
+
+## 2026-09-18 15:12:41 UTC
+- NEW `fs.roobet.com` (34.8.116.253, non-Cloudflare GCP/GCS host, 200, serves FullStory `/s/fs.js`) — absent from inventory.
+- NEW `crash-gs.roobet.com` (Cloudflare, Crash game-server, wss/socket.io) — absent from inventory.
+- CHANGED `api.roobet.com` confirmed Cloudflare bot-managed: plain curl => 403 block; GraphQL WS ports 8087(product)/8088(admin) embedded in client bundle but NOT externally reachable (Cloudflare exposes only 4
+- CHANGED `roobet.com` is Remix/React SPA; all `/api/*` server-differentiables absent (200 SPA shell catch-all).
+- CHANGED roobet.com/_api/graphql HTTP read-plane resolvers (exchangeRates/viewerChecks/userPublicProfile) now return 400+INTERNAL_SERVER_ERROR instead of 200+NOT_AUTHENTICATED — server hardened; HTTP channel o
+- CHANGED roobet.com/_api/settings/get: allTimeNumBets increased ~15.398B → ~15.446B (~48M/4 days); 35-key schema byte-stable across 23+ runs
+- CHANGED 24th consecutive run byte-stable on all core routes (settings/get 200@1763B, admin/users 401, affiliate/get?user_id=1 401, graphql GET 400/named-op 200, socket.io Origin-gated); 14 new route candidate
+- CHANGED Server hardening trend confirmed: liveRTPUpdate error msg suppressed (09-08), HTTP introspection disabled (09-06), settings/get trimmed 68→35 (09-08), read-plane resolvers now ISE instead of NOT_AUTHE
+- CHANGED roobet.com/_api/graphql HTTP GET gate mechanically stable: x-apollo-operation-name present → 200 executes (32B), omitted → 400@406B; resolver pre-execution reachable pre-auth on HTTP channel
