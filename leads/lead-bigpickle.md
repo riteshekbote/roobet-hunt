@@ -4163,3 +4163,32 @@ testability: AUTH_HELPED
 [NEXT] HUMAN: With normal-user connect.sid, ≤1rps read-only: GET https://roobet.com/_api/admin/users → 200 = CRITICAL cross-tenant dump (report immediately); 401 = close line, then same session GET https://roobet.com/_api/affiliate/get?user_id=<acct_B> → 200 with B's data = IDOR HIGH; 401 = surface fully bounded.
 [LEARN] ACCEPTED OTHER @ roobet.com/_api/*: 23rd consecutive run byte-stable — settings/get 200@1763B (35 keys, allTimeNumBets 15.450B), admin/users 401@12B, affiliate/get?user_id=1 401@12B, graphql 400@406B / named-op 200@32B; zero surface delta; passive probing fully exhausted.
 [RISK] roobet: 28 — Surface static 23 runs, server actively hardening (read-plane resolvers now ISE, error text suppressed, config trimmed), sole reportable line low-severity pre-auth GraphQL disclosure already VALID 5.3, all high-value hypotheses strictly session-gated; risk at steady-state floor.
+## 2026-09-18 06:04:19 UTC [target] (model bigpickle)
+[HYP] Pre-Auth GraphQL Resolver Execution (Read-Plane Hardening Regression Watch)
+class: OTHER
+asset: roobet.com/_api/graphql
+confidence: 90
+reasoning: gate intact this run (named-op GET 200@32B, omitted 400@406B); 13/26 mutations pre-auth→ISE; 09-17 read-plane hardened to 400+ISE (was NOT_AUTHENTICATED); the only functional break observed in 24 runs.
+evidence_needed: WS read-plane channel value; the remaining 13 mutations for full resolver map.
+verify_steps: Already verified passively (HTTP); WS frames require ws tooling — HUMAN_ONLY.
+impact: complete pre-auth resolver execution map (54 ops) + architecture disclosure; LOW standalone.
+testability: AUTH_HELPED
+[HYP] Admin Priv-esc via Non-Admin Session on /_api/admin/users
+class: AUTH
+asset: roobet.com/_api/admin/users
+confidence: 55
+reasoning: 401@12B stable 24 runs; sibling affiliate/get proves parameter parsing pre-authz; 401 session-absent vs authz-denied indistinguishable anonymously.
+evidence_needed: HTTP 200 (or 403≠401) with a normal-user connect.sid.
+verify_steps: HUMAN sandboxed ≤1rps read-only GET with session cookie.
+impact: CRITICAL cross-tenant user/PII+financial dump if 200.
+testability: AUTH_HELPED
+[HYP] Affiliate Endpoint IDOR via user_id Param
+class: IDOR
+asset: roobet.com/_api/affiliate/get
+confidence: 45
+reasoning: ?user_id=1 returns 401@12B (param parsing alive, 24 runs); authz vs session-validity indistinguishable anonymously.
+evidence_needed: Session A reads account B's affiliate/referral data via ?user_id=<acct_B>.
+verify_steps: HUMAN 2 sandbox accounts ≤1rps read-only GET.
+impact: HIGH cross-user affiliate/revenue disclosure if 200.
+testability: AUTH_HELPED
+[NEXT] HUMAN: With a normal-user connect.sid, ≤1rps read-only: GET https://roobet.com/_api/admin/users → 200 = CRITICAL cross-tenant dump (report immediately); 401 = close line, then same session GET https://roobet.com/_api/affiliate/get?user_id=<acct_B> → 200 with B's data = IDOR HIGH; 401 = surface fully bounded.
