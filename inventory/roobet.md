@@ -958,3 +958,10 @@ www.roobet.com
 - CHANGED 24th consecutive run byte-stable on all core routes (settings/get 200@1763B, admin/users 401, affiliate/get?user_id=1 401, graphql GET 400/named-op 200, socket.io Origin-gated); 14 new route candidate
 - CHANGED Server hardening trend confirmed: liveRTPUpdate error msg suppressed (09-08), HTTP introspection disabled (09-06), settings/get trimmed 68→35 (09-08), read-plane resolvers now ISE instead of NOT_AUTHE
 - CHANGED roobet.com/_api/graphql HTTP GET gate mechanically stable: x-apollo-operation-name present → 200 executes (32B), omitted → 400@406B; resolver pre-execution reachable pre-auth on HTTP channel
+
+## 2026-09-18 18:47:11 UTC
+- CHANGED roobet.com/_api/graphql HTTP read-plane resolvers (exchangeRates/viewerChecks/userPublicProfile) now return 400+INTERNAL_SERVER_ERROR instead of 200+NOT_AUTHENTICATED — server hardened; HTTP channel o
+- CHANGED roobet.com/_api/settings/get: allTimeNumBets increased ~15.398B → ~15.446B (~48M/4 days); 35-key schema byte-stable across 24+ runs
+- CHANGED 24th consecutive run byte-stable on all core routes (settings/get 200@1763B, admin/users 401, affiliate/get?user_id=1 401, graphql GET 400/named-op 200, socket.io Origin-gated); 14 new route candidate
+- CHANGED Server hardening trend confirmed: liveRTPUpdate error msg suppressed (09-08), HTTP introspection disabled (09-06), settings/get trimmed 68→35 (09-08), read-plane resolvers now ISE instead of NOT_AUTHE
+- CHANGED roobet.com/_api/graphql HTTP GET gate mechanically stable: x-apollo-operation-name present → 200 executes (32B), omitted → 400@406B; resolver pre-execution reachable pre-auth on HTTP channel

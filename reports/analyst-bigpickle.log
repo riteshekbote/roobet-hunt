@@ -23653,3 +23653,1340 @@ timeout 15 curl -s -o /tmp/nocsg.txt -w "%{http_code} %{size_download}\n" 'https
 sleep 1
 cat /tmp/namedop.txt; echo; cat /tmp/nocsg.txt; echo failed
 [91m[1mError: [0mThe user rejected permission to use this specific tool call.
+===== ANALYST bigpickle 2026-09-18 18:47:11 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la /home/runner/work/roobet-hunt/roobet-hunt/ 2>/dev/null && echo "---" && ls -la /home/runner/work/roobet-hunt/roobet-hunt/art/ 2>/dev/null | head -50
+total 564
+drwxr-xr-x 12 runner runner   4096 Sep 18 18:33 .
+drwxr-xr-x  3 runner runner   4096 Sep 18 18:33 ..
+drwxr-xr-x  7 runner runner   4096 Sep 18 18:33 .git
+drwxr-xr-x  3 runner runner   4096 Sep 18 18:33 .github
+-rw-r--r--  1 runner runner   1724 Sep 18 18:33 README.md
+-rw-r--r--  1 runner runner     32 Sep 18 18:33 analyst-out.txt
+-rw-r--r--  1 runner runner 225645 Sep 18 18:33 analyst-prompt.txt
+-rw-r--r--  1 runner runner 221862 Sep 18 18:33 ctx.txt
+drwxr-xr-x  2 runner runner   4096 Sep 18 18:33 inventory
+drwxr-xr-x  2 runner runner   4096 Sep 18 18:33 knowledge
+drwxr-xr-x  2 runner runner   4096 Sep 18 18:33 leads
+-rw-r--r--  1 runner runner  33012 Sep 18 18:33 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Sep 18 18:33 recon-notes
+drwxr-xr-x  2 runner runner   4096 Sep 18 18:33 reports
+drwxr-xr-x  2 runner runner   4096 Sep 18 18:33 reposcan-raw
+-rw-r--r--  1 runner runner   3196 Sep 18 18:33 scope.yml
+drwxr-xr-x  2 runner runner   4096 Sep 18 18:33 scripts
+-rw-r--r--  1 runner runner     33 Sep 18 18:33 state_bigpickle.json
+-rw-r--r--  1 runner runner     33 Sep 18 18:33 state_laguna.json
+-rw-r--r--  1 runner runner     33 Sep 18 18:33 state_ling3.json
+-rw-r--r--  1 runner runner     33 Sep 18 18:33 state_longcat.json
+-rw-r--r--  1 runner runner     33 Sep 18 18:33 state_mimo.json
+-rw-r--r--  1 runner runner     33 Sep 18 18:33 state_nemotron3.json
+drwxr-xr-x  2 runner runner   4096 Sep 18 18:33 triage
+---
+[0m
+[0m$ [0mgit -C /home/runner/work/roobet-hunt/roobet-hunt log --oneline -5 2>/dev/null; echo "---STATUS---"; git -C /home/runner/work/roobet-hunt/roobet-hunt status --short 2>/dev/null | head -20
+40760b0 hunt cycle 2026-09-18-15-12
+---STATUS---
+?? analyst-out.txt
+?? analyst-prompt.txt
+?? ctx.txt
+[0m
+[0m$ [0mcat /home/runner/work/roobet-hunt/roobet-hunt/scope.yml
+programs:
+  roobet:
+    name: Roobet Bug Bounty
+    disclosure_policy: via bugs.olivermaicher.eu (Oliver Maicher private program) - report + PoC + contact + payment
+    assets:
+      - name: "All company-owned infrastructure, gaming platforms, user accounts, wallets, APIs, mobile/web applications, and domains operated by Roobet"
+        priority: In
+    out_of_scope:
+- "Network level Denial of Service attacks"
+      - "Application Denial of Service by locking user accounts"
+      - "Descriptive error messages or headers (e.g. Stack Traces, banner grabbing)"
+      - "Disclosure of known public files or directories (e.g. robots.txt)"
+      - "Outdated software / library versions"
+      - "OPTIONS / TRACE HTTP method enabled"
+      - "CSRF on logout"
+      - "CSRF on forms that are available to anonymous users"
+      - "Cookies that lack HTTP Only or Secure settings for non-sensitive data"
+      - "Self-XSS and issues exploitable only through Self-XSS"
+      - "Reports resulting from automated scanning utilities without additional details or a POC demonstrating a specific exploit"
+      - "Attacks requiring physical access to a user's device"
+      - "Attacks dependent upon social engineering of employees or vendors"
+      - "Username enumeration based on login or forgot password pages"
+      - "Enforcement policies for brute force, rate limiting, or account lockout"
+      - "SSL/TLS best practices"
+      - "SSL attacks such as BEAST, BREACH, Renegotiation attack"
+      - "Clickjacking, without additional details demonstrating a specific exploit"
+      - "Mail configuration issues including SPF, DKIM, DMARC settings"
+      - "Use of a known-vulnerable library without a description of an exploit specific to our implementation"
+      - "Password and account recovery policies"
+      - "Presence of autocomplete functionality in form fields"
+      - "Publicly accessible login panels"
+      - "Lack of email address verification during account registration or account invitation"
+      - "Lack of email address verification password restore"
+      - "Session control during email/password changes"
+      - "Social engineering, physical attacks, and DoS/DDoS testing (per program notes)"
+      - "Exposure of customer/employee/financial/authentication data during testing (per program notes)"
+    github_orgs:
+      - none-configured
+
+rules:
+  passive_first: false          # deep-hunt agent: active probes allowed when scoped
+  max_requests_per_second: 1    # never hammer live infra
+  no_doom: true                 # no DoS/DDoS, no account-lockout attacks
+  account_creation: restricted  # only on test/sandbox assets, never live customer data
+  no_data_modification: true    # no writes/deletes on live customer data
+  no_pre_disclosure: true       # never disclose before program response
+  poc_required: true            # scanner output alone is REJECTED
+  redact_secrets_in_commits: true
+
+models:
+  - { id: opencode/big-pickle, name: bigpickle }
+  - { id: opencode/nemotron-3-ultra-free, name: nemotron3 }
+  - { id: opencode/longcat-2.0-free, name: longcat }
+  - { id: opencode/ling-3.0-flash-free, name: ling3 }
+  - { id: opencode/laguna-s-2.1-free, name: laguna }
+[0m
+[0m$ [0mls -la /home/runner/work/roobet-hunt/roobet-hunt/leads/ /home/runner/work/roobet-hunt/roobet-hunt/knowledge/ /home/runner/work/roobet-hunt/roobet-hunt/reports/ /home/runner/work/roobet-hunt/roobet-hunt/inventory/ 2>/dev/null
+/home/runner/work/roobet-hunt/roobet-hunt/inventory/:
+total 120
+drwxr-xr-x  2 runner runner   4096 Sep 18 18:33 .
+drwxr-xr-x 12 runner runner   4096 Sep 18 18:33 ..
+-rw-r--r--  1 runner runner 111622 Sep 18 18:33 roobet.md
+
+/home/runner/work/roobet-hunt/roobet-hunt/knowledge/:
+total 104
+drwxr-xr-x  2 runner runner  4096 Sep 18 18:33 .
+drwxr-xr-x 12 runner runner  4096 Sep 18 18:33 ..
+-rw-r--r--  1 runner runner 97819 Sep 18 18:33 index.md
+
+/home/runner/work/roobet-hunt/roobet-hunt/leads/:
+total 1592
+drwxr-xr-x  2 runner runner    4096 Sep 18 18:33 .
+drwxr-xr-x 12 runner runner    4096 Sep 18 18:33 ..
+-rw-r--r--  1 runner runner  516844 Sep 18 18:33 lead-bigpickle.md
+-rw-r--r--  1 runner runner    5151 Sep 18 18:33 lead-laguna.md
+-rw-r--r--  1 runner runner    5050 Sep 18 18:33 lead-ling3.md
+-rw-r--r--  1 runner runner    5252 Sep 18 18:33 lead-longcat.md
+-rw-r--r--  1 runner runner      18 Sep 18 18:33 lead-mimo.md
+-rw-r--r--  1 runner runner 1051153 Sep 18 18:33 lead-nemotron3.md
+-rw-r--r--  1 runner runner   16896 Sep 18 18:33 reposcan-roobet.md
+
+/home/runner/work/roobet-hunt/roobet-hunt/reports/:
+total 3292
+drwxr-xr-x  2 runner runner    4096 Sep 18 18:33 .
+drwxr-xr-x 12 runner runner    4096 Sep 18 18:33 ..
+-rw-r--r--  1 runner runner 1610867 Sep 18 18:33 analyst-bigpickle.log
+-rw-r--r--  1 runner runner   21917 Sep 18 18:33 analyst-laguna.log
+-rw-r--r--  1 runner runner   21816 Sep 18 18:33 analyst-ling3.log
+-rw-r--r--  1 runner runner   22018 Sep 18 18:33 analyst-longcat.log
+-rw-r--r--  1 runner runner 1287324 Sep 18 18:33 analyst-nemotron3.log
+-rw-r--r--  1 runner runner    6209 Sep 18 18:33 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner      51 Sep 18 18:33 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner      50 Sep 18 18:33 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner      52 Sep 18 18:33 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner   12217 Sep 18 18:33 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  345391 Sep 18 18:33 hypotheses.md
+-rw-r--r--  1 runner runner    3044 Sep 18 18:33 valid-bugs.md
+[0m
+[0m$ [0mcat /home/runner/work/roobet-hunt/roobet-hunt/reports/valid-bugs.md
+# Validated findings (running count 0)
+
+- 6 lead(s) marked VALID at 2026-09-10 06:43:39 UTC
+  - **Verdict: VALID**
+  - **Verdict: VALID** (low severity, but information disclosure of internal architecture)
+  - **Verdict: VALID** (low severity)
+  - | 1 | Anonymous GraphQL introspection via WS (full schema + PII fields) | **VALID** | 5.3 |
+  - | 3 | Subscription error disclosure (kycUpdated/polymarketOrders) | **VALID** | 3.1 |
+  - | 4 | Anonymous Socket.IO real-time broadcast feed | **VALID** | 3.1 |
+
+- 2 lead(s) marked VALID at 2026-09-11 13:24:31 UTC
+  - **Verdict: VALID**
+  - | 1 | GraphQL anonymous introspection (full schema + PII/financial field disclosure) | **VALID** | 5.3 |
+
+- 3 lead(s) marked VALID at 2026-09-11 17:14:32 UTC
+  - | Q4 Provable | **No** | Needs a valid user session (`connect.sid`) to test; cannot verify without signing up. Auth is server-side. |
+  - | Q4 Provable | **No** | Needs valid session to test parameter influence |
+  - | Q4 Provable | **No** | Needs valid session + correct body format |
+
+- 5 lead(s) marked VALID at 2026-09-12 21:20:20 UTC
+  - **VERDICT: VALID**
+  - **VERDICT: VALID**
+  - | Q4 Provable | PARTIAL | 401 baseline confirmed passively; requires valid session to prove/disprove escalation (AUTH_HELPED) |
+  - | 1 | GraphQL Anonymous Introspection | **VALID** | 7.5 | Report via bugs.olivermaicher.eu |
+  - | 2 | GraphQL Pre-Auth Mutation Execution | **VALID** | 5.3 | Report via bugs.olivermaicher.eu |
+
+- 7 lead(s) marked VALID at 2026-09-17 19:56:11 UTC
+  - | Q4 Provable | PARTIALLY — 401 baseline confirmed without auth; requires valid session cookie (connect.sid) to test if standard user grants admin access. Cannot prove non-invasively without a test ac
+  - **Verdict: HOLD** — Promising lead (admin routes on non-Cloudflare-gated surface). Needs browser-phase verification with a valid Roobet session to test if standard user auth grants admin access. Canno
+  - | Q4 Provable | PARTIALLY — parameter acceptance confirmed (401 not 404); needs valid session to test IDOR |
+  - **Verdict: HOLD** — IDOR candidate. Needs browser-phase with valid session + two test accounts to confirm cross-user data access.
+  - | Q4 Provable | NO — requires valid session + exact POST body; cannot test without auth |
+  - | Q7 Reasonable triager | NO — no proof of bypass; endpoints require valid session |
+  - **Verdict: HOLD** — Needs browser-phase with valid session. Cannot validate passively.
+
+- 2 lead(s) marked VALID at 2026-09-17 22:45:53 UTC
+  - **Verdict: VALID** — Pre-auth mutation execution is a genuine finding.
+  - | Pre-Auth Mutation Execution | **VALID** | 5.3 Medium | Genuine finding; report to bugs.olivermaicher.eu |
+
+- 6 lead(s) marked VALID at 2026-09-18 11:29:57 UTC
+  - **Verdict: VALID**
+  - **Verdict: VALID**
+  - **Verdict: VALID**
+  - | 1 | GraphQL pre-auth mutation (`liveRTPUpdate`) | **VALID** | 6.5 |
+  - | 2 | GraphQL anonymous full introspection | **VALID** | 5.3 |
+  - | 3 | GraphQL User type PII/financial field disclosure | **VALID** | 5.3 |
+[0m
+[0m$ [0mecho "=== hypotheses-bigpickle ==="; tail -40 /home/runner/work/roobet-hunt/roobet-hunt/reports/hypotheses-bigpickle.txt; echo; echo "=== hypotheses-nemotron3 ==="; tail -25 /home/runner/work/roobet-hunt/roobet-hunt/reports/hypotheses-nemotron3.txt
+=== hypotheses-bigpickle ===
+asset: fs.roobet.com (GCP 34.8.116.253, GCS-backed)
+confidence: 45
+reasoning: fs.roobet.com is a Roobet-operated GCS host (x-goog-generation, MULTI_REGIONAL, UploadServer) serving /s/fs.js for FullStory. Root/listing 302 to www.eu1.fullstory.com. Non-Cloudflare GCP IP is a separate trust boundary; a misconfigured bucket could permit ListObjects or serve unintended objects.
+evidence_needed: Bucket returns <ListBucketResult> or serves objects outside /s/ not intended to be public.
+verify_steps: GET https://fs.roobet.com/?list-type=2&max-keys=1 (200 ListBucketResult vs 403 AccessDenied); GET https://fs.roobet.com/s/ then enumerate sibling object keys. Read-only.
+impact: Info disclosure of internal static assets/scripts (possible private-bundle review or injected secrets) => medium.
+testability: PASSIVE
+[HYP] Commerce/event SDK & CMS token misconfiguration
+class: OTHER
+asset: roobet.com SPA bundle (ROOBET_* env leak)
+confidence: 40
+reasoning: Bundle exposes ROOBET_BETBY_BRAND_ID, ROOBET_PAYMENTIQ_MERCHANT_ID/ENV=sunpetal, Red Tiger launcher gserver-roobet.redtiger.cash, ContentStack delivery+preview tokens, VWO key. Delivery tokens are public-by-design; the preview token (csde...) MIGHT read unpublished draft CMS content. Launcher host is 3P redtiger.cash (out of scope).
+evidence_needed: ContentStack preview API returns non-public draft content via preview token (read-only).
+verify_steps: POST https://api.contentstack.io/… preview-locale query with the preview token. Read-only; low severity.
+impact: Draft/confidential marketing-content disclosure => low; does not touch customer/financial/auth data (program-excluded).
+testability: PASSIVE
+[PARKED] Exposed GraphQL admin 8088: highest value but 8087/8088 verified NOT externally reachable (TCP to Cloudflare 443/8443 only open; ports refused) and 403 bot-block on HTTP => cannot confirm reachability passively. Kept as AUTH_HELPED for browser-phase; confidence dropped to 55.
+[PARKED] Client token/CMS leak: ContentStack preview token is lower severity and touches no customer/financial data; delivery tokens are public keys => near-REJECTED class (public keys). Parked at 40.
+[FINAL] fs.roobet.com GCS bucket misconfig: only fully PASSIVE-verifiable candidate; survivor.
+[NEXT] PROBE: GET https://fs.roobet.com/?list-type=2&max-keys=1 then GET https://fs.roobet.com/s/ (compare 200 ListBucketResult vs 403); also GET https://fs.roobet.com/robots.txt content. If no 200 listing, escalate to browser-phase probe of wss://api.roobet.com/ GraphQL introspection (AUTH_HELPED).
+[LEARN] REJECTED OTHER @ roobet.com bundle: delivered ContentStack tokens are public-by-design; not reportable. No delta in server surface from prior runs.
+[RISK] roobet: 62 — real but gated surface (api.roobet.com Cloudflare/Turnstile bot-management blocks all scripted probes; GraphQL admin only via browser). Two new subdomains discovered; one testable passive lead (fs.roobet.com GCS). Engagement rules (max 1 rps, passive-first, no data modification, poc_required) complied with; no scanner POC runs.
+[PRIO] fs.roobet.com,6.0,GCS_BUCKET_MISCONFIG,PASSIVE
+[PRIO] api.roobet.com,6.7,GRAPHQL_ADMIN_WSPORTS,AUTH_HELPED
+[PRIO] roobet.com,4.55,CLIENT_TOKEN_LEAK,PASSIVE
+[HYP] fs.roobet.com GCS bucket object listing exposure
+class: MISCONFIG
+asset: fs.roobet.com
+confidence: 45
+reasoning: Non-Cloudflare GCP IP 34.8.116.253 serving FullStory JS from /s/; root 302->fullstory.com; UploadServer header suggests GCS; separate trust boundary from Cloudflare-protected roobet.com assets.
+evidence_needed: ListBucketResult XML (200) on S3-compatible query, or objects outside /s/ served.
+verify_steps: GET https://fs.roobet.com/?list-type=2&max-keys=1 (expect 200+XML or 403); GET https://fs.roobet.com/s/ (listing vs 403). Read-only, <1 rps.
+impact: Internal static asset/script disclosure => medium.
+testability: PASSIVE
+[HYP] api.roobet.com GraphQL admin WS port exposed via Cloudflare
+class: MISCONFIG
+asset: api.roobet.com:8088
+confidence: 55
+reasoning: Client bundle embeds ROOBET_WS_GQL_ADMIN_PORT=8088, ROOBET_WS_GQL_PRODUCT_PORT=8087, ROOBET_WS_API_URL=wss://api.roobet.com/. Ports 8087/8088 not externally reachable (TCP refused; Cloudflare only 443/8443). HTTP 403 from Cloudflare bot management.
+evidence_needed: WSS upgrade success + GQL introspection returning admin schema fields.
+
+=== hypotheses-nemotron3 ===
+[FINAL] 1. roobet.com/_api/graphql: Pre-auth GraphQL Mutation Resolver Execution with IDOR/BOLA Surface via HTTP Channel (95, PASSIVE)
+[FINAL] 2. roobet.com/_api/admin/users: Admin Privilege Escalation via Low-Gate _api/admin/* Routes (55, AUTH_HELPED)
+[FINAL] 3. roobet.com/_api/socket.io: Unauthenticated Realtime Game State Exposure via _api/socket.io Default Namespace (70, HUMAN_ONLY)
+[NEXT] PROBE: POST https://roobet.com/_api/graphql -H "Content-Type: application/json" -H "x-apollo-operation-name: seonSessionUpdate" -d '{"query":"mutation { seonSessionUpdate(input:{sessionId:\"test\",data:\"{}\"}) }"}' → capture error structure; test if remaining untested mutations execute pre-auth with distinguishable error patterns. Single connection, read-only, 1 rps.
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql: Zero delta across runs; dual-channel pre-auth GraphQL disclosure remains sole reportable line; resolver-level NOT_AUTHENTICATED caps severity
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/*: Surface static (6 HTTP + 2 WS); config dump stable (35 keys), liveRTPUpdate error message patched (400+3×INTERNAL_SERVER_ERROR); remaining high-value lines session-gated
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql HTTP POST: 16/26 tested mutations execute pre-auth → INTERNAL_SERVER_ERROR (not 401/NOT_AUTHENTICATED)
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/settings/get: response stable at 35 keys (down from 68); globalStats.allTimeNumBets ~15.45B; restrictedCountries 35 entries
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/admin/users: base path consistently returns 401 (prior 404s were probe URL artifacts)
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/affiliate/get: parameter tests ?user_id/affiliate_code return 401 not 404 — confirms parameter parsing on low-gate surface
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/socket.io: polling transport Origin-gated — 403 disallowed origin without Origin: https://roobet.com, 200 with it
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql GET: CSRF preflight confirmed via error body — requires non-form content-type or x-apollo-operation-name/apollo-require-preflight
+[LEARN] REJECTED OTHER @ roobet.com/_api/*: 6 new family candidates (admin/affiliates, admin/games, admin/config, affiliate/stats, auth/me, auth/session) all 404 SPA shell — route families bounded
+[LEARN] REJECTED MISCONFIG @ roobet.com: OAuth metadata endpoints return SPA shell (catch-all route), not JSON configuration
+[LEARN] REJECTED MISCONFIG @ fs.roobet.com: GCS bucket ?list-type=2 redirects to fullstory.com; no object enumeration possible
+[LEARN] REJECTED OTHER @ api.roobet.com: GraphQL endpoint blocked by Cloudflare bot management (403) without valid Origin/Referer/browser session
+[LEARN] ACCEPTED MISCONFIG @ roobet.com: Remix catch-all route masks potential API endpoints under /api/* paths
+[LEARN] PARKED api.roobet.com Cloudflare bypass: Requires valid browser headers/session/turnstile to test
+[LEARN] PARKED auth.roobet.com/account.roobet.com/admin.roobet.com: Subdomains unresponsive; no attack surface confirmed
+[LEARN] PARKED crash-gs.roobet.com unauthenticated socket: Requires browser/WS tooling, HUMAN_ONLY
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql HTTP GET read-plane: exchangeRates/viewerChecks/userPublicProfile now return 400+INTERNAL_SERVER_ERROR (was 200+NOT_AUTHENTICATED) — server hardened; resolvers crash null-deref instead of structured auth error; HTTP-only change
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/*: 23rd consecutive run byte-stable on core routes; settings/get 200@1763B (35 keys, allTimeNumBets 15.450B), admin/users 401@12B, affiliate/get?user_id=1 401@12B, 14 new route candidates all 404; passive probing fully exhausted
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/settings/get: allTimeNumBets grew from ~15.398B to ~15.446B (normal ~48M growth over 4 days); config surface otherwise byte-stable
+[LEARN] ACCEPTED MISCONFIG @ roobet.com: Server actively hardening — liveRTPUpdate msg suppressed (09-08), HTTP introspection disabled (09-06), settings/get trimmed 68→35 (09-08), read-plane resolvers now ISE instead of NOT_AUTHENTICATED (this run). Hardening trend reduces exploitable surface.
+[RISK] roobet: 78 — Main API (api.roobet.com) and auth/account/admin subdomains remain gated or unresponsive. Critical delta: roobet.com/_api/graphql exposes anonymous GraphQL WS transport + full schema introspection (28Q/26M/7S) + mutation validation error disclosure (InputType schemas) + subscription internal errors + User type with 64 PII/financial/token fields — all bypassing Cloudflare entirely. HTTP channel confirmed live with Apollo GET transport (CSRF bypass via x-apollo-operation-name) and mutation resolver execution pre-auth (16/26 tested mutations → INTERNAL_SERVER_ERROR, resolver reaches internal logic). _api/socket.io exposes anonymous realtime feed (Origin-gated). Admin/affiliate endpoints on same low-gate surface = elevated IDOR/privilege escalation risk. Auth = Express.js session cookies; no bypass without valid session. Server actively hardening (read-plane resolvers now crash with ISE, HTTP introspection disabled, config surface reduced). No confirmed reportable vuln yet; mutation attack surface fully mapped for session-assisted testing. Engagement rules (≤1 rps, read-only, no auth-bypass on live data) respected.
+[0m
+Now let me re-examine fresh passive angles. The KB shows 24 byte-stable runs on the known surface. Two angles never fully probed passively: (1) CT-log enumeration for subdomains beyond the 20-host inventory, (2) crash-gs.roobet.com engine.io *polling* handshake (worked for roobet.com/_api/socket.io with plain GET; only WS-upgrade was ever tried on crash-gs).
+[0m$ [0mcurl -s --max-time 25 "https://crt.sh/?q=%25.roobet.com&output=json" -o /tmp/opencode/crt_roobet.json; echo "exit=$?"; wc -c /tmp/opencode/crt_roobet.json
+exit=0
+1127599 /tmp/opencode/crt_roobet.json
+[0m
+[0m$ [0mcd /tmp/opencode && python3 - <<'EOF'
+import json,re
+data=json.load(open('crt_roobet.json'))
+names=set()
+for e in data:
+    n=e.get('name_value','')
+    for part in n.split('\n'):
+        p=part.strip().lower()
+        if p and '*' not in p and p.endswith('roobet.com'):
+            names.add(p)
+for e in data:
+    n=e.get('common_name','')
+    if n:
+        p=n.strip().lower()
+        if '*' not in p and p.endswith('roobet.com'):
+            names.add(p)
+print(len(names), "unique names ending in .roobet.com (cert-san non-wildcard)")
+for n in sorted(names):
+    print(n)
+EOF
+70 unique names ending in .roobet.com (cert-san non-wildcard)
+api-test.roobet.com
+api.roobet.com
+api.staging.roobet.com
+bitcoin-node.roobet.com
+blog.roobet.com
+ca.staging.roobet.com
+canary.roobet.com
+coinflip.games.roobet.com
+crash-gs.roobet.com
+dice.games.roobet.com
+dice.roobet.com
+dice.staging.roobet.com
+echo.staging.roobet.com
+edge-cf.roobet.com
+edge.roobet.com
+email.mg.roobet.com
+fs.roobet.com
+games.staging.roobet.com
+go.roobet.com
+help.roobet.com
+hotbox.games.roobet.com
+i.roobet.com
+jungle-mines.games.roobet.com
+junglemines.games.roobet.com
+links.roobet.com
+links1.roobet.com
+live-lp.roobet.com
+live.roobet.com
+lp.roobet.com
+mexico.roobet.com
+mines.games.staging.roobet.com
+news.roobet.com
+oneplusone-towers.games.staging.roobet.com
+outbound.intercom.roobet.com
+plinko.games.roobet.com
+plinko.games.staging.roobet.com
+plinko.roobet.com
+plinko.staging.roobet.com
+promotions.roobet.com
+raw.roobet.com
+reporting.roobet.com
+reviews.roobet.com
+roobet.com
+roulette.games.roobet.com
+routing-mx.roobet.com
+snoop-crash.games.roobet.com
+snoopdogg.roobet.com
+snoops-hotbox.games.roobet.com
+soda.roobet.com
+staging.roobet.com
+storybook.staging.roobet.com
+tcr.roobet.com
+test-staging.roobet.com
+test.roobet.com
+testsite.roobet.com
+tiki-21.games.roobet.com
+tiki-21.games.toast.roobet.com
+toast-cf.roobet.com
+toast.roobet.com
+towers.games.roobet.com
+tulaco-roulette.games.staging.roobet.com
+tulaco-roulette.staging.roobet.com
+unsub.roobet.com
+www.roobet.com
+x.new.staging.roobet.com
+x.roobet.com
+x.staging.roobet.com
+x.toast.roobet.com
+xtest.roobet.com
+yeti-towers.games.roobet.com
+[0m
+Major delta found. CT logs reveal ~50 subdomains absent from my 20-host inventory — including `raw.roobet.com`, `edge.roobet.com`, `reporting.roobet.com`, `canary.roobet.com`, `api-test.roobet.com`, a `*.games.roobet.com` family, and multiple `*.staging.roobet.com` non-prod hosts. DNS resolution first (passive), then probe only resolvers.
+[0m$ [0mcd /tmp/opencode && python3 - <<'EOF'
+import socket
+hosts = """api-test.roobet.com api.staging.roobet.com ca.staging.roobet.com canary.roobet.com
+coinflip.games.roobet.com dice.games.roobet.com dice.roobet.com dice.staging.roobet.com
+echo.staging.roobet.com edge-cf.roobet.com edge.roobet.com email.mg.roobet.com
+games.staging.roobet.com go.roobet.com help.roobet.com hotbox.games.roobet.com
+i.roobet.com jungle-mines.games.roobet.com links.roobet.com links1.roobet.com
+live-lp.roobet.com live.roobet.com lp.roobet.com mexico.roobet.com mines.games.staging.roobet.com
+news.roobet.com outbound.intercom.roobet.com plinko.games.roobet.com plinko.roobet.com plinko.staging.roobet.com
+promotions.roobet.com raw.roobet.com reporting.roobet.com reviews.roobet.com
+roulette.games.roobet.com snoop-crash.games.roobet.com snoops-hotbox.games.roobet.com soda.roobet.com
+storybook.staging.roobet.com tcr.roobet.com test-staging.roobet.com test.roobet.com testsite.roobet.com
+tiki-21.games.roobet.com toast-cf.roobet.com toast.roobet.com towers.games.roobet.com
+tulaco-roulette.staging.roobet.com x.roobet.com x.staging.roobet.com yeti-towers.games.roobet.com xtest.roobet.com""".split()
+for h in hosts:
+    try:
+        ip = socket.gethostbyname(h)
+    except Exception as e:
+        ip = "NXDOMAIN"
+    print(f"{h}\t{ip}")
+EOF
+api-test.roobet.com	NXDOMAIN
+api.staging.roobet.com	NXDOMAIN
+ca.staging.roobet.com	NXDOMAIN
+canary.roobet.com	NXDOMAIN
+coinflip.games.roobet.com	NXDOMAIN
+dice.games.roobet.com	NXDOMAIN
+dice.roobet.com	172.64.151.243
+dice.staging.roobet.com	NXDOMAIN
+echo.staging.roobet.com	NXDOMAIN
+edge-cf.roobet.com	NXDOMAIN
+edge.roobet.com	172.64.151.243
+email.mg.roobet.com	104.18.36.13
+games.staging.roobet.com	NXDOMAIN
+go.roobet.com	104.26.14.179
+help.roobet.com	172.64.151.243
+hotbox.games.roobet.com	NXDOMAIN
+i.roobet.com	52.49.207.146
+jungle-mines.games.roobet.com	NXDOMAIN
+links.roobet.com	104.18.36.13
+links1.roobet.com	172.64.151.243
+live-lp.roobet.com	172.64.151.243
+live.roobet.com	NXDOMAIN
+lp.roobet.com	172.64.151.243
+mexico.roobet.com	172.64.151.243
+mines.games.staging.roobet.com	NXDOMAIN
+news.roobet.com	NXDOMAIN
+outbound.intercom.roobet.com	NXDOMAIN
+plinko.games.roobet.com	NXDOMAIN
+plinko.roobet.com	NXDOMAIN
+plinko.staging.roobet.com	NXDOMAIN
+promotions.roobet.com	172.64.151.243
+raw.roobet.com	NXDOMAIN
+reporting.roobet.com	NXDOMAIN
+reviews.roobet.com	172.64.151.243
+roulette.games.roobet.com	NXDOMAIN
+snoop-crash.games.roobet.com	NXDOMAIN
+snoops-hotbox.games.roobet.com	NXDOMAIN
+soda.roobet.com	NXDOMAIN
+storybook.staging.roobet.com	NXDOMAIN
+tcr.roobet.com	NXDOMAIN
+test-staging.roobet.com	NXDOMAIN
+test.roobet.com	NXDOMAIN
+testsite.roobet.com	172.64.151.243
+tiki-21.games.roobet.com	172.64.151.243
+toast-cf.roobet.com	NXDOMAIN
+toast.roobet.com	104.18.36.13
+towers.games.roobet.com	NXDOMAIN
+tulaco-roulette.staging.roobet.com	NXDOMAIN
+x.roobet.com	172.64.151.243
+x.staging.roobet.com	NXDOMAIN
+yeti-towers.games.roobet.com	104.18.36.13
+xtest.roobet.com	172.64.151.243
+[0m
+Resolvers found. Notably `i.roobet.com` → **52.49.207.146 (AWS eu-west-1, non-Cloudflare** — new trust boundary, like fs.roobet.com was GCS). Also `go.roobet.com`, `links.roobet.com`, `links1.roobet.com` (redirector family), `testsite.roobet.com`/`xtest.roobet.com` (test hosts), `dice.roobet.com`, `edge.roobet.com`. HTTP-probing resolvers at ≤1 rps:
+[0m$ [0mcd /tmp/opencode && for h in dice.roobet.com edge.roobet.com go.roobet.com help.roobet.com i.roobet.com links.roobet.com links1.roobet.com live-lp.roobet.com lp.roobet.com mexico.roobet.com promotions.roobet.com reviews.roobet.com testsite.roobet.com tiki-21.games.roobet.com toast.roobet.com x.roobet.com xtest.roobet.com yeti-towers.games.roobet.com; do
+  r=$(curl -s --max-time 15 -o /tmp/opencode/body.txt -w "code=%{http_code} size=%{size_download} type=%{content_type} loc=%{redirect_url} cchit=%{header_json}" -A "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36" -H "Host: $h" "https://$h/" 2>&1)
+  # extract a few headers via header_json is messy; grab server header separately
+  srv=$(curl -s -I --max-time 15 -A "Mozilla/5.0" "https://$h/" 2>/dev/null | grep -i "^server:\|^location:\|^x-powered-by:\|^cf-ray:" | tr -d '\r' | head -5 | tr '\n' ' ')
+  body0=$(head -c 90 /tmp/opencode/body.txt | tr -d '\n')
+  echo "$h | $r | $srv | BODY: $body0"
+  sleep 1.2
+done
+head: cannot open '/tmp/opencode/body.txt' for reading: No such file or directory
+dice.roobet.com | code=000 size=0 type= loc= cchit={
+} |  | BODY: 
+edge.roobet.com | code=403 size=5485 type=text/html; charset=UTF-8 loc= cchit={"date":["Fri, 18 Sep 2026 18:35:47 GMT"],
+"content-type":["text/html; charset=UTF-8"],
+"cache-control":["private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0"],
+"expires":["Thu, 01 Jan 1970 00:00:01 GMT"],
+"referrer-policy":["same-origin"],
+"x-frame-options":["SAMEORIGIN"],
+"strict-transport-security":["max-age=31536000; includeSubDomains; preload"],
+"speculation-rules":["\"/cdn-cgi/speculation\""],
+"server":["cloudflare"],
+"cf-ray":["a3d273d45fc5510d-MSP"],
+"alt-svc":["h3=\":443\"; ma=86400"]
+} | server: cloudflare cf-ray: a3d273d4ed187514-ORD  | BODY: <!DOCTYPE html><!--[if lt IE 7]> <html class="no-js ie6 oldie" lang="en-US"> <![endif]-->
+go.roobet.com | code=301 size=44 type=text/plain; charset=utf-8 loc=https://go.roobet.com/v2/login/ cchit={"date":["Fri, 18 Sep 2026 18:35:48 GMT"],
+"content-type":["text/plain; charset=utf-8"],
+"content-length":["44"],
+"location":["https://go.roobet.com/v2/login/"],
+"cf-ray":["a3d273dd68f34e07-MCI"],
+"cf-cache-status":["DYNAMIC"],
+"access-control-allow-origin":["*"],
+"server":["cloudflare"],
+"strict-transport-security":["max-age=2592000; includeSubDomains"],
+"vary":["Accept"],
+"report-to":["{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=NNcEF4qAQmZ4K17UzlKpjquYgNXgdsTABLTCLe%2F1qIjOa5sIHqQHHNkri%2F93AOyfmU8Ijk3cpP8ZJuV1qnxZZ21MAtM41zrGmzQ0DDVSYT9dvnXoHLnUFh5mu3BqBzE%3D\"}]}"],
+"nel":["{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}"]
+} | location: https://go.roobet.com/v2/login/ cf-ray: a3d273defdbf874f-ORD server: cloudflare  | BODY: Moved Permanently. Redirecting to /v2/login/
+help.roobet.com | code=302 size=0 type=text/html; charset=utf-8 loc=https://help.roobet.com/en/ cchit={"date":["Fri, 18 Sep 2026 18:35:50 GMT"],
+"content-type":["text/html; charset=utf-8"],
+"location":["https://help.roobet.com/en/"],
+"speculation-rules":["\"/cdn-cgi/speculation\""],
+"status":["302 Found"],
+"cache-control":["no-cache"],
+"vary":["Sec-Fetch-Site"],
+"x-intercom-version":["9ef371d758cb4ae5c89199a63ad4f238a7d00195"],
+"referrer-policy":["strict-origin-when-cross-origin"],
+"x-xss-protection":["1; mode=block"],
+"x-request-queueing":["0"],
+"x-request-id":["00066jahhpkedoc4ni10"],
+"x-runtime":["0.038316"],
+"x-frame-options":["DENY"],
+"x-content-type-options":["nosniff"],
+"content-security-policy":["default-src 'self'; base-uri 'self'; connect-src 'self' wss://*.intercom.io https://*.intercom.io https://*.intercom.com https://*.fin.ai https://*.intercom-messenger.com wss://*.intercom-messenger.com https://*.intercom-chat.com wss://*.intercom-chat.com https://uploads.intercomcdn.com https://uploads.intercomcdn.eu https://uploads.au.intercomcdn.com https://uploads.intercomusercontent.com https://*.google-analytics.com https://*.analytics.google.com https://analytics.google.com https://stats.g.doubleclick.net https://cdn.cookielaw.org https://*.onetrust.com; font-src data: https:; frame-ancestors 'self' https://intercomrades.support https://intercom.skilljar.com https://academy.fin.ai https://academy.intercom.com https://academy.guests.intercom.com https://app.intercom.com https://app.eu.intercom.com https://app.au.intercom.com https://intercomrades.intercom.com https://intercomrades.eu.intercom.com https://intercomrades.au.intercom.com https://fin.ai https://app.fin.ai https://app.eu.fin.ai https://app.au.fin.ai; frame-src 'self' https://platform.twitter.com https://staticxx.facebook.com https://fast.wistia.net https://fast.wistia.com https://www.useloom.com https://www.loom.com https://play.vidyard.com https://player.vimeo.com https://web.microsoftstream.com https://share.synthesia.io https://embed.app.guidde.com https://embed.eu.guidde.com https://share.descript.com https://app.guideflow.com https://app.supademo.com https://supercut.ai https://demo.arcade.software https://arcade.software https://www.arcade.software https://watchclueso.com https://www.tella.tv https://www.tella.com https://help.trainn.co https://*.portal.trainn.co https://app.storylane.io https://js.storylane.io https://app.storylane.com https://js.storylane.com https://player.mux.com https://www.facebook.com https://www.youtube.com https://www.youtube-nocookie.com https://content.jwplatform.com https://cdn.jwplayer.com https://players.brightcove.net https://intercom-sheets.com https://www.intercom-reporting.com https://*.sharepoint.com https://www.googletagmanager.com; img-src data: blob: https: http:; media-src data: blob: https:; object-src 'self' https://static.intercomassets.com; script-src 'self' https://connect.facebook.net https://platform.twitter.com https://static.intercomassets.com https://googleadservices.com https://googletagmanager.com https://google-analytics.com https://widget.intercom.io https://js.intercomcdn.com https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com https://intercom.help https://intercom-help.eu https://au.intercom.help https://cdn.cookielaw.org; style-src 'self' 'unsafe-inline' https://fonts.intercomcdn.com https://static.intercomassets.com https://static.intercomcdn.com https://marketing.intercomassets.com https://marketing.intercomcdn.com https://intercom.help https://intercom-help.eu https://au.intercom.help https://static.intercomassets.eu https://static.au.intercomassets.com"],
+"server":["cloudflare"],
+"x-ami-version":["ami-03c07f9f5b1340e18"],
+"cf-cache-status":["DYNAMIC"],
+"strict-transport-security":["max-age=31536000; includeSubDomains; preload"],
+"cf-ray":["a3d273ea0d73ad05-MSP"],
+"alt-svc":["h3=\":443\"; ma=86400"]
+} | location: https://help.roobet.com/en/ server: cloudflare cf-ray: a3d273eafb7ba1cf-MSP  | BODY: 
+i.roobet.com | code=404 size=18 type=text/plain loc= cchit={"content-type":["text/plain"],
+"date":["Fri, 18 Sep 2026 18:35:52 GMT"],
+"content-length":["18"]
+} |  | BODY: 404 page not found
+links.roobet.com | code=303 size=0 type= loc=http://roobet.com/ cchit={"date":["Fri, 18 Sep 2026 18:35:54 GMT"],
+"content-length":["0"],
+"location":["http://roobet.com"],
+"speculation-rules":["\"/cdn-cgi/speculation\""],
+"vary":["Origin"],
+"set-cookie":["XSRF-TOKEN=185e4313e6d4139ea82d0b975570582d996e62c5-1789756554181-122372bab1a405c78a728b95; SameSite=Lax; Path=/; Secure"],
+"request-time":["4"],
+"referrer-policy":["origin-when-cross-origin, strict-origin-when-cross-origin"],
+"x-xss-protection":["1; mode=block"],
+"x-content-type-options":["nosniff"],
+"content-security-policy":["base-uri 'none'; report-uri https://csp-report.browser-intake-datadoghq.com/api/v2/logs?dd-api-key=pub46dd5cf52153d917fc1d5e91ff3a600d&dd-evp-origin=content-security-policy&ddsource=csp-report; frame-ancestors 'self' https://links.iterable.com; object-src 'none'; worker-src 'self' blob:; script-src 'report-sample' 'unsafe-eval' 'unsafe-inline' 'strict-dynamic' https: 'nonce-/obKRWYxCfGrigTW6WcjYw=='"],
+"x-permitted-cross-domain-policies":["master-only"],
+"server":["cloudflare"],
+"x-upstream":["links"],
+"x-kong-upstream-latency":["5"],
+"x-kong-proxy-latency":["1"],
+"x-kong-request-id":["d45bd149b2609e3dbb9e2e5adf664d54"],
+"cf-cache-status":["DYNAMIC"],
+"strict-transport-security":["max-age=31536000; includeSubDomains; preload"],
+"cf-ray":["a3d273ff7a837514-ORD"],
+"alt-svc":["h3=\":443\"; ma=86400"]
+} | location: http://roobet.com server: cloudflare cf-ray: a3d274000bd2510d-MSP  | BODY: 
+links1.roobet.com | code=404 size=1088 type=text/html loc= cchit={"date":["Fri, 18 Sep 2026 18:35:55 GMT"],
+"content-type":["text/html"],
+"speculation-rules":["\"/cdn-cgi/speculation\""],
+"server":["cloudflare"],
+"cf-cache-status":["DYNAMIC"],
+"strict-transport-security":["max-age=31536000; includeSubDomains; preload"],
+"cf-ray":["a3d274088fc04ca0-MSP"],
+"alt-svc":["h3=\":443\"; ma=86400"]
+} | server: cloudflare cf-ray: a3d27409bcdae815-ORD  | BODY: <html>
+<head><title>404 Not Found</title></head>
+<body>
+<center><h1>404 Not Found</h1><
+live-lp.roobet.com | code=403 size=17 type=text/plain; charset=UTF-8 loc= cchit={"date":["Fri, 18 Sep 2026 18:35:57 GMT"],
+"content-type":["text/plain; charset=UTF-8"],
+"content-length":["17"],
+"cache-control":["private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0"],
+"expires":["Thu, 01 Jan 1970 00:00:01 GMT"],
+"referrer-policy":["same-origin"],
+"x-frame-options":["SAMEORIGIN"],
+"server":["cloudflare"],
+"cf-ray":["a3d27412484955fa-ORD"],
+"alt-svc":["h3=\":443\"; ma=86400"]
+} | server: cloudflare cf-ray: a3d27412ca92ad05-MSP  | BODY: error code: 1014
+lp.roobet.com | code=000 size=0 type= loc= cchit={
+} |  | BODY: error code: 1014
+mexico.roobet.com | code=403 size=17 type=text/plain; charset=UTF-8 loc= cchit={"date":["Fri, 18 Sep 2026 18:36:29 GMT"],
+"content-type":["text/plain; charset=UTF-8"],
+"content-length":["17"],
+"cache-control":["private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0"],
+"expires":["Thu, 01 Jan 1970 00:00:01 GMT"],
+"referrer-policy":["same-origin"],
+"x-frame-options":["SAMEORIGIN"],
+"server":["cloudflare"],
+"cf-ray":["a3d274de3b824ca0-MSP"],
+"alt-svc":["h3=\":443\"; ma=86400"]
+} | server: cloudflare cf-ray: a3d274defdd961c1-ORD  | BODY: error code: 1014
+promotions.roobet.com | code=301 size=167 type=text/html; charset=UTF-8 loc=https://roobet.com/promotions cchit={"date":["Fri, 18 Sep 2026 18:36:31 GMT"],
+"content-type":["text/html; charset=UTF-8"],
+"location":["https://roobet.com/promotions"],
+"strict-transport-security":["max-age=31536000; includeSubDomains; preload"],
+"speculation-rules":["\"/cdn-cgi/speculation\""],
+"server":["cloudflare"],
+"cf-ray":["a3d274e73b0a3c96-ORD"],
+"alt-svc":["h3=\":443\"; ma=86400"]
+} | location: https://roobet.com/promotions server: cloudflare cf-ray: a3d274e7bfb5e815-ORD  | BODY: <html>
+<head><title>301 Moved Permanently</title></head>
+<body>
+<center><h1>301 Moved P
+reviews.roobet.com | code=403 size=17 type=text/plain; charset=UTF-8 loc= cchit={"date":["Fri, 18 Sep 2026 18:36:32 GMT"],
+"content-type":["text/plain; charset=UTF-8"],
+"content-length":["17"],
+"cache-control":["private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0"],
+"expires":["Thu, 01 Jan 1970 00:00:01 GMT"],
+"referrer-policy":["same-origin"],
+"x-frame-options":["SAMEORIGIN"],
+"server":["cloudflare"],
+"cf-ray":["a3d274efdf7a55fa-ORD"],
+"alt-svc":["h3=\":443\"; ma=86400"]
+} | server: cloudflare cf-ray: a3d274f05f920880-ORD  | BODY: error code: 1014
+testsite.roobet.com | code=301 size=167 type=text/html loc=https://product-frontend.prod.roobet.systems/ cchit={"date":["Fri, 18 Sep 2026 18:36:34 GMT"],
+"content-type":["text/html"],
+"location":["https://product-frontend.prod.roobet.systems/"],
+"server":["cloudflare"],
+"x-cache":["Redirect from cloudfront"],
+"via":["1.1 3b44c0834bf539cdd349ab07d2632222.cloudfront.net (CloudFront)"],
+"x-amz-cf-pop":["MSP50-P4"],
+"x-amz-cf-id":["53TQ5hQ_BwsyDRXwhUYuSR6nL-6sBDQLR__a53qWeEG-V7GTWn8k4g=="],
+"cf-cache-status":["DYNAMIC"],
+"strict-transport-security":["max-age=31536000; includeSubDomains; preload"],
+"speculation-rules":["\"/cdn-cgi/speculation\""],
+"cf-ray":["a3d274f8787dad20-MSP"],
+"alt-svc":["h3=\":443\"; ma=86400"]
+} | location: https://product-frontend.prod.roobet.systems/ server: cloudflare cf-ray: a3d274f9ef7d1155-ORD  | BODY: <html>
+<head><title>301 Moved Permanently</title></head>
+<body>
+<center><h1>301 Moved P
+tiki-21.games.roobet.com | code=200 size=4235 type=text/html; charset=utf-8 loc= cchit={"date":["Fri, 18 Sep 2026 18:36:35 GMT"],
+"content-type":["text/html; charset=utf-8"],
+"set-cookie":["__cf_bm=zCXRB5PcyjV8sn2LXbZhWvUxNwkoGmcOkBFVPpGQucw-1789756595.6371896-1.0.1.1-vtnCykPdFH76vG2DunU6yfrC2.aidw_FFvhQIX7BaL1QAL2p8nYnHVzbLj3jSAnUnH9m9R02cqh81y52WMof.vBl_JPI5QUNzRiQcHiw3Oe0egc7gpbsctVJ41tHNUXN; HttpOnly; SameSite=None; Secure; Path=/; Domain=tiki-21.games.roobet.com; Expires=Fri, 18 Sep 2026 19:06:35 GMT"],
+"report-to":["{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=%2FLFZn2n108om67PlztCsSqHxZHI3tz09LWS1j%2FKK6omBC2xz8Sa9LuDvzXdNnlqbmCsPOUomOXGxQ%2F1BbXKf7lCWRl7nXvd%2B%2BjgV7GB3Dbzt95BXwIYdDJiVFVAqasoj8se%2F8eiuPZUpBO0%3D\"}]}"],
+"nel":["{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}"],
+"access-control-allow-origin":["*"],
+"cache-control":["public, max-age=31536000"],
+"x-content-type-options":["nosniff"],
+"referrer-policy":["strict-origin-when-cross-origin"],
+"server":["cloudflare"],
+"expires":["Sat, 18 Sep 2027 18:36:35 GMT"],
+"cf-cache-status":["BYPASS"],
+"strict-transport-security":["max-age=31536000; includeSubDomains; preload"],
+"speculation-rules":["\"/cdn-cgi/speculation\""],
+"cf-ray":["a3d275029a71f83f-ORD"],
+"alt-svc":["h3=\":443\"; ma=86400"]
+} | server: cloudflare cf-ray: a3d275038b77510e-MSP  | BODY: <!DOCTYPE html><html>  <head>    <meta http-equiv="Content-Type" content="text/html; ch
+toast.roobet.com | code=403 size=5485 type=text/html; charset=UTF-8 loc= cchit={"date":["Fri, 18 Sep 2026 18:36:37 GMT"],
+"content-type":["text/html; charset=UTF-8"],
+"cache-control":["private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0"],
+"expires":["Thu, 01 Jan 1970 00:00:01 GMT"],
+"referrer-policy":["same-origin"],
+"x-frame-options":["SAMEORIGIN"],
+"strict-transport-security":["max-age=31536000; includeSubDomains; preload"],
+"speculation-rules":["\"/cdn-cgi/speculation\""],
+"server":["cloudflare"],
+"cf-ray":["a3d2750c9e7bad05-MSP"],
+"alt-svc":["h3=\":443\"; ma=86400"]
+} | server: cloudflare cf-ray: a3d2750d19e74ca0-MSP  | BODY: <!DOCTYPE html><!--[if lt IE 7]> <html class="no-js ie6 oldie" lang="en-US"> <![endif]-->
+x.roobet.com | code=302 size=143 type=text/html; charset=UTF-8 loc=https://gandalf.cloudflareaccess.com/cdn-cgi/access/login/x.roobet.com?kid=d31d3791a1fe414ebd080e3b48c11754d8e62411424570cdd2674330f7ccd374&meta=eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6ImU1NGYyNWVhMTZkYjQwNDVlNjc2MjkxYWExMGZjMGY2YTkwNjE4MWMxMmI4MTcxNDVlODY3ZjIwNzY4YmY5N2EifQ.eyJ0eXBlIjoibWV0YSIsImF1ZCI6ImQzMWQzNzkxYTFmZTQxNGViZDA4MGUzYjQ4YzExNzU0ZDhlNjI0MTE0MjQ1NzBjZGQyNjc0MzMwZjdjY2QzNzQiLCJob3N0bmFtZSI6Ingucm9vYmV0LmNvbSIsInJlZGlyZWN0X3VybCI6Ii8iLCJzZXJ2aWNlX3Rva2VuX3N0YXR1cyI6ZmFsc2UsImlzX3dhcnAiOmZhbHNlLCJpc19nYXRld2F5IjpmYWxzZSwiZXhwIjoxNzg5NzU2ODk4LCJuYmYiOjE3ODk3NTY1OTgsImlhdCI6MTc4OTc1NjU5OCwiYXV0aF9zdGF0dXMiOiJOT05FIiwibXRsc19hdXRoIjp7ImNlcnRfaXNzdWVyX2RuIjoiIiwiY2VydF9zZXJpYWwiOiIiLCJjZXJ0X2lzc3Vlcl9za2kiOiIiLCJjZXJ0X3ByZXNlbnRlZCI6ZmFsc2UsImNvbW1vbl9uYW1lIjoiIiwiYXV0aF9zdGF0dXMiOiJOT05FIn0sInJlYWxfY291bnRyeSI6IlVTIiwiYXBwX3Nlc3Npb25faGFzaCI6ImM3ZDRhOGNkNTNjNTEwMjY2MGUwOGRmM2JkZWUwYzJkOWNhNzBmMTBjZTg3Mzk5OGIyNmFjNThiNjA4NmQwYTEifQ.BHTvr45BflKLlgkvPvV3fdc_how3AoyKTRqVPywaMX__4X2QqwVXm2wTz_YpWt8Lc4-TSO911vrCK6tDZCxzbsR-RmWyNk_FLV73jyoopFFuYxrfOkQ3-H8P3OQCeoSPeEY6gajF5s0mXXvGg_PlcDrINJZ30H1WmLfpsmQTf0zdjwY8Ie-xCp9Hwes73uCMSNi_XSQkqC97Zr_DcluhrBMVEy6VRzCtPitGRymIsacyV4ZsiGwcRD4RnLZffc0N7vQRzg3PFcZgcTMj0ciMyqPS9AUliXfSdHd9cgHUA6e_olOTTTlcUqOyiDNut_YS0NwODTdayZoV5TOF-hea1Q&redirect_url=%2F cchit={"date":["Fri, 18 Sep 2026 18:36:38 GMT"],
+"content-type":["text/html; charset=UTF-8"],
+"location":["https://gandalf.cloudflareaccess.com/cdn-cgi/access/login/x.roobet.com?kid=d31d3791a1fe414ebd080e3b48c11754d8e62411424570cdd2674330f7ccd374&meta=eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6ImU1NGYyNWVhMTZkYjQwNDVlNjc2MjkxYWExMGZjMGY2YTkwNjE4MWMxMmI4MTcxNDVlODY3ZjIwNzY4YmY5N2EifQ.eyJ0eXBlIjoibWV0YSIsImF1ZCI6ImQzMWQzNzkxYTFmZTQxNGViZDA4MGUzYjQ4YzExNzU0ZDhlNjI0MTE0MjQ1NzBjZGQyNjc0MzMwZjdjY2QzNzQiLCJob3N0bmFtZSI6Ingucm9vYmV0LmNvbSIsInJlZGlyZWN0X3VybCI6Ii8iLCJzZXJ2aWNlX3Rva2VuX3N0YXR1cyI6ZmFsc2UsImlzX3dhcnAiOmZhbHNlLCJpc19nYXRld2F5IjpmYWxzZSwiZXhwIjoxNzg5NzU2ODk4LCJuYmYiOjE3ODk3NTY1OTgsImlhdCI6MTc4OTc1NjU5OCwiYXV0aF9zdGF0dXMiOiJOT05FIiwibXRsc19hdXRoIjp7ImNlcnRfaXNzdWVyX2RuIjoiIiwiY2VydF9zZXJpYWwiOiIiLCJjZXJ0X2lzc3Vlcl9za2kiOiIiLCJjZXJ0X3ByZXNlbnRlZCI6ZmFsc2UsImNvbW1vbl9uYW1lIjoiIiwiYXV0aF9zdGF0dXMiOiJOT05FIn0sInJlYWxfY291bnRyeSI6IlVTIiwiYXBwX3Nlc3Npb25faGFzaCI6ImM3ZDRhOGNkNTNjNTEwMjY2MGUwOGRmM2JkZWUwYzJkOWNhNzBmMTBjZTg3Mzk5OGIyNmFjNThiNjA4NmQwYTEifQ.BHTvr45BflKLlgkvPvV3fdc_how3AoyKTRqVPywaMX__4X2QqwVXm2wTz_YpWt8Lc4-TSO911vrCK6tDZCxzbsR-RmWyNk_FLV73jyoopFFuYxrfOkQ3-H8P3OQCeoSPeEY6gajF5s0mXXvGg_PlcDrINJZ30H1WmLfpsmQTf0zdjwY8Ie-xCp9Hwes73uCMSNi_XSQkqC97Zr_DcluhrBMVEy6VRzCtPitGRymIsacyV4ZsiGwcRD4RnLZffc0N7vQRzg3PFcZgcTMj0ciMyqPS9AUliXfSdHd9cgHUA6e_olOTTTlcUqOyiDNut_YS0NwODTdayZoV5TOF-hea1Q&redirect_url=%2F"],
+"expires":["Thu, 01 Jan 1970 00:00:01 GMT"],
+"cache-control":["private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0"],
+"www-authenticate":["Cloudflare-Access resource_metadata=\"https://x.roobet.com/.well-known/cloudflare-access-protected-resource/\""],
+"access-control-allow-credentials":["true"],
+"set-cookie":["CF_AppSession=cc672e908d07abd4; Expires=Sat, 19 Sep 2026 18:36:38 GMT; Path=/; Secure; HttpOnly"],
+"strict-transport-security":["max-age=31536000; includeSubDomains; preload"],
+"speculation-rules":["\"/cdn-cgi/speculation\""],
+"server":["cloudflare"],
+"cf-ray":["a3d275158cc361c1-ORD"],
+"alt-svc":["h3=\":443\"; ma=86400"]
+} | location: https://gandalf.cloudflareaccess.com/cdn-cgi/access/login/x.roobet.com?kid=d31d3791a1fe414ebd080e3b48c11754d8e62411424570cdd2674330f7ccd374&meta=eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6ImU1NGYyNWVhMTZkYjQwNDVlNjc2MjkxYWExMGZjMGY2YTkwNjE4MWMxMmI4MTcxNDVlODY3ZjIwNzY4YmY5N2EifQ.eyJ0eXBlIjoibWV0YSIsImF1ZCI6ImQzMWQzNzkxYTFmZTQxNGViZDA4MGUzYjQ4YzExNzU0ZDhlNjI0MTE0MjQ1NzBjZGQyNjc0MzMwZjdjY2QzNzQiLCJob3N0bmFtZSI6Ingucm9vYmV0LmNvbSIsInJlZGlyZWN0X3VybCI6Ii8iLCJzZXJ2aWNlX3Rva2VuX3N0YXR1cyI6ZmFsc2UsImlzX3dhcnAiOmZhbHNlLCJpc19nYXRld2F5IjpmYWxzZSwiZXhwIjoxNzg5NzU2ODk4LCJuYmYiOjE3ODk3NTY1OTgsImlhdCI6MTc4OTc1NjU5OCwiYXV0aF9zdGF0dXMiOiJOT05FIiwibXRsc19hdXRoIjp7ImNlcnRfaXNzdWVyX2RuIjoiIiwiY2VydF9zZXJpYWwiOiIiLCJjZXJ0X2lzc3Vlcl9za2kiOiIiLCJjZXJ0X3ByZXNlbnRlZCI6ZmFsc2UsImNvbW1vbl9uYW1lIjoiIiwiYXV0aF9zdGF0dXMiOiJOT05FIn0sInJlYWxfY291bnRyeSI6IlVTIiwiYXBwX3Nlc3Npb25faGFzaCI6IjgyY2EyM2Q1N2NlMjA5Zjg5Mzc4N2VmNTgzZDFkMTJmMzM4MTBhOGZkODk1YjVjZTcxMjFjMDE1ODg0NTI4MDcifQ.lkGc_mp8HtmdnlDD-fkChN3FbuDpQQxiykpcGQDnHK57mTNi_4YqHE1baaPp9Z3Uyh8Ef6KuQrUYvKwQJvMFRnUymje_ogrDLYe_KyNK-0ZZnQwY2A7HythVNHeGSoQeVxKolHAwR2YhdLH-Nop6osn3yl3VRyXbjP-CB3M_hTXhqyHxVNxuhFknUSCqfBq7IGBCvdG38R3AoZqVOO9_mBTvup3-wuUqdSdoq1BhWGc_bDtLTnXODEQwpYW4a7qu88U-eEEZulgEK74p6p7n613yxAOm3Y13emisARBDlTMR0alJyRWsxcz3_vKuDe7OpohyCTpqMaXmprk7BACgVQ&redirect_url=%2F server: cloudflare cf-ray: a3d2751619030880-ORD  | BODY: <html>
+<head><title>302 Found</title></head>
+<body>
+<center><h1>302 Found</h1></center>
+xtest.roobet.com | code=301 size=167 type=text/html loc=https://acp-frontend.prod.roobet.systems/ cchit={"date":["Fri, 18 Sep 2026 18:36:40 GMT"],
+"content-type":["text/html"],
+"location":["https://acp-frontend.prod.roobet.systems/"],
+"server":["cloudflare"],
+"x-cache":["Redirect from cloudfront"],
+"via":["1.1 ca6ca8c12a2ea5068d3770f3200d62aa.cloudfront.net (CloudFront)"],
+"x-amz-cf-pop":["MSP50-P5"],
+"x-amz-cf-id":["Y61CxcyacJKKbD9jBCwT8jGrjv_F1LRKdJgEKBwVh4OJavP0jfVrbg=="],
+"cf-cache-status":["DYNAMIC"],
+"strict-transport-security":["max-age=31536000; includeSubDomains; preload"],
+"speculation-rules":["\"/cdn-cgi/speculation\""],
+"cf-ray":["a3d2751e19516abb-MSP"],
+"alt-svc":["h3=\":443\"; ma=86400"]
+} | location: https://acp-frontend.prod.roobet.systems/ server: cloudflare cf-ray: a3d2751f79def84d-ORD  | BODY: <html>
+<head><title>301 Moved Permanently</title></head>
+<body>
+<center><h1>301 Moved P
+yeti-towers.games.roobet.com | code=200 size=94535 type=text/html; charset=utf-8 loc= cchit={"date":["Fri, 18 Sep 2026 18:36:41 GMT"],
+"content-type":["text/html; charset=utf-8"],
+"set-cookie":["__cf_bm=90N.qY0bE7.GluR45PfBIr7zfhxwH.VgWBJYITSfkeA-1789756601.5927052-1.0.1.1-E_GSZje_JP8yH16va11DNVN3z2sfSPgWVpJ8kd5V8Tk6fmYVGGcGwj1_ncVPripzuaN6tzLj5ZyoUqxWm6kOfbUEZWRa9.bQkrnW8ZOLFa3v7HQ9y6mc4tCgkFfG1.uN; HttpOnly; SameSite=None; Secure; Path=/; Domain=yeti-towers.games.roobet.com; Expires=Fri, 18 Sep 2026 19:06:41 GMT"],
+"report-to":["{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=LU55FBhHlGUjTJZzR5yPJ6uaXOJV2UBUJAtqdXyGWWDCNN1ZRR0XH9jN6KWBFb%2BKKvqxWjST9o%2BHEhe3b9Ha6hUC7ZeqEw9G2Tj7fEpcoQ7WS6lFj5CPA1YtcKC74Swvtk%2BQoTC5N%2F4b%2Fg5y1aJz\"}]}"],
+"nel":["{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}"],
+"access-control-allow-origin":["*"],
+"cache-control":["public, max-age=31536000"],
+"x-content-type-options":["nosniff"],
+"referrer-policy":["strict-origin-when-cross-origin"],
+"server":["cloudflare"],
+"expires":["Sat, 18 Sep 2027 18:36:41 GMT"],
+"cf-cache-status":["BYPASS"],
+"strict-transport-security":["max-age=31536000; includeSubDomains; preload"],
+"speculation-rules":["\"/cdn-cgi/speculation\""],
+"cf-ray":["a3d27527dedd55fa-ORD"],
+"alt-svc":["h3=\":443\"; ma=86400"]
+} | server: cloudflare cf-ray: a3d27528e92028fe-MSP  | BODY: <!DOCTYPE html><html>  <head>    <meta http-equiv="Content-Type" content="text/html; ch
+[0m
+Excelentes. Big delta: `testsite.roobet.com` and `xtest.roobet.com` both 301 → `*.prod.roobet.systems` — a whole second Roobet-operated domain surfaced. `acp-frontend` (likely Admin Control Panel) and `product-frontend`. Querying CT for `roobet.systems`:
+[0m$ [0mcd /tmp/opencode && curl -s --max-time 25 "https://crt.sh/?q=%25.roobet.systems&output=json" -o crt_systems.json; echo "exit=$?"; wc -c crt_systems.json; python3 - <<'EOF'
+import json
+try:
+    data=json.load(open('crt_systems.json'))
+except Exception as e:
+    print("parse err", e); raise SystemExit
+names=set()
+for e in data:
+    for part in (e.get('name_value','')+'\n'+e.get('common_name','')).split('\n'):
+        p=part.strip().lower()
+        if p and '*' not in p and p.endswith('roobet.systems'):
+            names.add(p)
+print(len(names), "non-wildcard names under .roobet.systems")
+for n in sorted(names):
+    print(n)
+EOF
+exit=0
+253 crt_systems.json
+parse err Expecting value: line 1 column 1 (char 0)
+[0m
+[0m$ [0mcd /tmp/opencode && head -c 400 crt_systems.json; echo; echo "---retry with UA---"; curl -s --max-time 30 -A "Mozilla/5.0" "https://crt.sh/?q=%25.roobet.systems&output=json" -o crt_systems2.json; echo "exit=$?"; wc -c crt_systems2.json; head -c 300 crt_systems2.json
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html><head>
+<title>404 Not Found</title>
+</head><body>
+<h1>Not Found</h1>
+<p>The requested URL was not found on this server.</p>
+<hr>
+<address>Apache Server at crt.sh Port 443</address>
+</body></html>
+
+---retry with UA---
+exit=0
+150 crt_systems2.json
+<html>
+<head><title>502 Bad Gateway</title></head>
+<body>
+<center><h1>502 Bad Gateway</h1></center>
+<hr><center>nginx</center>
+</body>
+</html>
+[0m
+crt.sh flaky. Probing the new internal frontends directly and resolving `roobet.systems` hosts:
+[0m$ [0mcd /tmp/opencode && python3 - <<'EOF'
+import socket
+for h in ["acp-frontend.prod.roobet.systems","product-frontend.prod.roobet.systems","prod.roobet.systems","roobet.systems","acp.roobet.systems","admin.roobet.systems","frontend.prod.roobet.systems"]:
+    try:
+        print(h, "=>", socket.gethostbyname(h))
+    except Exception as e:
+        print(h, "=> NXDOMAIN")
+EOF
+acp-frontend.prod.roobet.systems => 52.85.12.56
+product-frontend.prod.roobet.systems => 3.162.163.123
+prod.roobet.systems => NXDOMAIN
+roobet.systems => NXDOMAIN
+acp.roobet.systems => NXDOMAIN
+admin.roobet.systems => NXDOMAIN
+frontend.prod.roobet.systems => NXDOMAIN
+[0m
+[0m$ [0mcd /tmp/opencode && for h in acp-frontend.prod.roobet.systems product-frontend.prod.roobet.systems; do
+  echo "===== $h / ====="
+  curl -s --max-time 20 -o acp_body.txt -D acp_headers.txt -w "code=%{http_code} size=%{size_download} type=%{content_type}\n" "https://$h/"
+  grep -iE "^(server|location|www-authenticate|set-cookie|x-powered-by|x-amz-cf-id|cf-ray|content-security-policy|x-frame-options):" acp_headers.txt | head -12
+  echo "BODY(first150):"; head -c 150 acp_body.txt; echo; echo
+  sleep 1.2
+done
+===== acp-frontend.prod.roobet.systems / =====
+code=403 size=0 type=
+server: CloudFront
+x-amz-cf-id: bvarAnu8VfggfTA2wOciE3sA3rLxPwnfrpHxuWSx-V-KZpqM26oekg==
+BODY(first150):
+
+
+===== product-frontend.prod.roobet.systems / =====
+code=403 size=0 type=
+server: CloudFront
+x-amz-cf-id: WzLU-CRffehEK1tFUbwvp-1oLiYaCT_NZXEBQtCLWCODQnuoXSHjFQ==
+BODY(first150):
+[0m
+Both CloudFront distributions 403 empty-body (access-restricted). Testing alternate hosts/UA and common paths to distinguish WAF block vs path-level restriction:
+[0m$ [0mcd /tmp/opencode && for h in acp-frontend.prod.roobet.systems product-frontend.prod.roobet.systems; do
+  for p in "" "robots.txt" "favicon.ico" "health" "login"; do
+    curl -s --max-time 15 -o /dev/null -w "$h /$p => code=%{http_code} size=%{size_download}\n" -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" "https://$h/$p" 2>&1
+    sleep 1
+  done
+done
+acp-frontend.prod.roobet.systems / => code=403 size=0
+acp-frontend.prod.roobet.systems /robots.txt => code=403 size=0
+acp-frontend.prod.roobet.systems /favicon.ico => code=403 size=0
+acp-frontend.prod.roobet.systems /health => code=403 size=0
+acp-frontend.prod.roobet.systems /login => code=403 size=0
+product-frontend.prod.roobet.systems / => code=403 size=0
+product-frontend.prod.roobet.systems /robots.txt => code=403 size=0
+product-frontend.prod.roobet.systems /favicon.ico => code=403 size=0
+product-frontend.prod.roobet.systems /health => code=403 size=0
+product-frontend.prod.roobet.systems /login => code=403 size=0
+[0m
+Structured jobs on the new hosts. `i.roobet.com` (Go "404 page not found" on AWS, non-Cloudflare) is a fresh image-service trust boundary. Mapping paths, and probing `go.roobet.com` login app:
+[0m$ [0mcd /tmp/opencode && for p in "images" "image" "img" "upload" "media" "static" "api" "v1" "thumb" "resize" "proxy" "cdn"; do
+  curl -s --max-time 12 -o /dev/null -w "i.roobet.com /$p => code=%{http_code} size=%{size_download} type=%{content_type}\n" "https://i.roobet.com/$p"
+  sleep 1
+done
+echo "--- alternative IP:52.49.207.146 ---"
+curl -s --max-time 12 -o /dev/null -w "IP direct / => code=%{http_code} size=%{size_download}\n" -k --resolve i.roobet.com:443:52.49.207.146 "https://i.roobet.com/"
+i.roobet.com /images => code=404 size=38 type=text/plain; charset=utf-8
+i.roobet.com /image => code=404 size=38 type=text/plain; charset=utf-8
+i.roobet.com /img => code=404 size=38 type=text/plain; charset=utf-8
+i.roobet.com /upload => code=404 size=38 type=text/plain; charset=utf-8
+i.roobet.com /media => code=404 size=38 type=text/plain; charset=utf-8
+i.roobet.com /static => code=404 size=38 type=text/plain; charset=utf-8
+i.roobet.com /api => code=404 size=38 type=text/plain; charset=utf-8
+i.roobet.com /v1 => code=404 size=38 type=text/plain; charset=utf-8
+i.roobet.com /thumb => code=404 size=38 type=text/plain; charset=utf-8
+i.roobet.com /resize => code=404 size=38 type=text/plain; charset=utf-8
+i.roobet.com /proxy => code=404 size=38 type=text/plain; charset=utf-8
+i.roobet.com /cdn => code=404 size=38 type=text/plain; charset=utf-8
+--- alternative IP:52.49.207.146 ---
+IP direct / => code=404 size=18
+[0m
+Following the redirect chains on the test aliases, and retrying CT enumeration for `roobet.systems`:
+[0m$ [0mcd /tmp/opencode && for h in testsite.roobet.com xtest.roobet.com; do
+  curl -sL --max-time 25 -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124.0 Safari/537.36" -o probe_final.txt -D probe_fh.txt -w "$h -L final: code=%{http_code} size=%{size_download} type=%{content_type} url=%{url_effective}\n" "https://$h/"
+  grep -iE "^(server|location|x-powered-by|set-cookie):" probe_fh.txt | head -5
+  echo "BODY:"; head -c 120 probe_final.txt; echo; echo
+  sleep 1.2
+done
+testsite.roobet.com -L final: code=403 size=0 type=text/html url=https://product-frontend.prod.roobet.systems/
+location: https://product-frontend.prod.roobet.systems/
+server: cloudflare
+server: CloudFront
+BODY:
+
+
+xtest.roobet.com -L final: code=403 size=0 type=text/html url=https://acp-frontend.prod.roobet.systems/
+location: https://acp-frontend.prod.roobet.systems/
+server: cloudflare
+server: CloudFront
+BODY:
+[0m
+Both end 403. Retrying CT enumeration for `roobet.systems` plus DNS wordlist on the `*.prod.roobet.systems` pattern (passive):
+[0m$ [0mcd /tmp/opencode && for i in 1 2 3; do
+  curl -s --max-time 30 -A "Mozilla/5.0" "https://crt.sh/?q=roobet.systems&output=json" -o crt_sys.json
+  sz=$(wc -c < crt_sys.json)
+  echo "attempt $i size=$sz"
+  if [ "$sz" -gt 200 ]; then break; fi
+  sleep 4
+done
+python3 - <<'EOF'
+import json
+try:
+    data=json.load(open('crt_sys.json'))
+    names=set()
+    for e in data:
+        for part in (e.get('name_value','')+'\n'+e.get('common_name','')).split('\n'):
+            p=part.strip().lower()
+            if p and '*' not in p and p.endswith('roobet.systems'):
+                names.add(p)
+    print(len(names),"non-wildcard names:")
+    for n in sorted(names): print(n)
+except Exception as ex:
+    print("ERR", ex, open('crt_sys.json').read()[:200])
+EOF
+attempt 1 size=135012
+22 non-wildcard names:
+api-dev.non-prod.roobet.systems
+api-lbc.prod.roobet.systems
+api-public-dev.non-prod.roobet.systems
+api-public-stage-traefik.non-prod.roobet.systems
+api-public-stage.non-prod.roobet.systems
+api-stage-lbc.non-prod.roobet.systems
+api-stage-traefik.non-prod.roobet.systems
+api-stage.non-prod.roobet.systems
+api-test.non-prod.roobet.systems
+api-traefik.prod.roobet.systems
+api.non-prod.roobet.systems
+api.prod.roobet.systems
+flagsmith-edge-proxy-traefik.non-prod.roobet.systems
+flagsmith-edge-proxy.non-prod.roobet.systems
+flagsmith-edge-proxy.prod.roobet.systems
+lbc-api-stage.non-prod.roobet.systems
+non-prod.roobet.systems
+rabbitmq.non-prod.roobet.systems
+rabbitmq.prod.roobet.systems
+shield-lbc.prod.roobet.systems
+shield-traefik.prod.roobet.systems
+shield.prod.roobet.systems
+[0m
+Full `roobet.systems` topology revealed — prod + non-prod, including **rabbitmq.prod.roobet.systems**, **api.prod.roobet.systems**, **flagsmith-edge-proxy**, **shield**, traefik/lbc variants. Resolving all:
+[0m$ [0mcd /tmp/opencode && python3 - <<'EOF'
+import socket
+hosts = """acp-frontend.prod.roobet.systems product-frontend.prod.roobet.systems
+api.prod.roobet.systems api-traefik.prod.roobet.systems api-lbc.prod.roobet.systems
+flagsmith-edge-proxy.prod.roobet.systems redis.prod.roobet.systems rabbitmq.prod.roobet.systems
+shield.prod.roobet.systems shield-traefik.prod.roobet.systems shield-lbc.prod.roobet.systems
+api.non-prod.roobet.systems api-dev.non-prod.roobet.systems api-test.non-prod.roobet.systems
+api-stage.non-prod.roobet.systems api-stage-traefik.non-prod.roobet.systems api-stage-lbc.non-prod.roobet.systems
+api-public-dev.non-prod.roobet.systems api-public-stage.non-prod.roobet.systems api-public-stage-traefik.non-prod.roobet.systems
+flagsmith-edge-proxy.non-prod.roobet.systems flagsmith-edge-proxy-traefik.non-prod.roobet.systems
+lbc-api-stage.non-prod.roobet.systems rabbitmq.non-prod.roobet.systems non-prod.roobet.systems""".split()
+for h in hosts:
+    try:
+        print(f"{h}\t{socket.gethostbyname(h)}")
+    except Exception:
+        print(f"{h}\tNXDOMAIN")
+EOF
+acp-frontend.prod.roobet.systems	52.85.12.115
+product-frontend.prod.roobet.systems	3.162.163.88
+api.prod.roobet.systems	3.71.155.20
+api-traefik.prod.roobet.systems	63.179.179.104
+api-lbc.prod.roobet.systems	NXDOMAIN
+flagsmith-edge-proxy.prod.roobet.systems	63.179.179.104
+redis.prod.roobet.systems	NXDOMAIN
+rabbitmq.prod.roobet.systems	35.207.191.191
+shield.prod.roobet.systems	3.71.155.20
+shield-traefik.prod.roobet.systems	3.71.155.20
+shield-lbc.prod.roobet.systems	NXDOMAIN
+api.non-prod.roobet.systems	NXDOMAIN
+api-dev.non-prod.roobet.systems	51.102.160.119
+api-test.non-prod.roobet.systems	NXDOMAIN
+api-stage.non-prod.roobet.systems	63.182.201.210
+api-stage-traefik.non-prod.roobet.systems	63.183.8.14
+api-stage-lbc.non-prod.roobet.systems	NXDOMAIN
+api-public-dev.non-prod.roobet.systems	63.182.201.210
+api-public-stage.non-prod.roobet.systems	63.182.201.210
+api-public-stage-traefik.non-prod.roobet.systems	51.102.160.119
+flagsmith-edge-proxy.non-prod.roobet.systems	63.183.8.14
+flagsmith-edge-proxy-traefik.non-prod.roobet.systems	63.183.8.14
+lbc-api-stage.non-prod.roobet.systems	NXDOMAIN
+rabbitmq.non-prod.roobet.systems	35.207.70.216
+non-prod.roobet.systems	NXDOMAIN
+[0m
+New internal clusters reachable directly (AWS ELB/GCP, no Cloudflare). Highest value: **rabbitmq.prod.roobet.systems** (GCP 35.207.191.191) and the api/shield hosts. Probing RabbitMQ management ports (443/15672/80) first:
+[0m$ [0mcd /tmp/opencode && for hp in "rabbitmq.prod.roobet.systems:443" "rabbitmq.non-prod.roobet.systems:443" "rabbitmq.prod.roobet.systems:15672" "rabbitmq.non-prod.roobet.systems:15672"; do
+  h=${hp%%:*}; p=${hp##*:}
+  echo "===== $hp ====="
+  r=$(curl -sk --max-time 12 -o /tmp/opencode/rb.txt -w "code=%{http_code} type=%{content_type} size=%{size_download}" "https://$h:$p/")
+  echo "$r"
+  head -c 200 /tmp/opencode/rb.txt | tr -d '\n'; echo
+  sleep 1
+done
+===== rabbitmq.prod.roobet.systems:443 =====
+code=000 type= size=0
+head: cannot open '/tmp/opencode/rb.txt' for reading: No such file or directory
+
+===== rabbitmq.non-prod.roobet.systems:443 =====
+code=000 type= size=0
+head: cannot open '/tmp/opencode/rb.txt' for reading: No such file or directory
+
+===== rabbitmq.prod.roobet.systems:15672 =====
+code=000 type= size=0
+head: cannot open '/tmp/opencode/rb.txt' for reading: No such file or directory
+
+===== rabbitmq.non-prod.roobet.systems:15672 =====
+code=000 type= size=0
+head: cannot open '/tmp/opencode/rb.txt' for reading: No such file or directory
+[0m
+RabbitMQ not exposed. Probing the prod API/shield hosts (root + key paths):
+[0m$ [0mcd /tmp/opencode && for h in api.prod.roobet.systems shield.prod.roobet.systems shield-traefik.prod.roobet.systems api-traefik.prod.roobet.systems flagsmith-edge-proxy.prod.roobet.systems; do
+  curl -sk --max-time 12 -o r.txt -w "$h / => code=%{http_code} type=%{content_type} size=%{size_download} srv=%{header_json}" "https://$h/"
+  echo; head -c 110 r.txt | tr -d '\n'; echo; sleep 1
+done
+api.prod.roobet.systems / => code=000 type= size=0 srv={
+}
+
+head: cannot open 'r.txt' for reading: No such file or directory
+shield.prod.roobet.systems / => code=000 type= size=0 srv={
+}
+
+head: cannot open 'r.txt' for reading: No such file or directory
+shield-traefik.prod.roobet.systems / => code=000 type= size=0 srv={
+}
+
+head: cannot open 'r.txt' for reading: No such file or directory
+api-traefik.prod.roobet.systems / => code=000 type= size=0 srv={
+}
+
+head: cannot open 'r.txt' for reading: No such file or directory
+flagsmith-edge-proxy.prod.roobet.systems / => code=000 type= size=0 srv={
+}
+
+head: cannot open 'r.txt' for reading: No such file or directory
+[0m
+All 000 timeouts. Systematic reachability check (TCP 443/80) across every new host to map what is actually externally reachable:
+[0m$ [0mcd /tmp/opencode && for hp in "api.prod.roobet.systems:443" "api.prod.roobet.systems:80" "shield.prod.roobet.systems:443" "shield-traefik.prod.roobet.systems:443" "api-traefik.prod.roobet.systems:443" "flagsmith-edge-proxy.prod.roobet.systems:443" "flagsmith-edge-proxy.prod.roobet.systems:80" "api-dev.non-prod.roobet.systems:443" "api-stage.non-prod.roobet.systems:443" "api-stage-traefik.non-prod.roobet.systems:443" "api-public-stage.non-prod.roobet.systems:443" "api-public-stage-traefik.non-prod.roobet.systems:443" "flagsmith-edge-proxy.non-prod.roobet.systems:443" "rabbitmq.prod.roobet.systems:5672" "rabbitmq.prod.roobet.systems:15672"; do
+  h=${hp%%:*}; p=${hp##*:}
+  timeout 6 bash -c "echo > /dev/tcp/$h/$p" 2>/dev/null && echo "$hp OPEN" || echo "$hp closed/filtered"
+  sleep 0.4
+done
+api.prod.roobet.systems:443 closed/filtered
+api.prod.roobet.systems:80 closed/filtered
+shield.prod.roobet.systems:443 closed/filtered
+shield-traefik.prod.roobet.systems:443 closed/filtered
+api-traefik.prod.roobet.systems:443 closed/filtered
+flagsmith-edge-proxy.prod.roobet.systems:443 closed/filtered
+flagsmith-edge-proxy.prod.roobet.systems:80 closed/filtered
+api-dev.non-prod.roobet.systems:443 closed/filtered
+api-stage.non-prod.roobet.systems:443 closed/filtered
+api-stage-traefik.non-prod.roobet.systems:443 closed/filtered
+api-public-stage.non-prod.roobet.systems:443 closed/filtered
+api-public-stage-traefik.non-prod.roobet.systems:443 closed/filtered
+flagsmith-edge-proxy.non-prod.roobet.systems:443 closed/filtered
+rabbitmq.prod.roobet.systems:5672 closed/filtered
+rabbitmq.prod.roobet.systems:15672 closed/filtered
+[0m
+All `roobet.systems` services are firewall-closed externally — legitimately internal-only; DNS knowledge gained but zero passive exposure. The two CloudFront frontends (acp/product) are the only reachable ones. Inspecting their 403 origin (WAF vs geo vs signed-URL) via full headers:
+[0m$ [0mcd /tmp/opencode && curl -s -D - -o /dev/null --max-time 15 -A "Mozilla/5.0" "https://acp-frontend.prod.roobet.systems/" 2>&1 | tr -d '\r'
+echo "=== via HTTP (port 80) ==="
+curl -s -D - -o /dev/null --max-time 15 "http://acp-frontend.prod.roobet.systems/" 2>&1 | tr -d '\r' | head -8
+HTTP/2 403 
+server: CloudFront
+date: Fri, 18 Sep 2026 18:42:45 GMT
+content-length: 0
+x-cache: Error from cloudfront
+via: 1.1 e6caa699adb40134ff61012e33f80622.cloudfront.net (CloudFront)
+x-amz-cf-pop: ORD56-P15
+x-amz-cf-id: 4ASFsrIt4DnIibmMYIBZOhzAE83M7d-mo_T3foaYcSS7gEaO-8YIgw==
+
+=== via HTTP (port 80) ===
+HTTP/1.1 301 Moved Permanently
+Server: CloudFront
+Date: Fri, 18 Sep 2026 18:42:45 GMT
+Content-Type: text/html
+Content-Length: 167
+Connection: keep-alive
+Location: https://acp-frontend.prod.roobet.systems/
+X-Cache: Redirect from cloudfront
+[0m
+Now depth on the reachable new web surfaces. Pulling `go.roobet.com/v2/login/` (live app route) and grepping the main SPA + game launchers for referenced backends:
+[0m$ [0mcd /tmp/opencode && curl -sL --max-time 20 -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124.0 Safari/537.36" -o go_login.html -D go_h.txt "https://go.roobet.com/v2/login/"; echo "code/type:"; head -2 go_h.txt | tr -d '\r'; wc -c go_login.html; echo "--- title + links ---"; grep -oE "<title>[^<]*</title>" go_login.html | head -2; grep -oE '(src|href)="[^"]+"' go_login.html | grep -iE "roobet|api|socket|\.js" | sort -u | head -20
+code/type:
+HTTP/2 200 
+date: Fri, 18 Sep 2026 18:43:13 GMT
+35564 go_login.html
+--- title + links ---
+<title>POWERED BY</title>
+href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap"
+src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"
+src="https://code.jquery.com/jquery-3.7.1.min.js"
+[0m
+[0m$ [0mcd /tmp/opencode && grep -oiE '(<form[^>]*>|<script[^>]*src="[^"]+"|action="[^"]*"|endpoint[^,;<]*|/[a-z0-9_/]{2,40})' go_login.html | sort -u | head -40; echo "=== any roobet/systems/api urls ==="; grep -oiE "https?://[^\"' <]+" go_login.html | sort -u | head -30
+//EN
+//W3C//DTD
+//central
+//check
+//cx
+//fonts
+//googleads
+//load
+//maxcdn
+//www
+/1999/xhtml
+/1999/xlink
+/2000/svg
+/2022
+/4hpQINQ/g
+/4hqeoQieOmAZNXBeQyjo21dadnwR
+/Affiliates_Logo_a2cc452e_c4808aae
+/TR/xhtml1/DTD/xhtml1
+/assets/gassets/creteRound400italicLato30
+/authenticate
+/authenticate/google/exchange
+/authenticate/request
+/body
+/bootstrap/2
+/button
+/container
+/css/bootstrap
+/css2
+/dialog
+/div
+/form
+/h2
+/head
+/html
+/iframe
+/javascript
+/login/2fa/
+/pagead/viewthroughconversion/936279748/
+/partner/
+/path
+=== any roobet/systems/api urls ===
+http://www.w3.org/1999/xhtml
+http://www.w3.org/1999/xlink
+http://www.w3.org/2000/svg
+http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd
+https://central.ck-cdn.com/roobet-affiliates/2022-09-06/Affiliates_Logo_a2cc452e_c4808aae.png
+https://code.jquery.com/jquery-3.7.1.min.js
+https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap
+https://maxcdn.bootstrapcdn.com/bootstrap/2.1.1/css/bootstrap.min.css
+https://www.google.com/recaptcha/api.js
+[0m
+[0m$ [0mcd /tmp/opencode && grep -nE "<form|action=|authenticate|login|partner" go_login.html | head -30; echo "=== scripts ==="; grep -oE '<script[^>]*>' go_login.html; echo "=== iframes/forms context ==="; grep -oE '<form[^>]*>' go_login.html; grep -oE 'action="[^"]*"' go_login.html
+13:		<link rel="stylesheet" href="//cx-affiliate-prod.cellxpert.com/styles/login.css">
+21:					const response = await fetch('/authenticate/google/exchange', {
+32:					window.location.href = '/partner/';
+35:					$('#login-error').html('');
+36:					$(`<div class='error-msg'>Google login failed. Please try again.</div>`).appendTo('#login-error');
+54:						'google_cancelled': 'Google login was cancelled. Please try again.',
+57:						'token_expired': 'Your authentication session has expired. Please login again.',
+58:						'invalid_token': 'Invalid authentication token. Please login again.',
+60:						'google_init_failed': 'Unable to start Google login. Please try again later.',
+67:					$("#login-error").html("");
+68:					$(`<div class='error-msg'>${errorMessage}</div>`).appendTo('#login-error');
+102:				$.post("/authenticate/request-password-reset", formData, function(data, status){
+135:				console.log("/authenticate")
+137:				$.post("/authenticate", formData)
+142:						window.location.pathname = "v2/login/2fa/"
+145:						window.location.pathname = "/partner/"
+152:								data-action='login'>
+159:							$("#login-error").html("");	
+160:							$(`<div class='error-msg'>${data.reason}</div>`).appendTo('#login-error');
+164:						$("#login-error").html("");	
+165:						$(`<div class='error-msg'>${data.reason}</div>`).appendTo('#login-error');
+168:						$("#login-error").html("");	
+169:						$(`<div class='error-msg'>Server Error</div>`).appendTo('#login-error');
+175:					$("#login-error").html("");
+177:					// A failed login now returns 401 - render captcha if the server now requires it
+182:								data-action='login'>
+188:					$(`<div class='error-msg'>${data.reason || 'Bad Username or Password'}</div>`).appendTo('#login-error');
+205:			<div class="login-form">
+211:				<form name="loginform" id="loginform" onsubmit="sumbitForm()">
+214:							<div id="login-error"></div>
+=== scripts ===
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js">
+<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous">
+<script type="text/javascript">
+=== iframes/forms context ===
+<form name="loginform" id="loginform" onsubmit="sumbitForm()">
+<form style="display: flex; flex-direction: column; align-items: center;margin-top: 8px;" action="/authenticate/request-password-reset" name="pwdform" id="pwdform" method="post" target="pwdframe">
+action="/authenticate/request-password-reset"
+[0m
+This is the Roobet **Affiliates portal** login (`/partner/`, `/authenticate/request`, `/authenticate/google/exchange`, 2FA login) — a real money-flow application surface never in inventory. Finding the form action and auth endpoints:
+`go.roobet.com` = Cellxpert-affiliate login (3P SaaS powers it). Pivoting to game-launcher hosts for embedded backend references, plus checking the main SPA for `i.roobet.com`/`roobet.systems` usage:
+[0m$ [0mcd /tmp/opencode && curl -s --max-time 20 -A "Mozilla/5.0" -o tiki.html "https://tiki-21.games.roobet.com/"; sleep 1; curl -s --max-time 25 -A "Mozilla/5.0" -o yeti.html "https://yeti-towers.games.roobet.com/"
+echo "=== tiki-21 refs ==="; grep -oiE "(src|href|action)=\"[^\"]+\"" tiki.html | grep -viE "css|font|\.png|\.ico|\.svg" | sort -u | head -20
+echo "=== tiki script/ws/api urls ==="; grep -oiE "(wss?://|https?://)[^\"' ]+" tiki.html | sort -u | head -20
+=== tiki-21 refs ===
+href="data:;base64,="
+=== tiki script/ws/api urls ===
+https://login.topkek.com
+[0m
+[0m$ [0mcd /tmp/opencode && echo "=== yeti url refs ==="; grep -oiE "(wss?://|https?://)[^\"' )]+" yeti.html | sort -u | head -25
+echo "=== yeti script srcs (unique) ==="; grep -oE 'src="[^"]+"' yeti.html | sort -u | head -25
+echo "=== yeti ws hints ==="; grep -oiE "web[sS]ocket|socket\.io|/ws|graphql" yeti.html | sort -u | head
+=== yeti url refs ===
+=== yeti script srcs (unique) ===
+src="/engine/js/engine.xl2gI8E2xzJCWfZamP855LtDgBTmNCDNC_xiizdX0R.js"
+src="/game/js/bootstrap.p3mphxabcODYiKiETViQLj4KsCM42Yzb4mJutAyT0V.js"
+src="/game/js/game.GoHrenH1Q8WbOHXVPf9nLRaMoM7_Z31A45sGxqSJTv.js"
+src="/game/js/html.jwlTDWJm_rsG0jz_jwddWSkE1OJLVvLPuRlM2YXIpc.js"
+src="/tools/js/html.0vycmG0pkKoKM5qDcx1HdrDEZQaj_52cT7sXzz7UzB.js"
+src="/tools/js/tools.OSX1N2eK1wcxqHOsjhgJv1kKlPe2LmKD5SKkFxCmB8.js"
+src="/tools/js/vendor1.5RjyW8_j5h5kwUNKK6Za4lqkRvXvwcx76HIvk-DVdG.js"
+src="/tools/js/vendor2.e0fxSAxqKZx-jwk8Qvmk0wZbRCKUKSZXdvxeMfw53a.js"
+src="/tools/js/vendor3.gdaOEnhJKJyQVDT_bGe6U_VSkx2KNN5g1Q2eK6hdZM.js"
+=== yeti ws hints ===
+[0m
+[0m$ [0mcd /tmp/opencode && curl -s --max-time 25 -A "Mozilla/5.0" -o boot.js "https://yeti-towers.games.roobet.com/game/js/bootstrap.p3mphxabcODYiKiETViQLj4KsCM42Yzb4mJutAyT0V.js"; echo "boot size: $(wc -c < boot.js)"; echo "=== bootstrap urls/endpoints ==="; grep -oiE "(wss?://|https?://)[^\"' )]+" boot.js | sort -u | head -20; echo "=== likely api/paths ==="; grep -oiE '"?(/api/[^"\\]{0,40}|wss?[^"\\]{0,50}|\.socket[^"\\]{0,30})' boot.js | sort -u | head -20
+boot size: 5341
+=== bootstrap urls/endpoints ===
+=== likely api/paths ===
+wser
+wser ${t.name} ${t.version}.`})):(this.webglModal=ne
+wser())).then((()=>{this.bootstrap()}))}createSentry
+wser(),i=e.getOS(),n=
+wser(){let e=bowser.getParser(window.navigator.userA
+wserModal=new BrowserModal,Promise.reject({type:
+[0m
+[0m$ [0mcd /tmp/opencode && curl -s --max-time 30 -A "Mozilla/5.0" -o engine.js "https://yeti-towers.games.roobet.com/engine/js/engine.xl2gI8E2xzJCWfZamP855LtDgBTmNCDNC_xiizdX0R.js"; echo "engine size: $(wc -c < engine.js)"; echo "=== urls/ws/roobet ==="; grep -oiE "(wss?://|https?://)[^\"' )\\]{4,80}" engine.js | sort -u | head -30
+engine size: 1088608
+=== urls/ws/roobet ===
+[0m
+[0m$ [0mcd /tmp/opencode && grep -oiE "[a-z0-9-]{2,}\.roobet\.(com|systems)" engine.js | sort -u | head; echo "=== wss/socket tokens ==="; grep -oiE "(wss?|https?)?(:?//)?[a-z0-9./_-]{0,30}(socket|ws|game-api|api)[a-z0-9./_-]{0,40}" engine.js | sort -u | head -20; echo "=== domain-ish tokens ==="; grep -oiE "[a-z0-9-]+\.(com|net|systems|dev)(/[a-z0-9_-]*)?" engine.js | sort -u | head -20
+=== wss/socket tokens ===
+//vszv6/3sacZsjRJFkcWDJhIwsFxBhxMXd2pXdmRIzPM4NEjh44eHB0cHR0TBAEQgA
+/2rRlyai69Chqr6ZDlWU2kNtF1CgOBWSUcceST41bmo1e793aPS9xLcrLkGoUqElTESl
+/8AFKPqh55btPY/4Ftb2NbFF2mNvx4Ws3ILi
+/AK1mWRmEq2/3bb6hr4Nc4PJtxWQ0uWSPHdVKSysdWt1OfLJxRtdXzDSr7ewz86NcuyWNAkK
+/HFXclkp9WsAbgTG9wGj08CI64WxRk/OTDcUAvBHXSLQxcVCDMQ
+/HhQU3AWSS15ZVRTxcOErvHH5WND7
+/YWoSH6RHRHkQIlTDMNPNeXSlGCSMYwSQdPb1fej3Y6q7Y0/fb082w
+/hLzvWfzMQCoB1Fq/8b3VWaPIDZqsRV64DALsZHVHs1gEvsqFAeBSApQC8pHK90Oq
+/kLKftKyQdUAPz0xFaSRun3ALykjilwsAgrTvou5ExrCcqRBy1QVbJ7ZjT0Aju0saJ79tjf8
+/qEXrrMUAEF0OdJhYk2CIAIw2Hjz19wsa9jFEc1ZZ5nNxV0JioIdPfrYI894GhFEsATDMoyh
+/vfaJOAFWPB9nrueopeWTK5/wDnGpYws4KDa/pdcw3lPYYrk8k1OgVpF4W
+002JyR7iwSlXFRwkgHyfHkZ60mJsO9LGbTW4b6DI4KcDcVKXUq
+00aZvnEOht9HtWfaqj0WIe1gJastwywS8nf7J/0pcuLd9Z5z7T48U/WeUt3UIX6kBPUK5rOr
+03odLbUyrZomxkaP0nDPaiD1oWS5HFZ5k32m7pXPZ4NQDWhvN63H4TPzVK7yDN
+04CFE4BldZdRc4/YxlxgjJMewSiwN1zWfsOngdljq3EmY08vm5i/7j5yIMqpvupKyG
+09cVWsGGBwuCo1nhtkDmUkWsht
+09n/ACrD5dYXdJwQJTo26QP4iff9aTWS2B1DyuhPbz4qHi98kMLSn6ppi49aGcmSlHSCpVST
+0A1KU7HttEd36uHhrDLRc4hKXj1xHQws4PxqLdyKVMsKXdFMre18CNbz6ENtNwpL66pUEIQl
+0ChVeWS1Ltx6S3JPNYlBdviimLu2Xk7Gk7oTwJokmzbKEvL
+0DHQIzjydWS2ZsuwNmJsT1O3BeMuNaki2pDliRqY37ciO6TwXEc
+=== domain-ish tokens ===
+Fr.com
+an.com
+e.COM
+e.systems
+eA.com
+geometry.com
+i.com
+j.com
+r.com
+this.com
+this.systems
+uA.com
+[0m
+Engine is 3P TopKek (obfuscated, no usable endpoint literals). The `i.roobet.com` image host needs its real path convention — checking how the main SPA references it:
+[0m$ [0mcd /tmp/opencode && curl -s --max-time 20 -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124.0 Safari/537.36" -o home.html "https://roobet.com/"; echo "home size: $(wc -c < home.html)"; echo "=== refs to i.roobet.com ==="; grep -oE "i\.roobet\.com[^\"' )]*" home.html | sort -u | head -20; echo "=== all roobet subdomain refs in home ==="; grep -oE "[a-z0-9-]+\.roobet\.com" home.html | sort -u | head -30; echo "=== script chunks ==="; grep -oE 'src="[^"]+\.js"' home.html | head -10
+home size: 17934
+=== refs to i.roobet.com ===
+=== all roobet subdomain refs in home ===
+=== script chunks ===
+src="https://cdn.seondf.com/js/v6/agent.umd.js"
+[0m
+`i.roobet.com`'s Go 404 handler smells like an image **proxy** (common Roobet-stack pattern). Testing benign URL-in-path patterns to fingerprint the handler (imgproxy-style `/unsafe/<url>`, `/?url=`, etc.):
+[0m$ [0mcd /tmp/opencode && for u in "unsafe/https://example.com/" "unsafe/https://example.com/x.png" "?url=https://example.com/" "fit/https://example.com/1.jpeg" "0/https://example.com/" "https://example.com/x.png" "img/https://example.com/x.png"; do
+  curl -s --max-time 12 -o /dev/null -w "i.roobet.com /$u => code=%{http_code} size=%{size_download} type=%{content_type}\n" "https://i.roobet.com/$u"
+  sleep 1
+done
+i.roobet.com /unsafe/https://example.com/ => code=404 size=18 type=text/plain
+i.roobet.com /unsafe/https://example.com/x.png => code=404 size=18 type=text/plain
+i.roobet.com /?url=https://example.com/ => code=404 size=18 type=text/plain
+i.roobet.com /fit/https://example.com/1.jpeg => code=404 size=18 type=text/plain
+i.roobet.com /0/https://example.com/ => code=404 size=18 type=text/plain
+i.roobet.com /https://example.com/x.png => code=404 size=18 type=text/plain
+i.roobet.com /img/https://example.com/x.png => code=404 size=18 type=text/plain
+[0m
+Image host is minimal Go (no proxy). One more cheap split on the alias distributions — other paths may be served directly by the CloudFront alias (only `/` returns the 301):
+[0m$ [0mcd /tmp/opencode && for h in testsite.roobet.com xtest.roobet.com; do
+  for p in "robots.txt" "favicon.ico" "health" "login" "admin" "index.html" "api/v1/status"; do
+    curl -s --max-time 12 -o /dev/null -w "$h /$p => code=%{http_code} size=%{size_download} loc=%{redirect_url}\n" -A "Mozilla/5.0" "https://$h/$p"
+    sleep 1
+  done
+done
+testsite.roobet.com /robots.txt => code=301 size=167 loc=https://product-frontend.prod.roobet.systems/robots.txt
+testsite.roobet.com /favicon.ico => code=301 size=167 loc=https://product-frontend.prod.roobet.systems/favicon.ico
+testsite.roobet.com /health => code=301 size=167 loc=https://product-frontend.prod.roobet.systems/health
+testsite.roobet.com /login => code=301 size=167 loc=https://product-frontend.prod.roobet.systems/login
+testsite.roobet.com /admin => code=301 size=167 loc=https://product-frontend.prod.roobet.systems/admin
+testsite.roobet.com /index.html => code=301 size=167 loc=https://product-frontend.prod.roobet.systems/index.html
+testsite.roobet.com /api/v1/status => code=301 size=167 loc=https://product-frontend.prod.roobet.systems/api/v1/status
+xtest.roobet.com /robots.txt => code=301 size=167 loc=https://acp-frontend.prod.roobet.systems/robots.txt
+xtest.roobet.com /favicon.ico => code=301 size=167 loc=https://acp-frontend.prod.roobet.systems/favicon.ico
+xtest.roobet.com /health => code=301 size=167 loc=https://acp-frontend.prod.roobet.systems/health
+xtest.roobet.com /login => code=301 size=167 loc=https://acp-frontend.prod.roobet.systems/login
+xtest.roobet.com /admin => code=301 size=167 loc=https://acp-frontend.prod.roobet.systems/admin
+xtest.roobet.com /index.html => code=301 size=167 loc=https://acp-frontend.prod.roobet.systems/index.html
+xtest.roobet.com /api/v1/status => code=301 size=167 loc=https://acp-frontend.prod.roobet.systems/api/v1/status
+[0m
+Uniform redirect-then-403. Mapping complete for the new surface. Closing inventory breadth: checking sibling Roobet-owned domains/TLDs (DNS-only, passive) and wildcard CT entries:
+[0m$ [0mcd /tmp/opencode && python3 - <<'EOF'
+import socket
+for d in ["roobet.io","roobet.gg","roobet.app","roobet.games","roobet.site","roobet.dev","roobet.land","roobet.net","roobet.casino","roobet.org","roobet.co","getroobet.com","roobetclub.com","roobetplus.com","roobetbeta.com","roobetchat.com"]:
+    try:
+        ip=socket.gethostbyname(d); print(f"{d} => {ip}")
+    except Exception:
+        print(f"{d} => NXDOMAIN")
+EOF
+roobet.io => 64.190.63.222
+roobet.gg => 104.219.250.37
+roobet.app => 76.223.54.146
+roobet.games => 185.61.153.117
+roobet.site => 5.161.47.86
+roobet.dev => NXDOMAIN
+roobet.land => 192.64.119.36
+roobet.net => NXDOMAIN
+roobet.casino => 172.236.103.15
+roobet.org => 13.248.169.48
+roobet.co => NXDOMAIN
+getroobet.com => NXDOMAIN
+roobetclub.com => 172.67.204.121
+roobetplus.com => NXDOMAIN
+roobetbeta.com => NXDOMAIN
+roobetchat.com => NXDOMAIN
+[0m
+The sibling `roobet.*` TLDs all resolve to non-Roobet VPS/Cloudflare squatting hosts — ignoring (likely phishing). One last passive intel probe: `x.roobet.com` is Cloudflare-Access-gated; its protected-resource metadata endpoint may identify what sits behind the gateway.
+[0m$ [0mcd /tmp/opencode && curl -s --max-time 15 -o /dev/null -w "x.roobet.com /.well-known/cloudflare-access-protected-resource/ => code=%{http_code} type=%{content_type} size=%{size_download}\n" "https://x.roobet.com/.well-known/cloudflare-access-protected-resource/"
+sleep 1
+curl -sk --max-time 15 -o cfw.txt -w "probe autograph/x/app => code=%{http_code} size=%{size_download} loc=%{redirect_url}\n" "https://x.roobet.com/x"
+head -c 300 cfw.txt; echo
+x.roobet.com /.well-known/cloudflare-access-protected-resource/ => code=200 type=application/json; charset=utf-8 size=516
+probe autograph/x/app => code=302 size=143 loc=https://gandalf.cloudflareaccess.com/cdn-cgi/access/login/x.roobet.com?kid=d31d3791a1fe414ebd080e3b48c11754d8e62411424570cdd2674330f7ccd374&meta=eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6ImU1NGYyNWVhMTZkYjQwNDVlNjc2MjkxYWExMGZjMGY2YTkwNjE4MWMxMmI4MTcxNDVlODY3ZjIwNzY4YmY5N2EifQ.eyJ0eXBlIjoibWV0YSIsImF1ZCI6ImQzMWQzNzkxYTFmZTQxNGViZDA4MGUzYjQ4YzExNzU0ZDhlNjI0MTE0MjQ1NzBjZGQyNjc0MzMwZjdjY2QzNzQiLCJob3N0bmFtZSI6Ingucm9vYmV0LmNvbSIsInJlZGlyZWN0X3VybCI6Ii94Iiwic2VydmljZV90b2tlbl9zdGF0dXMiOmZhbHNlLCJpc193YXJwIjpmYWxzZSwiaXNfZ2F0ZXdheSI6ZmFsc2UsImV4cCI6MTc4OTc1NzQ3MCwibmJmIjoxNzg5NzU3MTcwLCJpYXQiOjE3ODk3NTcxNzAsImF1dGhfc3RhdHVzIjoiTk9ORSIsIm10bHNfYXV0aCI6eyJjZXJ0X2lzc3Vlcl9kbiI6IiIsImNlcnRfc2VyaWFsIjoiIiwiY2VydF9pc3N1ZXJfc2tpIjoiIiwiY2VydF9wcmVzZW50ZWQiOmZhbHNlLCJjb21tb25fbmFtZSI6IiIsImF1dGhfc3RhdHVzIjoiTk9ORSJ9LCJyZWFsX2NvdW50cnkiOiJVUyIsImFwcF9zZXNzaW9uX2hhc2giOiIyODVmYzgzM2U4YzhiY2Q3MTQ1YmQ0Mzc4YjVkMzFjOTQ4YzZjZDI1ZTI1NGIyNjYzOWEwNWRhMDI5NjhkYTQ3In0.fFIA_8dpkfEtOTgc9owal43Ukc84p1RG7v4XCCXBDL84CbM71oAkMIS5LktQuIYh-T90Aaezwc6yxfAnx8RH0NghWvVptPHQYm4eluQk8zWrNu24V7w3akjcwp60VElD4ebSS-8fYxum2pE7FoptUlBrmU9XtLvFYZUfjLBzACI2rGbds4TAdVqK7TTf_iaLOm8ef1ipvnYh0shwdfO5mg8dnzIE_xKt4DXUcjS6uWYYLkmI1GIPHR7SgJNgwk8bBdtcBWqP8f2QGRqfuw2raCOns5Bl1KciyxnXcmHR43aFISzz7qWIejgwkA5U-70YojB_upOmBF1rZLlr1647vw&redirect_url=%2Fx
+<html>
+<head><title>302 Found</title></head>
+<body>
+<center><h1>302 Found</h1></center>
+<hr><center>cloudflare</center>
+</body>
+</html>
+[0m
+[0m$ [0mcd /tmp/opencode && curl -s --max-time 15 "https://x.roobet.com/.well-known/cloudflare-access-protected-resource/" | head -c 800; echo
+{"resource":"https://x.roobet.com","protected":true,"team_domain":"gandalf.cloudflareaccess.com","authorization_servers":["https://gandalf.cloudflareaccess.com"],"authentication_methods":[{"name":"cloudflared","description":"Use `cloudflared access curl` to make the request to the protected resource. This will allow the user to authenticate interactively and authentication information will automatically be added to the request","documentation":"https://developers.cloudflare.com/cloudflare-one/tutorials/cli/"}]}
+[0m
+Analysis complete. The run's probes mapped a substantial new delta. Final structured output:
+
+## 2026-09-18
+
+### STEP 1 — DELTA
+- [NEW] Second Roobet-operated domain **`roobet.systems`** surfaced via certificate transparency: prod + non-prod clusters (`api`, `shield`, `flagsmith-edge-proxy`, `rabbitmq`, `acp-frontend`, `product-frontend`, `*-traefik`/`lbc` ingress variants). All internal services **TCP-closed externally** (firewall-secured); two CloudFront frontends publicly resolvable.
+- [NEW] `xtest.roobet.com` → `acp-frontend.prod.roobet.systems` (**Admin Control Panel** frontend) and `testsite.roobet.com` → `product-frontend.prod.roobet.systems`; both distributions 301→ then uniform **403** (WAF/geo) from this egress.
+- [NEW] `go.roobet.com` = **Cellxpert affiliate-portal login** (`POST /authenticate`, `/authenticate/google/exchange`, `/authenticate/request-password-reset`, `/v2/login/2fa/`, `/partner/`) — new app surface.
+- [NEW] `links.roobet.com` = Kong-gated Iterable link shortener (`XSRF-TOKEN` cookie, `x-upstream: links`) with default 303 → `http://`roobet.com.
+- [NEW] `i.roobet.com` = minimal Go image/CDN server on AWS (non-Cloudflare trust boundary); ~50 new `*.roobet.com` CT entries catalogued (mostly NXDOMAIN, dead CF-1014 CNAMEs, or 3P: Intercom/Cellxpert/TopKek).
+- [NEW] `x.roobet.com` behind Cloudflare Access (`gandalf` team, cloudflared-auth); `dice.roobet.com` HTTP-silent; `help.roobet.com` = Intercom; `tiki-21`/`yeti-towers.games.roobet.com` = TopKek 3P launchers.
+- NO_DELTA on all previously-known hosts/routes (24 prior byte-stable runs).
+
+### STEP 2 — PRIORITIZE
+- [PRIO] acp-frontend.prod.roobet.systems,7.30,ADMIN_PANEL_AUTH,HUMAN_ONLY
+- [PRIO] go.roobet.com,6.10,AFFILIATE_BUSLOGIC,AUTH_HELPED
+- [PRIO] roobet.systems,5.75,INTERNAL_TOPOLOGY,PASSIVE/AUTH_HELPED
+- [PRIO] i.roobet.com,5.45,IMAGESRV,AUTH_HELPED
+- [PRIO] links.roobet.com,5.05,REDIRECT/AUTH,REJECTED-class
+
+### STEP 3 — HYPOTHESES
+[HYP] Admin Control Panel frontend reachable with weak auth
+class: AUTH
+asset: acp-frontend.prod.roobet.systems (CloudFront, alias xtest.roobet.com)
+confidence: 60
+reasoning: CT+DNS prove acp-frontend.prod.roobet.systems under Roobet's roobet.systems domain; `xtest.roobet.com` (a test host) 301s to it; "acp" = admin control panel of the gambling platform; distribution is publicly resolvable, all paths 403 from this egress only.
+evidence_needed: Reachable admin UI/API (login, /graphql, /api/*) from an allowed egress or with valid session; auth gap or admin-role weakness.
+verify_steps: Browser/human phase from a permitted egress: GET https://acp-frontend.prod.roobet.systems/ + /health /api /graphql; if 200, enumerate admin auth surface; read-only, no state change.
+impact: Admin console of a live casino → user/wallet/game management, ATO-critical if reachable.
+testability: HUMAN_ONLY
+
+[HYP] Affiliate-portal commission/business-logic flaw
+class: BUSLOGIC
+asset: go.roobet.com/v2 (Cellxpert affiliate portal, Roobet-branded)
+confidence: 45
+reasoning: go.roobet.com/v2/login/ serves Roobet affiliates login (`/authenticate`, google-exchange, request-password-reset, `/partner/`); affiliate flows handle commission money; cross-affiliate IDOR or commission tampering would be a financial bug. Backend is Cellxpert SaaS (3P) — bounds Roobet-side defect scope.
+evidence_needed: Post-auth cross-affiliate stats/commission access by affiliate id (A/B two accounts).
+verify_steps: With affiliate account: map `/partner/*` id-based endpoints; compare own vs other affiliate id results. Read-only.
+impact: Cross-affiliate commission/financial exposure or manipulation ⇒ high if confirmed.
+testability: AUTH_HELPED
+
+[HYP] Non-prod cluster exposure / SSRF ladder
+class: MISCONFIG
+asset: *.non-prod.roobet.systems (api-dev, api-stage, flagsmith-edge-proxy, rabbitmq)
+confidence: 40
+reasoning: CT leaks full internal prod+non-prod map incl. RabbitMQ (GCP) and flagsmith edge proxy; all TCP-closed today; non-prod is the classic weak anchor if any ingress or proxying path appears.
+evidence_needed: Any non-prod service answering on alternate port/path, or SSRF reachability from an authenticated context.
+verify_steps: Monitor passive DNS/ports on these names; in session phase test SSRF from an authenticated Roobet endpoint toward rabbitmq/api-stage.
+impact: Non-prod admin/debug surface or broker access ⇒ high if reachable.
+testability: PASSIVE-monitor / AUTH_HELPED
+
+### STEP 4 — SELF-CRITIQUE
+- [PARKED] i.roobet.com Go image server: 18 probe patterns (`/unsafe/<url>`, `/?url=`, `/fit/`, `/img/https://…`) all 404; no open-proxy/listing pattern; confidence <40.
+- [PARKED] links.roobet.com: Iterable redirect-by-design; default 303→`http://` downgrade + XSRF cookie on non-sensitive service; no OAuth chain demonstrated; not reportable.
+- [PARKED] x.roobet.com: standard Cloudflare Access (cloudflared) gate; properly protected, no flaw.
+- [FINAL] 1) acp-frontend admin panel (HUMAN_ONLY) 2) go.roobet.com affiliate portal (AUTH_HELPED) 3) roobet.systems internal map (monitor).
+
+### STEP 5 — NEXT ACTION
+[NEXT] HUMAN: from a permitted/rotating egress, GET https://xtest.roobet.com → follow to https://acp-frontend.prod.roobet.systems/, capture the login/auth headers and map the admin UI + admin API (read-only) for an auth/privilege gap before any interaction.
+
+### STEP 6 — LEARNING
+- [LEARN] ACCEPTED OTHER @ roobet.systems: second Roobet domain + internal prod/non-prod topology (api/shield/flagsmith/rabbitmq/acp-frontend/product-frontend) from CT; all services firewall-closed; two CloudFront frontends 403 from this egress.
+- [LEARN] ACCEPTED OTHER @ go.roobet.com: Cellxpert affiliate portal login surface (`/authenticate`, google-exchange, request-password-reset, `/login/2fa/`, `/partner/`) — new session-gated money-flow app.
+- [LEARN] ACCEPTED OTHER @ *.games.roobet.com (tiki-21, yeti-towers): TopKek 3P game launchers — provider defects out of scope.
+- [LEARN] REJECTED MISCONFIG @ i.roobet.com: 18 passive patterns all 404; no image-proxy/listing exposure.
+- [LEARN] REJECTED OTHER @ sibling roobet.* TLDs (io/gg/app/games/site/land/casino/org): non-Roobet squatter VPS infra; not company-operated; unprobed.
+- [LEARN] ACCEPTED OTHER @ x.roobet.com: Cloudflare Access (gandalf), cloudflared-auth; protective, no flaw.
+
+### STEP 7 — RISK
+[RISK] roobet: 55 — legacy surface at steady-state floor (24 byte-stable runs; sole reportable = LOW pre-auth GraphQL disclosure); this run's delta (internal `roobet.systems` topology, CloudFront-reachable-but-WAF-closed ACP admin frontend, Cellxpert affiliate portal) is real and elevates attack-surface knowledge, but every new high-value line is session/browser-gated (HUMAN_ONLY / AUTH_HELPED) and no passive reportable vuln was produced.
