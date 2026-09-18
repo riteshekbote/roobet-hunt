@@ -4382,3 +4382,31 @@ impact: Non-prod admin/debug surface or broker access ⇒ high if reachable.
 testability: PASSIVE-monitor / AUTH_HELPED
 [NEXT] HUMAN: from a permitted/rotating egress, GET https://xtest.roobet.com → follow to https://acp-frontend.prod.roobet.systems/, capture the login/auth headers and map the admin UI + admin API (read-only) for an auth/privilege gap before any interaction.
 [RISK] roobet: 55 — legacy surface at steady-state floor (24 byte-stable runs; sole reportable = LOW pre-auth GraphQL disclosure); this run's delta (internal `roobet.systems` topology, CloudFront-reachable-but-WAF-closed ACP admin frontend, Cellxpert affiliate portal) is real and elevates attack-surface knowledge, but every new high-value line is session/browser-gated (HUMAN_ONLY / AUTH_HELPED) and no passive reportable vuln was produced.
+## 2026-09-18 21:17:51 UTC [target] (model bigpickle)
+[HYP] ACP admin-control-panel weak/absent auth
+class: AUTH
+asset: acp-frontend.prod.roobet.systems (CloudFront; alias xtest.roobet.com)
+confidence: 60
+reasoning: CT+DNS prove host under Roobet roobet.systems; "acp"=admin control panel of the casino; CloudFront distribution publicly resolvable; all paths 403@0B from this egress (WAF), no Roobet-side auth mechanism observable passively.
+evidence_needed: Any 200/302 from the ACP (login UI, /graphql, /api/*, /health) from an allowed egress, then an auth/role gap on that surface.
+verify_steps: Human phase from permitted/rotating egress: GET /, /login, /graphql, /api, /health (read-only); if 200, map login + admin API, no state changes.
+impact: Admin console of a live casino → user/wallet/game management, ATO-critical if reachable.
+testability: HUMAN_ONLY
+[HYP] Cross-affiliate IDOR via _api/affiliate/get parameter parsing
+class: IDOR
+asset: roobet.com/_api/affiliate/get
+confidence: 50
+reasoning: Route live on low-gate `_api/*` surface (not Cloudflare bot-gated); `?user_id` and `?affiliate_code` return 401 not 404 — server parses both parameters pre-auth; affiliate data endpoint sitting beside session-gated admin routes.
+evidence_needed: With a valid affiliate session, passing another user's/affiliate's id returns their stats/commission (A/B two accounts).
+verify_steps: Session phase: GET /_api/affiliate/get?affiliate_id=OWN vs OTHER; compare body; read-only, no state change.
+impact: Cross-affiliate commission/financial data exposure → high if confirmed.
+testability: AUTH_HELPED
+[HYP] Cellxpert affiliate-portal commission/business-logic flaw
+class: BUSLOGIC
+asset: go.roobet.com/v2
+confidence: 38
+reasoning: Live Cellxpert SaaS login (assets cx-affiliate-prod.cellxpert.com); affiliate flows handle commission money, but authorization/commission logic lives on 3P Cellxpert backend — Roobet-side defect scope bounded to branding/integration only.
+evidence_needed: Roobet-specific endpoint or header passing affiliate identity insecurely (not pure Cellxpert SaaS logic).
+verify_steps: Post-auth: map /partner/* id-based endpoints; compare own vs other affiliate id (A/B two accounts), read-only.
+impact: Cross-affiliate commission/financial exposure → high only if defect is Roobet-side.
+testability: AUTH_HELPED

@@ -1,95 +1,28 @@
-## 2026-09-18 18:46:57 UTC [target] (model bigpickle)
-asset: fs.roobet.com (GCP 34.8.116.253, GCS-backed)
-confidence: 45
-reasoning: fs.roobet.com is a Roobet-operated GCS host (x-goog-generation, MULTI_REGIONAL, UploadServer) serving /s/fs.js for FullStory. Root/listing 302 to www.eu1.fullstory.com. Non-Cloudflare GCP IP is a separate trust boundary; a misconfigured bucket could permit ListObjects or serve unintended objects.
-evidence_needed: Bucket returns <ListBucketResult> or serves objects outside /s/ not intended to be public.
-verify_steps: GET https://fs.roobet.com/?list-type=2&max-keys=1 (200 ListBucketResult vs 403 AccessDenied); GET https://fs.roobet.com/s/ then enumerate sibling object keys. Read-only.
-impact: Info disclosure of internal static assets/scripts (possible private-bundle review or injected secrets) => medium.
-testability: PASSIVE
-[HYP] Commerce/event SDK & CMS token misconfiguration
-class: OTHER
-asset: roobet.com SPA bundle (ROOBET_* env leak)
-confidence: 40
-reasoning: Bundle exposes ROOBET_BETBY_BRAND_ID, ROOBET_PAYMENTIQ_MERCHANT_ID/ENV=sunpetal, Red Tiger launcher gserver-roobet.redtiger.cash, ContentStack delivery+preview tokens, VWO key. Delivery tokens are public-by-design; the preview token (csde...) MIGHT read unpublished draft CMS content. Launcher host is 3P redtiger.cash (out of scope).
-evidence_needed: ContentStack preview API returns non-public draft content via preview token (read-only).
-verify_steps: POST https://api.contentstack.io/… preview-locale query with the preview token. Read-only; low severity.
-impact: Draft/confidential marketing-content disclosure => low; does not touch customer/financial/auth data (program-excluded).
-testability: PASSIVE
-[PARKED] Exposed GraphQL admin 8088: highest value but 8087/8088 verified NOT externally reachable (TCP to Cloudflare 443/8443 only open; ports refused) and 403 bot-block on HTTP => cannot confirm reachability passively. Kept as AUTH_HELPED for browser-phase; confidence dropped to 55.
-[PARKED] Client token/CMS leak: ContentStack preview token is lower severity and touches no customer/financial data; delivery tokens are public keys => near-REJECTED class (public keys). Parked at 40.
-[FINAL] fs.roobet.com GCS bucket misconfig: only fully PASSIVE-verifiable candidate; survivor.
-[NEXT] PROBE: GET https://fs.roobet.com/?list-type=2&max-keys=1 then GET https://fs.roobet.com/s/ (compare 200 ListBucketResult vs 403); also GET https://fs.roobet.com/robots.txt content. If no 200 listing, escalate to browser-phase probe of wss://api.roobet.com/ GraphQL introspection (AUTH_HELPED).
-[LEARN] REJECTED OTHER @ roobet.com bundle: delivered ContentStack tokens are public-by-design; not reportable. No delta in server surface from prior runs.
-[RISK] roobet: 62 — real but gated surface (api.roobet.com Cloudflare/Turnstile bot-management blocks all scripted probes; GraphQL admin only via browser). Two new subdomains discovered; one testable passive lead (fs.roobet.com GCS). Engagement rules (max 1 rps, passive-first, no data modification, poc_required) complied with; no scanner POC runs.
-[PRIO] fs.roobet.com,6.0,GCS_BUCKET_MISCONFIG,PASSIVE
-[PRIO] api.roobet.com,6.7,GRAPHQL_ADMIN_WSPORTS,AUTH_HELPED
-[PRIO] roobet.com,4.55,CLIENT_TOKEN_LEAK,PASSIVE
-[HYP] fs.roobet.com GCS bucket object listing exposure
-class: MISCONFIG
-asset: fs.roobet.com
-confidence: 45
-reasoning: Non-Cloudflare GCP IP 34.8.116.253 serving FullStory JS from /s/; root 302->fullstory.com; UploadServer header suggests GCS; separate trust boundary from Cloudflare-protected roobet.com assets.
-evidence_needed: ListBucketResult XML (200) on S3-compatible query, or objects outside /s/ served.
-verify_steps: GET https://fs.roobet.com/?list-type=2&max-keys=1 (expect 200+XML or 403); GET https://fs.roobet.com/s/ (listing vs 403). Read-only, <1 rps.
-impact: Internal static asset/script disclosure => medium.
-testability: PASSIVE
-[HYP] api.roobet.com GraphQL admin WS port exposed via Cloudflare
-class: MISCONFIG
-asset: api.roobet.com:8088
-confidence: 55
-reasoning: Client bundle embeds ROOBET_WS_GQL_ADMIN_PORT=8088, ROOBET_WS_GQL_PRODUCT_PORT=8087, ROOBET_WS_API_URL=wss://api.roobet.com/. Ports 8087/8088 not externally reachable (TCP refused; Cloudflare only 443/8443). HTTP 403 from Cloudflare bot management.
-evidence_needed: WSS upgrade success + GQL introspection returning admin schema fields.
-[FINAL] 1. roobet.com/_api/graphql: Pre-auth GraphQL Mutation Resolver Execution with IDOR/BOLA Surface via HTTP Channel (95, PASSIVE)
-[FINAL] 2. roobet.com/_api/admin/users: Admin Privilege Escalation via Low-Gate _api/admin/* Routes (55, AUTH_HELPED)
-[FINAL] 3. roobet.com/_api/socket.io: Unauthenticated Realtime Game State Exposure via _api/socket.io Default Namespace (70, HUMAN_ONLY)
-[NEXT] PROBE: POST https://roobet.com/_api/graphql -H "Content-Type: application/json" -H "x-apollo-operation-name: seonSessionUpdate" -d '{"query":"mutation { seonSessionUpdate(input:{sessionId:\"test\",data:\"{}\"}) }"}' → capture error structure; test if remaining untested mutations execute pre-auth with distinguishable error patterns. Single connection, read-only, 1 rps.
-[LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql: Zero delta across runs; dual-channel pre-auth GraphQL disclosure remains sole reportable line; resolver-level NOT_AUTHENTICATED caps severity
-[LEARN] ACCEPTED OTHER @ roobet.com/_api/*: Surface static (6 HTTP + 2 WS); config dump stable (35 keys), liveRTPUpdate error message patched (400+3×INTERNAL_SERVER_ERROR); remaining high-value lines session-gated
-[LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql HTTP POST: 16/26 tested mutations execute pre-auth → INTERNAL_SERVER_ERROR (not 401/NOT_AUTHENTICATED)
-[LEARN] ACCEPTED OTHER @ roobet.com/_api/settings/get: response stable at 35 keys (down from 68); globalStats.allTimeNumBets ~15.45B; restrictedCountries 35 entries
-[LEARN] ACCEPTED OTHER @ roobet.com/_api/admin/users: base path consistently returns 401 (prior 404s were probe URL artifacts)
-[LEARN] ACCEPTED OTHER @ roobet.com/_api/affiliate/get: parameter tests ?user_id/affiliate_code return 401 not 404 — confirms parameter parsing on low-gate surface
-[LEARN] ACCEPTED OTHER @ roobet.com/_api/socket.io: polling transport Origin-gated — 403 disallowed origin without Origin: https://roobet.com, 200 with it
-[LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql GET: CSRF preflight confirmed via error body — requires non-form content-type or x-apollo-operation-name/apollo-require-preflight
-[LEARN] REJECTED OTHER @ roobet.com/_api/*: 6 new family candidates (admin/affiliates, admin/games, admin/config, affiliate/stats, auth/me, auth/session) all 404 SPA shell — route families bounded
-[LEARN] REJECTED MISCONFIG @ roobet.com: OAuth metadata endpoints return SPA shell (catch-all route), not JSON configuration
-[LEARN] REJECTED MISCONFIG @ fs.roobet.com: GCS bucket ?list-type=2 redirects to fullstory.com; no object enumeration possible
-[LEARN] REJECTED OTHER @ api.roobet.com: GraphQL endpoint blocked by Cloudflare bot management (403) without valid Origin/Referer/browser session
-[LEARN] ACCEPTED MISCONFIG @ roobet.com: Remix catch-all route masks potential API endpoints under /api/* paths
-[LEARN] PARKED api.roobet.com Cloudflare bypass: Requires valid browser headers/session/turnstile to test
-[LEARN] PARKED auth.roobet.com/account.roobet.com/admin.roobet.com: Subdomains unresponsive; no attack surface confirmed
-[LEARN] PARKED crash-gs.roobet.com unauthenticated socket: Requires browser/WS tooling, HUMAN_ONLY
-[LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql HTTP GET read-plane: exchangeRates/viewerChecks/userPublicProfile now return 400+INTERNAL_SERVER_ERROR (was 200+NOT_AUTHENTICATED) — server hardened; resolvers crash null-deref instead of structured auth error; HTTP-only change
-[LEARN] ACCEPTED OTHER @ roobet.com/_api/*: 23rd consecutive run byte-stable on core routes; settings/get 200@1763B (35 keys, allTimeNumBets 15.450B), admin/users 401@12B, affiliate/get?user_id=1 401@12B, 14 new route candidates all 404; passive probing fully exhausted
-[LEARN] ACCEPTED OTHER @ roobet.com/_api/settings/get: allTimeNumBets grew from ~15.398B to ~15.446B (normal ~48M growth over 4 days); config surface otherwise byte-stable
-[LEARN] ACCEPTED MISCONFIG @ roobet.com: Server actively hardening — liveRTPUpdate msg suppressed (09-08), HTTP introspection disabled (09-06), settings/get trimmed 68→35 (09-08), read-plane resolvers now ISE instead of NOT_AUTHENTICATED (this run). Hardening trend reduces exploitable surface.
-[RISK] roobet: 78 — Main API (api.roobet.com) and auth/account/admin subdomains remain gated or unresponsive. Critical delta: roobet.com/_api/graphql exposes anonymous GraphQL WS transport + full schema introspection (28Q/26M/7S) + mutation validation error disclosure (InputType schemas) + subscription internal errors + User type with 64 PII/financial/token fields — all bypassing Cloudflare entirely. HTTP channel confirmed live with Apollo GET transport (CSRF bypass via x-apollo-operation-name) and mutation resolver execution pre-auth (16/26 tested mutations → INTERNAL_SERVER_ERROR, resolver reaches internal logic). _api/socket.io exposes anonymous realtime feed (Origin-gated). Admin/affiliate endpoints on same low-gate surface = elevated IDOR/privilege escalation risk. Auth = Express.js session cookies; no bypass without valid session. Server actively hardening (read-plane resolvers now crash with ISE, HTTP introspection disabled, config surface reduced). No confirmed reportable vuln yet; mutation attack surface fully mapped for session-assisted testing. Engagement rules (≤1 rps, read-only, no auth-bypass on live data) respected.
-[HYP] Admin Control Panel frontend reachable with weak auth
+## 2026-09-18 21:17:51 UTC [target] (model bigpickle)
+[HYP] ACP admin-control-panel weak/absent auth
 class: AUTH
-asset: acp-frontend.prod.roobet.systems (CloudFront, alias xtest.roobet.com)
+asset: acp-frontend.prod.roobet.systems (CloudFront; alias xtest.roobet.com)
 confidence: 60
-reasoning: CT+DNS prove acp-frontend.prod.roobet.systems under Roobet's roobet.systems domain; `xtest.roobet.com` (a test host) 301s to it; "acp" = admin control panel of the gambling platform; distribution is publicly resolvable, all paths 403 from this egress only.
-evidence_needed: Reachable admin UI/API (login, /graphql, /api/*) from an allowed egress or with valid session; auth gap or admin-role weakness.
-verify_steps: Browser/human phase from a permitted egress: GET https://acp-frontend.prod.roobet.systems/ + /health /api /graphql; if 200, enumerate admin auth surface; read-only, no state change.
+reasoning: CT+DNS prove host under Roobet roobet.systems; "acp"=admin control panel of the casino; CloudFront distribution publicly resolvable; all paths 403@0B from this egress (WAF), no Roobet-side auth mechanism observable passively.
+evidence_needed: Any 200/302 from the ACP (login UI, /graphql, /api/*, /health) from an allowed egress, then an auth/role gap on that surface.
+verify_steps: Human phase from permitted/rotating egress: GET /, /login, /graphql, /api, /health (read-only); if 200, map login + admin API, no state changes.
 impact: Admin console of a live casino → user/wallet/game management, ATO-critical if reachable.
 testability: HUMAN_ONLY
-[HYP] Affiliate-portal commission/business-logic flaw
-class: BUSLOGIC
-asset: go.roobet.com/v2 (Cellxpert affiliate portal, Roobet-branded)
-confidence: 45
-reasoning: go.roobet.com/v2/login/ serves Roobet affiliates login (`/authenticate`, google-exchange, request-password-reset, `/partner/`); affiliate flows handle commission money; cross-affiliate IDOR or commission tampering would be a financial bug. Backend is Cellxpert SaaS (3P) — bounds Roobet-side defect scope.
-evidence_needed: Post-auth cross-affiliate stats/commission access by affiliate id (A/B two accounts).
-verify_steps: With affiliate account: map `/partner/*` id-based endpoints; compare own vs other affiliate id results. Read-only.
-impact: Cross-affiliate commission/financial exposure or manipulation ⇒ high if confirmed.
+[HYP] Cross-affiliate IDOR via _api/affiliate/get parameter parsing
+class: IDOR
+asset: roobet.com/_api/affiliate/get
+confidence: 50
+reasoning: Route live on low-gate `_api/*` surface (not Cloudflare bot-gated); `?user_id` and `?affiliate_code` return 401 not 404 — server parses both parameters pre-auth; affiliate data endpoint sitting beside session-gated admin routes.
+evidence_needed: With a valid affiliate session, passing another user's/affiliate's id returns their stats/commission (A/B two accounts).
+verify_steps: Session phase: GET /_api/affiliate/get?affiliate_id=OWN vs OTHER; compare body; read-only, no state change.
+impact: Cross-affiliate commission/financial data exposure → high if confirmed.
 testability: AUTH_HELPED
-[HYP] Non-prod cluster exposure / SSRF ladder
-class: MISCONFIG
-asset: *.non-prod.roobet.systems (api-dev, api-stage, flagsmith-edge-proxy, rabbitmq)
-confidence: 40
-reasoning: CT leaks full internal prod+non-prod map incl. RabbitMQ (GCP) and flagsmith edge proxy; all TCP-closed today; non-prod is the classic weak anchor if any ingress or proxying path appears.
-evidence_needed: Any non-prod service answering on alternate port/path, or SSRF reachability from an authenticated context.
-verify_steps: Monitor passive DNS/ports on these names; in session phase test SSRF from an authenticated Roobet endpoint toward rabbitmq/api-stage.
-impact: Non-prod admin/debug surface or broker access ⇒ high if reachable.
-testability: PASSIVE-monitor / AUTH_HELPED
-[NEXT] HUMAN: from a permitted/rotating egress, GET https://xtest.roobet.com → follow to https://acp-frontend.prod.roobet.systems/, capture the login/auth headers and map the admin UI + admin API (read-only) for an auth/privilege gap before any interaction.
-[RISK] roobet: 55 — legacy surface at steady-state floor (24 byte-stable runs; sole reportable = LOW pre-auth GraphQL disclosure); this run's delta (internal `roobet.systems` topology, CloudFront-reachable-but-WAF-closed ACP admin frontend, Cellxpert affiliate portal) is real and elevates attack-surface knowledge, but every new high-value line is session/browser-gated (HUMAN_ONLY / AUTH_HELPED) and no passive reportable vuln was produced.
+[HYP] Cellxpert affiliate-portal commission/business-logic flaw
+class: BUSLOGIC
+asset: go.roobet.com/v2
+confidence: 38
+reasoning: Live Cellxpert SaaS login (assets cx-affiliate-prod.cellxpert.com); affiliate flows handle commission money, but authorization/commission logic lives on 3P Cellxpert backend — Roobet-side defect scope bounded to branding/integration only.
+evidence_needed: Roobet-specific endpoint or header passing affiliate identity insecurely (not pure Cellxpert SaaS logic).
+verify_steps: Post-auth: map /partner/* id-based endpoints; compare own vs other affiliate id (A/B two accounts), read-only.
+impact: Cross-affiliate commission/financial exposure → high only if defect is Roobet-side.
+testability: AUTH_HELPED

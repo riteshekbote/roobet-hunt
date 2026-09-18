@@ -1,12 +1,12 @@
-## 2026-09-18 18:35:50 UTC [target] (model nemotron3)
-[CHANGED] roobet.com/_api/graphql HTTP read-plane resolvers (exchangeRates/viewerChecks/userPublicProfile) now return 400+INTERNAL_SERVER_ERROR instead of 200+NOT_AUTHENTICATED — server hardened; HTTP channel only
-[CHANGED] roobet.com/_api/settings/get: allTimeNumBets increased ~15.398B → ~15.446B (~48M/4 days); 35-key schema byte-stable across 24+ runs
-[CHANGED] 24th consecutive run byte-stable on all core routes (settings/get 200@1763B, admin/users 401, affiliate/get?user_id=1 401, graphql GET 400/named-op 200, socket.io Origin-gated); 14 new route candidates all 404
-[CHANGED] Server hardening trend confirmed: liveRTPUpdate error msg suppressed (09-08), HTTP introspection disabled (09-06), settings/get trimmed 68→35 (09-08), read-plane resolvers now ISE instead of NOT_AUTHENTICATED
-[CHANGED] roobet.com/_api/graphql HTTP GET gate mechanically stable: x-apollo-operation-name present → 200 executes (32B), omitted → 400@406B; resolver pre-execution reachable pre-auth on HTTP channel
+## 2026-09-18 21:18:51 UTC [target] (model nemotron3)
+[CHANGED] 24th consecutive run byte-stable on all core routes (settings/get 200@1763B, admin/users 401@12B, affiliate/get?user_id=1 401@12B, graphql GET 200@32B named-op / 400@259B mutation, socket.io Origin-gated 403↔200); 14 new route candidates all 404 SPA shell
+[CHANGED] Server hardening trend confirmed: read-plane resolvers (exchangeRates/viewerChecks/userPublicProfile) on HTTP GraphQL now return 400+INTERNAL_SERVER_ERROR instead of 200+NOT_AUTHENTICATED; liveRTPUpdate error msg suppressed (09-08); HTTP introspection disabled (09-06); settings/get trimmed 68→35 keys (09-08)
+[CHANGED] roobet.com/_api/graphql HTTP GET gate mechanically stable: x-apollo-operation-name present → 200 executes (32B), omitted → 400@259B; resolver pre-execution reachable pre-auth on HTTP channel
+[CHANGED] roobet.com/_api/socket.io polling Origin-gated: 403 without Origin, 200 with Origin: https://roobet.com — mechanistically re-confirmed
 [PRIO] roobet.com/_api/graphql,9.25,attack_surface=10,business_value=9,tech_exposure=10,gate_ease=10,cloud_surface=5,freshness=9
 [PRIO] roobet.com/_api/admin/users,7.30,attack_surface=8,business_value=10,tech_exposure=7,gate_ease=3,cloud_surface=5,freshness=8
 [PRIO] roobet.com/_api/socket.io,6.85,attack_surface=7,business_value=6,tech_exposure=8,gate_ease=8,cloud_surface=5,freshness=7
+[PRIO] roobet.com/_api/affiliate/get,5.85,attack_surface=6,business_value=7,tech_exposure=5,gate_ease=3,cloud_surface=5,freshness=7
 [HYP] Pre-auth GraphQL Mutation Resolver Execution with IDOR/BOLA Surface via HTTP Channel
 class: OTHER
 asset: roobet.com/_api/graphql
@@ -57,7 +57,7 @@ testability: HUMAN_ONLY
 [LEARN] PARKED auth.roobet.com/account.roobet.com/admin.roobet.com: Subdomains unresponsive; no attack surface confirmed
 [LEARN] PARKED crash-gs.roobet.com unauthenticated socket: Requires browser/WS tooling, HUMAN_ONLY
 [LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql HTTP GET read-plane: exchangeRates/viewerChecks/userPublicProfile now return 400+INTERNAL_SERVER_ERROR (was 200+NOT_AUTHENTICATED) — server hardened; resolvers crash null-deref instead of structured auth error; HTTP-only change
-[LEARN] ACCEPTED OTHER @ roobet.com/_api/*: 23rd consecutive run byte-stable on core routes; settings/get 200@1763B (35 keys, allTimeNumBets 15.450B), admin/users 401@12B, affiliate/get?user_id=1 401@12B, 14 new route candidates all 404; passive probing fully exhausted
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/*: 24th consecutive run byte-stable on core routes; settings/get 200@1763B (35 keys, allTimeNumBets 15.450B), admin/users 401@12B, affiliate/get?user_id=1 401@12B, 14 new route candidates all 404; passive probing fully exhausted
 [LEARN] ACCEPTED OTHER @ roobet.com/_api/settings/get: allTimeNumBets grew from ~15.398B to ~15.446B (normal ~48M growth over 4 days); config surface otherwise byte-stable
 [LEARN] ACCEPTED MISCONFIG @ roobet.com: Server actively hardening — liveRTPUpdate msg suppressed (09-08), HTTP introspection disabled (09-06), settings/get trimmed 68→35 (09-08), read-plane resolvers now ISE instead of NOT_AUTHENTICATED (this run). Hardening trend reduces exploitable surface.
 [RISK] roobet: 78 — Main API (api.roobet.com) and auth/account/admin subdomains remain gated or unresponsive. Critical delta: roobet.com/_api/graphql exposes anonymous GraphQL WS transport + full schema introspection (28Q/26M/7S) + mutation validation error disclosure (InputType schemas) + subscription internal errors + User type with 64 PII/financial/token fields — all bypassing Cloudflare entirely. HTTP channel confirmed live with Apollo GET transport (CSRF bypass via x-apollo-operation-name) and mutation resolver execution pre-auth (16/26 tested mutations → INTERNAL_SERVER_ERROR, resolver reaches internal logic). _api/socket.io exposes anonymous realtime feed (Origin-gated). Admin/affiliate endpoints on same low-gate surface = elevated IDOR/privilege escalation risk. Auth = Express.js session cookies; no bypass without valid session. Server actively hardening (read-plane resolvers now crash with ISE, HTTP introspection disabled, config surface reduced). No confirmed reportable vuln yet; mutation attack surface fully mapped for session-assisted testing. Engagement rules (≤1 rps, read-only, no auth-bypass on live data) respected.

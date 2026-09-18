@@ -794,3 +794,10 @@ https://fs.roobet.com/?list-type=2&max-keys=1 -> HTTP 405
 https://fs.roobet.com/s/ -> HTTP 404
 https://fs.roobet.com/robots.txt -> 200 len=26
 https://xtest.roobet.com -> HTTP 403
+
+## 2026-09-18 21:19:10 UTC
+https://roobet.com -> 200 len=?
+https://roobet.com/_api/graphql -> HTTP 400
+https://roobet.com/_api/admin/users -> HTTP 401
+https://roobet.com/_api/admin/stats -> HTTP 401
+https://roobet.com/_api/socket.io/?EIO=3&transport=polling -> HTTP 400
