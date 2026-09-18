@@ -25126,3 +25126,267 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 - [RISK] roobet: 50 — steady-state floor: 25 byte-stable runs; sole robot-side reportable line = pre-auth GraphQL disclosure (VALID 6.5, submitted individually). Fresh egress tests confirm no passive path to the ACP admin frontend (WAF-closed) and bound the affiliate portal to 3P Cellxpert. Every remaining high-value line is session/browser-gated (AUTH_HELPED / HUMAN_ONLY): admin priv-esc, affiliate IDOR, ACP auth gap. Engagement rules respected (≤1 rps, read-only GET/HEAD, no mutation, no auth-bypass on live data); no new reportable vulnerability produced this run.
+===== ANALYST bigpickle 2026-09-18 23:26:46 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la && ls -la art/ 2>/dev/null; cat scope.yml 2>/dev/null | head -50
+total 564
+drwxr-xr-x 12 runner runner   4096 Sep 18 23:23 .
+drwxr-xr-x  3 runner runner   4096 Sep 18 23:23 ..
+drwxr-xr-x  7 runner runner   4096 Sep 18 23:23 .git
+drwxr-xr-x  3 runner runner   4096 Sep 18 23:23 .github
+-rw-r--r--  1 runner runner   1724 Sep 18 23:23 README.md
+-rw-r--r--  1 runner runner     32 Sep 18 23:23 analyst-out.txt
+-rw-r--r--  1 runner runner 228309 Sep 18 23:23 analyst-prompt.txt
+-rw-r--r--  1 runner runner 224526 Sep 18 23:23 ctx.txt
+drwxr-xr-x  2 runner runner   4096 Sep 18 23:23 inventory
+drwxr-xr-x  2 runner runner   4096 Sep 18 23:23 knowledge
+drwxr-xr-x  2 runner runner   4096 Sep 18 23:23 leads
+-rw-r--r--  1 runner runner  33733 Sep 18 23:23 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Sep 18 23:23 recon-notes
+drwxr-xr-x  2 runner runner   4096 Sep 18 23:23 reports
+drwxr-xr-x  2 runner runner   4096 Sep 18 23:23 reposcan-raw
+-rw-r--r--  1 runner runner   3196 Sep 18 23:23 scope.yml
+drwxr-xr-x  2 runner runner   4096 Sep 18 23:23 scripts
+-rw-r--r--  1 runner runner     33 Sep 18 23:23 state_bigpickle.json
+-rw-r--r--  1 runner runner     33 Sep 18 23:23 state_laguna.json
+-rw-r--r--  1 runner runner     33 Sep 18 23:23 state_ling3.json
+-rw-r--r--  1 runner runner     33 Sep 18 23:23 state_longcat.json
+-rw-r--r--  1 runner runner     33 Sep 18 23:23 state_mimo.json
+-rw-r--r--  1 runner runner     33 Sep 18 23:23 state_nemotron3.json
+drwxr-xr-x  2 runner runner   4096 Sep 18 23:23 triage
+programs:
+  roobet:
+    name: Roobet Bug Bounty
+    disclosure_policy: via bugs.olivermaicher.eu (Oliver Maicher private program) - report + PoC + contact + payment
+    assets:
+      - name: "All company-owned infrastructure, gaming platforms, user accounts, wallets, APIs, mobile/web applications, and domains operated by Roobet"
+        priority: In
+    out_of_scope:
+- "Network level Denial of Service attacks"
+      - "Application Denial of Service by locking user accounts"
+      - "Descriptive error messages or headers (e.g. Stack Traces, banner grabbing)"
+      - "Disclosure of known public files or directories (e.g. robots.txt)"
+      - "Outdated software / library versions"
+      - "OPTIONS / TRACE HTTP method enabled"
+      - "CSRF on logout"
+      - "CSRF on forms that are available to anonymous users"
+      - "Cookies that lack HTTP Only or Secure settings for non-sensitive data"
+      - "Self-XSS and issues exploitable only through Self-XSS"
+      - "Reports resulting from automated scanning utilities without additional details or a POC demonstrating a specific exploit"
+      - "Attacks requiring physical access to a user's device"
+      - "Attacks dependent upon social engineering of employees or vendors"
+      - "Username enumeration based on login or forgot password pages"
+      - "Enforcement policies for brute force, rate limiting, or account lockout"
+      - "SSL/TLS best practices"
+      - "SSL attacks such as BEAST, BREACH, Renegotiation attack"
+      - "Clickjacking, without additional details demonstrating a specific exploit"
+      - "Mail configuration issues including SPF, DKIM, DMARC settings"
+      - "Use of a known-vulnerable library without a description of an exploit specific to our implementation"
+      - "Password and account recovery policies"
+      - "Presence of autocomplete functionality in form fields"
+      - "Publicly accessible login panels"
+      - "Lack of email address verification during account registration or account invitation"
+      - "Lack of email address verification password restore"
+      - "Session control during email/password changes"
+      - "Social engineering, physical attacks, and DoS/DDoS testing (per program notes)"
+      - "Exposure of customer/employee/financial/authentication data during testing (per program notes)"
+    github_orgs:
+      - none-configured
+
+rules:
+  passive_first: false          # deep-hunt agent: active probes allowed when scoped
+  max_requests_per_second: 1    # never hammer live infra
+  no_doom: true                 # no DoS/DDoS, no account-lockout attacks
+  account_creation: restricted  # only on test/sandbox assets, never live customer data
+  no_data_modification: true    # no writes/deletes on live customer data
+  no_pre_disclosure: true       # never disclose before program response
+  poc_required: true            # scanner output alone is REJECTED
+  redact_secrets_in_commits: true
+
+models:
+[0m
+[0m$ [0mls -la leads/ inventory/ knowledge/ recon-notes/ triage/ 2>/dev/null; echo ---; ls -la art/ reports/ scripts/ 2>/dev/null
+inventory/:
+total 120
+drwxr-xr-x  2 runner runner   4096 Sep 18 23:23 .
+drwxr-xr-x 12 runner runner   4096 Sep 18 23:23 ..
+-rw-r--r--  1 runner runner 113438 Sep 18 23:23 roobet.md
+
+knowledge/:
+total 104
+drwxr-xr-x  2 runner runner  4096 Sep 18 23:23 .
+drwxr-xr-x 12 runner runner  4096 Sep 18 23:23 ..
+-rw-r--r--  1 runner runner 98094 Sep 18 23:23 index.md
+
+leads/:
+total 1628
+drwxr-xr-x  2 runner runner    4096 Sep 18 23:23 .
+drwxr-xr-x 12 runner runner    4096 Sep 18 23:23 ..
+-rw-r--r--  1 runner runner  532099 Sep 18 23:23 lead-bigpickle.md
+-rw-r--r--  1 runner runner    5253 Sep 18 23:23 lead-laguna.md
+-rw-r--r--  1 runner runner    5150 Sep 18 23:23 lead-ling3.md
+-rw-r--r--  1 runner runner    5356 Sep 18 23:23 lead-longcat.md
+-rw-r--r--  1 runner runner      18 Sep 18 23:23 lead-mimo.md
+-rw-r--r--  1 runner runner 1075075 Sep 18 23:23 lead-nemotron3.md
+-rw-r--r--  1 runner runner   17106 Sep 18 23:23 reposcan-roobet.md
+
+recon-notes/:
+total 12
+drwxr-xr-x  2 runner runner 4096 Sep 18 23:23 .
+drwxr-xr-x 12 runner runner 4096 Sep 18 23:23 ..
+-rw-r--r--  1 runner runner  815 Sep 18 23:23 DEDICATED-DEEP.md
+
+triage/:
+total 516
+drwxr-xr-x  2 runner runner  4096 Sep 18 23:23 .
+drwxr-xr-x 12 runner runner  4096 Sep 18 23:23 ..
+-rw-r--r--  1 runner runner     0 Sep 18 23:23 .gitkeep
+-rw-r--r--  1 runner runner   259 Sep 18 23:23 run-2026-09-02-21-54.md
+-rw-r--r--  1 runner runner   161 Sep 18 23:23 run-2026-09-02-23-55.md
+-rw-r--r--  1 runner runner   228 Sep 18 23:23 run-2026-09-03-03-41.md
+-rw-r--r--  1 runner runner   185 Sep 18 23:23 run-2026-09-03-08-44.md
+-rw-r--r--  1 runner runner   144 Sep 18 23:23 run-2026-09-03-13-23.md
+-rw-r--r--  1 runner runner   263 Sep 18 23:23 run-2026-09-03-17-12.md
+-rw-r--r--  1 runner runner   249 Sep 18 23:23 run-2026-09-03-19-56.md
+-rw-r--r--  1 runner runner   212 Sep 18 23:23 run-2026-09-03-22-28.md
+-rw-r--r--  1 runner runner   183 Sep 18 23:23 run-2026-09-04-00-23.md
+-rw-r--r--  1 runner runner   212 Sep 18 23:23 run-2026-09-04-05-06.md
+-rw-r--r--  1 runner runner   350 Sep 18 23:23 run-2026-09-04-09-44.md
+-rw-r--r--  1 runner runner   228 Sep 18 23:23 run-2026-09-04-14-05.md
+-rw-r--r--  1 runner runner   212 Sep 18 23:23 run-2026-09-04-17-39.md
+-rw-r--r--  1 runner runner   223 Sep 18 23:23 run-2026-09-04-19-53.md
+-rw-r--r--  1 runner runner   164 Sep 18 23:23 run-2026-09-04-22-14.md
+-rw-r--r--  1 runner runner   237 Sep 18 23:23 run-2026-09-05-00-11.md
+-rw-r--r--  1 runner runner   299 Sep 18 23:23 run-2026-09-05-04-39.md
+-rw-r--r--  1 runner runner   179 Sep 18 23:23 run-2026-09-05-08-37.md
+-rw-r--r--  1 runner runner   182 Sep 18 23:23 run-2026-09-05-12-04.md
+-rw-r--r--  1 runner runner   146 Sep 18 23:23 run-2026-09-05-15-21.md
+-rw-r--r--  1 runner runner   154 Sep 18 23:23 run-2026-09-05-17-36.md
+-rw-r--r--  1 runner runner   134 Sep 18 23:23 run-2026-09-05-19-30.md
+-rw-r--r--  1 runner runner   143 Sep 18 23:23 run-2026-09-05-21-41.md
+-rw-r--r--  1 runner runner   202 Sep 18 23:23 run-2026-09-05-23-38.md
+-rw-r--r--  1 runner runner   224 Sep 18 23:23 run-2026-09-06-01-20.md
+-rw-r--r--  1 runner runner   154 Sep 18 23:23 run-2026-09-06-06-30.md
+-rw-r--r--  1 runner runner   176 Sep 18 23:23 run-2026-09-06-11-21.md
+-rw-r--r--  1 runner runner   161 Sep 18 23:23 run-2026-09-06-14-23.md
+-rw-r--r--  1 runner runner   177 Sep 18 23:23 run-2026-09-06-17-20.md
+-rw-r--r--  1 runner runner   146 Sep 18 23:23 run-2026-09-06-19-29.md
+-rw-r--r--  1 runner runner   172 Sep 18 23:23 run-2026-09-06-21-42.md
+-rw-r--r--  1 runner runner   178 Sep 18 23:23 run-2026-09-06-23-37.md
+-rw-r--r--  1 runner runner   173 Sep 18 23:23 run-2026-09-07-01-18.md
+-rw-r--r--  1 runner runner   190 Sep 18 23:23 run-2026-09-07-06-12.md
+-rw-r--r--  1 runner runner  1006 Sep 18 23:23 run-2026-09-07-12-46.md
+-rw-r--r--  1 runner runner   185 Sep 18 23:23 run-2026-09-07-18-10.md
+-rw-r--r--  1 runner runner   156 Sep 18 23:23 run-2026-09-07-21-36.md
+-rw-r--r--  1 runner runner   367 Sep 18 23:23 run-2026-09-07-23-45.md
+-rw-r--r--  1 runner runner   225 Sep 18 23:23 run-2026-09-08-03-48.md
+-rw-r--r--  1 runner runner   147 Sep 18 23:23 run-2026-09-08-08-44.md
+-rw-r--r--  1 runner runner   156 Sep 18 23:23 run-2026-09-08-13-25.md
+-rw-r--r--  1 runner runner   698 Sep 18 23:23 run-2026-09-08-17-29.md
+-rw-r--r--  1 runner runner   186 Sep 18 23:23 run-2026-09-08-20-16.md
+-rw-r--r--  1 runner runner   156 Sep 18 23:23 run-2026-09-08-22-45.md
+-rw-r--r--  1 runner runner   143 Sep 18 23:23 run-2026-09-09-01-07.md
+-rw-r--r--  1 runner runner   193 Sep 18 23:23 run-2026-09-09-06-05.md
+-rw-r--r--  1 runner runner   153 Sep 18 23:23 run-2026-09-09-11-34.md
+-rw-r--r--  1 runner runner   161 Sep 18 23:23 run-2026-09-09-15-16.md
+-rw-r--r--  1 runner runner   146 Sep 18 23:23 run-2026-09-09-18-43.md
+-rw-r--r--  1 runner runner   174 Sep 18 23:23 run-2026-09-09-21-33.md
+-rw-r--r--  1 runner runner   143 Sep 18 23:23 run-2026-09-09-23-32.md
+-rw-r--r--  1 runner runner   231 Sep 18 23:23 run-2026-09-10-01-28.md
+-rw-r--r--  1 runner runner 11655 Sep 18 23:23 run-2026-09-10-06-43.md
+-rw-r--r--  1 runner runner   266 Sep 18 23:23 run-2026-09-10-11-50.md
+-rw-r--r--  1 runner runner   161 Sep 18 23:23 run-2026-09-10-16-05.md
+-rw-r--r--  1 runner runner   182 Sep 18 23:23 run-2026-09-10-19-09.md
+-rw-r--r--  1 runner runner   184 Sep 18 23:23 run-2026-09-10-21-41.md
+-rw-r--r--  1 runner runner   182 Sep 18 23:23 run-2026-09-10-23-51.md
+-rw-r--r--  1 runner runner   143 Sep 18 23:23 run-2026-09-11-03-48.md
+-rw-r--r--  1 runner runner   244 Sep 18 23:23 run-2026-09-11-08-46.md
+-rw-r--r--  1 runner runner 13671 Sep 18 23:23 run-2026-09-11-13-24.md
+-rw-r--r--  1 runner runner 16547 Sep 18 23:23 run-2026-09-11-17-14.md
+-rw-r--r--  1 runner runner   179 Sep 18 23:23 run-2026-09-11-19-49.md
+-rw-r--r--  1 runner runner  4273 Sep 18 23:23 run-2026-09-11-22-22.md
+-rw-r--r--  1 runner runner   196 Sep 18 23:23 run-2026-09-12-00-37.md
+-rw-r--r--  1 runner runner   210 Sep 18 23:23 run-2026-09-12-05-03.md
+-rw-r--r--  1 runner runner   161 Sep 18 23:23 run-2026-09-12-09-26.md
+-rw-r--r--  1 runner runner   179 Sep 18 23:23 run-2026-09-12-13-08.md
+-rw-r--r--  1 runner runner   186 Sep 18 23:23 run-2026-09-12-16-22.md
+-rw-r--r--  1 runner runner   168 Sep 18 23:23 run-2026-09-12-18-45.md
+-rw-r--r--  1 runner runner 11090 Sep 18 23:23 run-2026-09-12-21-20.md
+-rw-r--r--  1 runner runner   269 Sep 18 23:23 run-2026-09-12-23-06.md
+-rw-r--r--  1 runner runner   175 Sep 18 23:23 run-2026-09-13-01-08.md
+-rw-r--r--  1 runner runner   151 Sep 18 23:23 run-2026-09-13-06-18.md
+-rw-r--r--  1 runner runner   166 Sep 18 23:23 run-2026-09-13-12-06.md
+-rw-r--r--  1 runner runner   152 Sep 18 23:23 run-2026-09-13-16-27.md
+-rw-r--r--  1 runner runner   146 Sep 18 23:23 run-2026-09-13-18-56.md
+-rw-r--r--  1 runner runner   143 Sep 18 23:23 run-2026-09-13-21-22.md
+-rw-r--r--  1 runner runner  1083 Sep 18 23:23 run-2026-09-13-23-30.md
+-rw-r--r--  1 runner runner   174 Sep 18 23:23 run-2026-09-14-01-38.md
+-rw-r--r--  1 runner runner   178 Sep 18 23:23 run-2026-09-14-07-07.md
+-rw-r--r--  1 runner runner   245 Sep 18 23:23 run-2026-09-14-14-14.md
+-rw-r--r--  1 runner runner   142 Sep 18 23:23 run-2026-09-14-19-28.md
+-rw-r--r--  1 runner runner  1583 Sep 18 23:23 run-2026-09-14-22-45.md
+-rw-r--r--  1 runner runner   316 Sep 18 23:23 run-2026-09-15-01-16.md
+-rw-r--r--  1 runner runner   143 Sep 18 23:23 run-2026-09-15-06-13.md
+-rw-r--r--  1 runner runner   156 Sep 18 23:23 run-2026-09-15-11-53.md
+-rw-r--r--  1 runner runner   174 Sep 18 23:23 run-2026-09-15-16-35.md
+-rw-r--r--  1 runner runner   183 Sep 18 23:23 run-2026-09-15-19-49.md
+-rw-r--r--  1 runner runner   177 Sep 18 23:23 run-2026-09-15-22-46.md
+-rw-r--r--  1 runner runner   174 Sep 18 23:23 run-2026-09-16-01-10.md
+-rw-r--r--  1 runner runner  1593 Sep 18 23:23 run-2026-09-16-06-11.md
+-rw-r--r--  1 runner runner   209 Sep 18 23:23 run-2026-09-16-11-48.md
+-rw-r--r--  1 runner runner   195 Sep 18 23:23 run-2026-09-16-16-28.md
+-rw-r--r--  1 runner runner   180 Sep 18 23:23 run-2026-09-16-19-41.md
+-rw-r--r--  1 runner runner   174 Sep 18 23:23 run-2026-09-16-22-45.md
+-rw-r--r--  1 runner runner   172 Sep 18 23:23 run-2026-09-17-01-11.md
+-rw-r--r--  1 runner runner   156 Sep 18 23:23 run-2026-09-17-06-12.md
+-rw-r--r--  1 runner runner   143 Sep 18 23:23 run-2026-09-17-11-51.md
+-rw-r--r--  1 runner runner   274 Sep 18 23:23 run-2026-09-17-16-34.md
+-rw-r--r--  1 runner runner 12573 Sep 18 23:23 run-2026-09-17-19-56.md
+-rw-r--r--  1 runner runner  9571 Sep 18 23:23 run-2026-09-17-22-45.md
+-rw-r--r--  1 runner runner   188 Sep 18 23:23 run-2026-09-18-01-07.md
+-rw-r--r--  1 runner runner   143 Sep 18 23:23 run-2026-09-18-06-01.md
+-rw-r--r--  1 runner runner 11019 Sep 18 23:23 run-2026-09-18-11-29.md
+-rw-r--r--  1 runner runner   175 Sep 18 23:23 run-2026-09-18-15-08.md
+-rw-r--r--  1 runner runner   153 Sep 18 23:23 run-2026-09-18-18-33.md
+-rw-r--r--  1 runner runner   158 Sep 18 23:23 run-2026-09-18-21-14.md
+---
+reports/:
+total 3420
+drwxr-xr-x  2 runner runner    4096 Sep 18 23:23 .
+drwxr-xr-x 12 runner runner    4096 Sep 18 23:23 ..
+-rw-r--r--  1 runner runner 1712485 Sep 18 23:23 analyst-bigpickle.log
+-rw-r--r--  1 runner runner   22351 Sep 18 23:23 analyst-laguna.log
+-rw-r--r--  1 runner runner   22248 Sep 18 23:23 analyst-ling3.log
+-rw-r--r--  1 runner runner   22454 Sep 18 23:23 analyst-longcat.log
+-rw-r--r--  1 runner runner 1313351 Sep 18 23:23 analyst-nemotron3.log
+-rw-r--r--  1 runner runner    2346 Sep 18 23:23 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner      51 Sep 18 23:23 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner      50 Sep 18 23:23 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner      52 Sep 18 23:23 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner   11995 Sep 18 23:23 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  355683 Sep 18 23:23 hypotheses.md
+-rw-r--r--  1 runner runner    3044 Sep 18 23:23 valid-bugs.md
+
+scripts/:
+total 28
+drwxr-xr-x  2 runner runner  4096 Sep 18 23:23 .
+drwxr-xr-x 12 runner runner  4096 Sep 18 23:23 ..
+-rw-r--r--  1 runner runner 16987 Sep 18 23:23 sync-issues.py
+[0m
+[0m→ [0mRead reports/valid-bugs.md
+[0m→ [0mRead reports/hypotheses-bigpickle.txt
+[0m→ [0mRead triage/run-2026-09-18-21-14.md
+[93m[1m! [0mpermission requested: external_directory (/tmp/*); auto-rejecting
+[0m✗ [0mUA="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"
+code() { curl -sS -o /tmp/bp_resp.txt -w "%{http_code} %{size_download}" -m 12 -A "$UA" "$@" > /tmp/bp_meta.txt 2>&1; echo "$(cat /tmp/bp_meta.txt) | $(wc -c </tmp/bp_resp.txt)B"; }
+echo "== settings/get"; code "https://roobet.com/_api/settings/get"; sleep 1.1
+echo "== graphql no-body GET"; code "https://roobet.com/_api/graphql"; sleep 1.1
+echo "== graphql named-op GET"; code -H "x-apollo-operation-name: __typename" -H "Content-Type: application/json" "https://roobet.com/_api/graphql?query=%7B__typename%7D"; sleep 1.1
+echo "== admin/users"; code "https://roobet.com/_api/admin/users"; sleep 1.1
+echo "== affiliate/get?user_id=1"; code "https://roobet.com/_api/affiliate/get?user_id=1"; sleep 1.1
+echo "== socket.io no-Origin"; code "https://roobet.com/_api/socket.io/?EIO=4&transport=polling"; sleep 1.1
+echo "== socket.io with-Origin"; code -H "Origin: https://roobet.com" "https://roobet.com/_api/socket.io/?EIO=4&transport=polling" failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.
+Passive-scan the known low-gate surface to establish this run's delta baseline (read-only, ≤1 rps).

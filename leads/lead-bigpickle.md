@@ -4410,3 +4410,4 @@ evidence_needed: Roobet-specific endpoint or header passing affiliate identity i
 verify_steps: Post-auth: map /partner/* id-based endpoints; compare own vs other affiliate id (A/B two accounts), read-only.
 impact: Cross-affiliate commission/financial exposure → high only if defect is Roobet-side.
 testability: AUTH_HELPED
+## 2026-09-18 23:24:05 UTC [target] (model bigpickle)

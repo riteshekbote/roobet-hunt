@@ -971,3 +971,10 @@ www.roobet.com
 - CHANGED Server hardening trend confirmed: read-plane resolvers (exchangeRates/viewerChecks/userPublicProfile) on HTTP GraphQL now return 400+INTERNAL_SERVER_ERROR instead of 200+NOT_AUTHENTICATED; liveRTPUpda
 - CHANGED roobet.com/_api/graphql HTTP GET gate mechanically stable: x-apollo-operation-name present → 200 executes (32B), omitted → 400@259B; resolver pre-execution reachable pre-auth on HTTP channel
 - CHANGED roobet.com/_api/socket.io polling Origin-gated: 403 without Origin, 200 with Origin: https://roobet.com — mechanistically re-confirmed
+
+## 2026-09-18 23:26:46 UTC
+- CHANGED roobet.com/_api/graphql HTTP read-plane resolvers (exchangeRates/viewerChecks/userPublicProfile) now return 400+INTERNAL_SERVER_ERROR instead of 200+NOT_AUTHENTICATED — server hardened; HTTP channel o
+- CHANGED roobet.com/_api/settings/get: allTimeNumBets increased ~15.398B → ~15.465B (~67M growth over 5 days); 35-key schema byte-stable across 24+ runs
+- CHANGED roobet.com/_api/graphql HTTP GET gate mechanically stable: x-apollo-operation-name present → 200 executes (32B), omitted → 400@259B; resolver pre-execution reachable pre-auth on HTTP channel
+- CHANGED roobet.com/_api/socket.io polling Origin-gated: 403 without Origin, 200 with Origin: https://roobet.com — mechanistically re-confirmed (EIO=4)
+- CHANGED 24th consecutive run byte-stable on all core routes; 14 new route candidates all 404; passive probing fully exhausted

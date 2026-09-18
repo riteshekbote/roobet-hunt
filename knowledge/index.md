@@ -548,3 +548,6 @@
 - 2026-09-18 ACCEPTED OTHER @ roobet.com/_api/graphql HTTP POST: 16/26 tested mutations execute pre-auth → INTERNAL_SERVER_ERROR (not 401/NOT_AUTHENTICATED)
 - 2026-09-18 REJECTED OTHER @ roobet.com bundle: delivered ContentStack tokens are public-by-design; not reportable. No delta in server surface from prior runs.
 - 2026-09-18 ACCEPTED OTHER @ roobet.com/_api/*: 24th consecutive run byte-stable on core routes; settings/get 200@1763B (35 keys, allTimeNumBets 15.450B), admin/users 401@12B, affiliate/get?user_id=1 401@12B, 14 new route candidates all 404; passive probing fully exhausted
+- 2026-09-18 ACCEPTED OTHER @ roobet.com/_api/settings/get: response stable at 35 keys (down from 68); globalStats.allTimeNumBets ~15.465B; restrictedCountries 35 entries
+- 2026-09-18 ACCEPTED OTHER @ roobet.com/_api/*: 24th consecutive run byte-stable on core routes; settings/get 200@1763B (35 keys, allTimeNumBets 15.465B), admin/users 401@12B, affiliate/get?user_id=1 401@12B, 14 new route candidates all 404; passive probing fully exhausted
+- 2026-09-18 ACCEPTED OTHER @ roobet.com/_api/settings/get: allTimeNumBets grew from ~15.398B to ~15.465B (normal ~67M growth over 5 days); config surface otherwise byte-stable
