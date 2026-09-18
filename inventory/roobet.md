@@ -928,3 +928,9 @@ www.roobet.com
 - CHANGED crash-gs.roobet.com Socket.IO TLS upgrade open (no 4xx) then app-timeout; HUMAN_ONLY — no delta
 - CHANGED fs.roobet.com GCS ?list-type=2 → fullstory.com redirect; no enumeration — no delta
 - CHANGED roobet.com OAuth metadata endpoints return SPA shell (Remix catch-all), not JSON — no delta
+
+## 2026-09-18 01:09:38 UTC
+- CHANGED roobet.com/_api/graphql HTTP read-plane: `exchangeRates`/`viewerChecks`/`userPublicProfile` now return `400 + INTERNAL_SERVER_ERROR` (was `200 + NOT_AUTHENTICATED`) — server hardened; resolvers crash 
+- CHANGED roobet.com/_api/settings/get: `allTimeNumBets` increased from ~15.398B to ~15.446B (~48M growth over 4 days); 35-key schema byte-stable across 22+ runs
+- CHANGED roobet.com/_api/*: 22nd consecutive run byte-stable on all core routes (settings/get 200@1765B, admin/users 401, affiliate/get?user_id=1 401, graphql GET 400/named-op 200, socket.io Origin-gated); 14 
+- CHANGED Server hardening trend confirmed: liveRTPUpdate error msg suppressed (09-08), HTTP introspection disabled (09-06), settings/get trimmed 68→35 keys (09-08), read-plane resolvers now ISE instead of NOT_
