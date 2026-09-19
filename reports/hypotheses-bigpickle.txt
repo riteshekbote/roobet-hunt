@@ -1,9 +1,12 @@
-## 2026-09-19 14:49:54 UTC [target] (model bigpickle)
+## 2026-09-19 17:52:08 UTC [target] (model bigpickle)
+[PRIO] roobet.com/_api/graphql,6.1,pre-auth mutation resolver execution (sole robot-reportable line; resolver caps severity)
+[PRIO] roobet.com/_api/affiliate/get,5.3,auth-gated IDOR candidate (param parsing confirmed, needs session)
+[PRIO] roobet.com/_api/admin/*,4.8,auth-gated admin family (needs session)
 [HYP] Pre-auth GraphQL mutation resolver execution returning internal errors via HTTP+WS
 class: OTHER
 asset: roobet.com/_api/graphql
 confidence: 70
-reasoning: Anonymous `graphql-transport-ws` (101+connection_ack, no socketToken), full introspection (Query 28/Mut 26/Sub 7), 19/26 mutations execute pre-auth → 400+INTERNAL_SERVER_ERROR (not 401/NOT_AUTHENTICATED), Apollo GET gate bypassable via `x-apollo-operation-name` (200@32B). Resolver auth caps read-plane severity.
+reasoning: Anonymous graphql-transport-ws (101+connection_ack, no socketToken), full WS introspection (Query 28/Mut 26/Sub 7), 19/26 mutations execute pre-auth → 400+INTERNAL_SERVER_ERROR (not 401/NOT_AUTHENTICATED), Apollo GET gate bypassable via x-apollo-operation-name (re-confirmed 200@32B this run). Resolver auth caps read-plane severity.
 evidence_needed: Severity stays low standalone; PII-graph elevation only if session compromise achieved.
 verify_steps: [DONE] — 26+ byte-stable runs; passive probing fully exhausted; already reported VALID 5.3.
 impact: Schema/input-shape + internal-error disclosure; low standalone severity.
@@ -12,7 +15,7 @@ testability: PASSIVE
 class: IDOR
 asset: roobet.com/_api/affiliate/get
 confidence: 50
-reasoning: Route live on low-gate `_api/*` surface (not Cloudflare bot-gated); `?user_id` and `?affiliate_code` return 401 not 404 — server parses both params pre-auth; sits beside session-gated admin routes.
+reasoning: Route live on low-gate `_api/*` surface (not Cloudflare bot-gated; re-checked 401@12B this run); `?user_id` and `?affiliate_code` return 401 not 404 — server parses both params pre-auth; sits beside session-gated admin routes.
 evidence_needed: With a valid affiliate session, passing another affiliate's/user's id returns their stats/commission (A/B two accounts).
 verify_steps: Session phase: GET /_api/affiliate/get?affiliate_id=OWN vs OTHER; compare bodies; read-only.
 impact: Cross-affiliate commission/financial data → high if confirmed.
@@ -21,8 +24,25 @@ testability: AUTH_HELPED
 class: MISCONFIG
 asset: rabbitmq.prod.roobet.systems (35.207.x.x GCP)
 confidence: 45
-reasoning: CT-published name, resolves to 3 direct GCP IPs (no Cloudflare), classic prod mgmt-console naming. TCP-filtered from this egress (8s connect hang on :443/:15672) ⇒ IP-allowlisted; reachability depends on egress IP.
+reasoning: CT-published name, resolves to direct GCP IPs (no Cloudflare), classic prod mgmt-console naming; TCP-filtered from this egress (connect hang) ⇒ IP-allowlisted; reachability depends on egress IP.
 evidence_needed: HTTP 200 login banner on :15672 (or :15671 TLS, :443) from a permitted egress IP.
-verify_steps: Human from permitted egress: single GET https://rabbitmq.prod.roobet.systems:15672/ (read-only). If banner shown, do NOT attempt creds; report exposure (mgmt console reachable from internet).
-impact: Management-UI exposure → queue/node admin, message tampering if creds weak — high, but gated.
+verify_steps: Human from permitted egress: single GET https://rabbitmq.prod.roobet.systems:15672/ (read-only). If banner shown, do NOT attempt creds; report mgmt-console exposure.
+impact: Management-UI exposure → queue/node admin, message tampering if creds weak — high but gated.
 testability: HUMAN_ONLY
+[HYP] ACP admin control-panel weak/absent auth
+class: AUTH
+asset: acp-frontend.prod.roobet.systems (CloudFront; alias xtest.roobet.com)
+confidence: 55
+reasoning: CT+DNS prove host under Roobet `roobet.systems`; "acp"≈admin control panel; CloudFront distribution public; every path 403@0B from this egress (WAF), no Roobet-side auth observable passively.
+evidence_needed: Any 200/302 from ACP (login UI, /graphql, /api/*, /health) from a permitted egress, then an auth/role gap.
+verify_steps: Human phase from permitted/rotating egress: GET /, /login, /graphql, /api, /health (read-only); if 200, map login + admin API, no state changes.
+impact: Admin console of a live casino → user/wallet/game management, ATO-critical if reachable.
+testability: HUMAN_ONLY
+[PARKED] Pre-auth GraphQL mutation disclosure: already characterized across 26+ runs; resolver auth caps severity; zero passive value remains.
+[PARKED] affiliate IDOR: requires two authenticated accounts (A/B) — AUTH_HELPED.
+[PARKED] RabbitMQ mgmt console: TCP-filtered from this egress; IP-allowlist means only HUMAN from permitted egress can confirm.
+[PARKED] ACP admin panel: WAF 403 from this egress; HUMAN_ONLY.
+[FINAL] ranked: 1) roobet.com/_api/graphql pre-auth mutation execution (PASSIVE, sole reportable, VALID 5.3); 2) affiliate IDOR (AUTH_HELPED); 3) ACP admin panel / RabbitMQ mgmt console (HUMAN_ONLY).
+[NEXT] PROBE: GET https://roobet.com/_api/settings/get — next-cycle byte-compare delta check (276th run band 1763–1766B, 35 keys); observe allTimeNumBets drift only. If zero delta, cycle remains exhausted.
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/*: 26th consecutive run — zero surface delta (settings/get 200@1766B/35 keys, graphql apollo-gate 200@32B, admin/users 401@12B); all passive robot-side value fully exhausted; remaining lines session-gated or HUMAN_ONLY.
+[RISK] roobet: 45/100. Surface static across 26 consecutive runs; server actively hardening (read-plane ISE, introspection disabled, config trimmed to 35 keys); sole reportable line is a low-severity pre-auth GraphQL disclosure. Residual high value strictly requires live sessions (AUTH_HELPED) or HUMAN-only tooling from permitted egress.
