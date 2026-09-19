@@ -1,7 +1,7 @@
-## 2026-09-19 01:35:49 UTC [target] (model nemotron3)
-[CHANGED] roobet.com/_api/graphql HTTP read-plane resolvers (exchangeRates/viewerChecks/userPublicProfile) now return 400+INTERNAL_SERVER_ERROR instead of 200+NOT_AUTHENTICATED — server hardening on HTTP channel (WS channel unverified, HUMAN_ONLY)
+## 2026-09-19 06:37:53 UTC [target] (model nemotron3)
+[CHANGED] roobet.com/_api/graphql HTTP read-plane resolvers (exchangeRates/viewerChecks/userPublicProfile) now return 400+INTERNAL_SERVER_ERROR instead of 200+NOT_AUTHENTICATED — server hardening on HTTP channel only (WS unverified)
 [CHANGED] roobet.com/_api/settings/get: allTimeNumBets increased ~15.398B → ~15.465B (~67M growth over 5 days); 35-key schema byte-stable across 24+ runs
-[CHANGED] 24th consecutive run byte-stable on all core routes (settings/get 200@1763B, admin/users 401, affiliate/get?user_id=1 401, graphql GET 400/named-op 200, socket.io Origin-gated); 14 new route candidates all 404
+[CHANGED] 24th consecutive run byte-stable on all core routes (settings/get 200@1763B, admin/users 401, affiliate/get?user_id=1 401, graphql GET 400/named-op 200, socket.io Origin-gated); 14 new route candidates all 404; passive probing fully exhausted
 [CHANGED] roobet.com/_api/socket.io polling Origin-gated: 403 without Origin, 200 with Origin: https://roobet.com — mechanistically re-confirmed (EIO=4)
 [PRIO] roobet.com/_api/graphql,9.25,attack_surface=10,business_value=9,tech_exposure=10,gate_ease=10,cloud_surface=5,freshness=9
 [PRIO] roobet.com/_api/admin/users,7.30,attack_surface=8,business_value=10,tech_exposure=7,gate_ease=3,cloud_surface=5,freshness=8
@@ -37,8 +37,6 @@ testability: HUMAN_ONLY
 [PARKED] Admin API Privilege Escalation via Low-Gate _api/admin/* Routes: requires valid session cookie (AUTH_HELPED) — no passive path to verify auth bypass; engagement rules prohibit session theft or auth-bypass on live data
 [PARKED] Unauthenticated Realtime Game State Exposure via _api/socket.io: requires WebSocket tooling for full broadcast capture (HUMAN_ONLY per engagement rules) — passive HTTP handshake confirmed but WS frame analysis needs browser/WS client
 [FINAL] 1. roobet.com/_api/graphql: Pre-auth GraphQL Mutation Resolver Execution with IDOR/BOLA Surface via HTTP Channel (95, PASSIVE)
-[FINAL] 2. roobet.com/_api/admin/users: Admin Privilege Escalation via Low-Gate _api/admin/* Routes (55, AUTH_HELPED)
-[FINAL] 3. roobet.com/_api/socket.io: Unauthenticated Realtime Game State Exposure via _api/socket.io Default Namespace (70, HUMAN_ONLY)
 [NEXT] PROBE: POST https://roobet.com/_api/graphql -H "Content-Type: application/json" -H "x-apollo-operation-name: seonSessionUpdate" -d '{"query":"mutation { seonSessionUpdate(input:{sessionId:\"test\",data:\"{}\"}) }"}' → capture error structure; test if remaining untested mutations execute pre-auth with distinguishable error patterns. Single connection, read-only, 1 rps.
 [LEARN] ACCEPTED OTHER @ roobet.com/_api/graphql: Zero delta across runs; dual-channel pre-auth GraphQL disclosure remains sole reportable line; resolver-level NOT_AUTHENTICATED caps severity
 [LEARN] ACCEPTED OTHER @ roobet.com/_api/*: Surface static (6 HTTP + 2 WS); config dump stable (35 keys), liveRTPUpdate error message patched (400+3×INTERNAL_SERVER_ERROR); remaining high-value lines session-gated

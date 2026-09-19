@@ -815,3 +815,10 @@ https://roobet.com/_api/graphql -> HTTP 400
 https://roobet.com/_api/admin/users -> HTTP 401
 https://roobet.com/_api/admin/stats -> HTTP 401
 https://roobet.com/_api/socket.io/?EIO=4&transport=polling -> HTTP 400
+
+## 2026-09-19 06:38:59 UTC
+https://roobet.com -> 200 len=?
+https://roobet.com/_api/graphql -> HTTP 400
+https://roobet.com/_api/admin/users -> HTTP 401
+https://roobet.com/_api/admin/stats -> HTTP 401
+https://roobet.com/_api/socket.io/?EIO=4&transport=polling -> HTTP 400

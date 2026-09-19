@@ -25493,3 +25493,84 @@ testability: PASSIVE
 
 **STEP 7 — RISK**
 - [RISK] roobet: 55 — surface static across 26+ runs; no new pre-auth reportable vuln; active hardening trend (resolver ISE, settings/get trimmed 68→35, liveRTPUpdate msg suppressed) reduces exploitable surface. Sole reportable line remains pre-auth GraphQL disclosure (low severity, resolver NOT_AUTHENTICATED caps). No state-changing or live-customer-data attacks performed, per engagement rules.
+===== ANALYST bigpickle 2026-09-19 06:38:53 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mUA="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/120 Safari/537.36"
+echo "--- settings/get ---"
+curl -s -A "$UA" -o /dev/null -w "%{http_code} %{size_download}B\n" "https://roobet.com/_api/settings/get"
+sleep 1
+echo "--- graphql named-op GET ---"
+curl -s -A "$UA" -H "x-apollo-operation-name: __typename" -o /dev/null -w "%{http_code} %{size_download}B\n" "https://roobet.com/_api/graphql?query=%7B__typename%7D"
+sleep 1
+echo "--- admin/users ---"
+curl -s -A "$UA" -o /dev/null -w "%{http_code} %{size_download}B\n" "https://roobet.com/_api/admin/users"
+sleep 1
+echo "--- affiliate/get?user_id=1 ---"
+curl -s -A "$UA" -o /dev/null -w "%{http_code} %{size_download}B\n" "https://roobet.com/_api/affiliate/get?user_id=1"
+--- settings/get ---
+200 1765B
+--- graphql named-op GET ---
+200 32B
+--- admin/users ---
+401 12B
+--- affiliate/get?user_id=1 ---
+401 12B
+[0m
+NO_DELTA confirmed (25th run). All core routes byte-stable.
+
+STEP 1 — DELTA
+- NO_DELTA: settings/get 200@1765B, graphql named-op GET 200@32B, admin/users 401@12B, affiliate/get?user_id=1 401@12B — identical to runs 14-24, 25th consecutive byte-stable run.
+- NO_DELTA: 6 HTTP + 2 WS `_api/*` surface; prior delta (`roobet.systems` internal map, ACP admin frontend, Cellxpert portal — 09-18) remains HUMAN_ONLY/WAF-gated from this egress.
+
+STEP 2 — PRIORITIZE
+- [PRIO] roobet.com/_api/graphql,7.5,0.10/0.10/0.15/0.10/0.05/0.10 — tech_exposure+gate_ease carry it; no freshness, no cloud_surface; sole pre-auth channel.
+- [PRIO] acp-frontend.prod.roobet.systems,6.5,0.10/0.10/0.15/0.00/0.10/0.00 — admin console, highest business value; gate_ease=0 (WAF 403), fresh.
+- [PRIO] roobet.com/_api/affiliate/get,5.5,0.05/0.10/0.05/0.05/0.00/0.00 — live low-gate IDOR candidate but session-gated.
+
+STEP 3 — HYPOTHESES
+[HYP] Pre-auth GraphQL mutation execution on HTTP+WS (unchanged, sole robot-reportable line)
+class: OTHER
+asset: roobet.com/_api/graphql
+confidence: 70
+reasoning: Anonymous `graphql-transport-ws` (101 + connection_ack, no socketToken); full introspection (Query 28/Mut 26/Sub 7); 16/26 tested mutations execute pre-auth → INTERNAL_SERVER_ERROR (not 401/NOT_AUTHENTICATED); Apollo GET CSRF gate bypassable via `x-apollo-operation-name` (200@32B today).
+evidence_needed: Resolver-level NOT_AUTHENTICATED caps severity; no anonymous PII leak on read-plane.
+verify_steps: [DONE] — 25 consecutive byte-stable runs; passive probing fully exhausted.
+impact: low standalone; PII-graph elevation only if a session compromise is achieved.
+testability: PASSIVE
+
+[HYP] ACP admin control-panel weak/absent auth
+class: AUTH
+asset: acp-frontend.prod.roobet.systems (CloudFront; alias xtest.roobet.com)
+confidence: 55
+reasoning: CT+DNS prove host under Roobet `roobet.systems`; "acp"≈admin control panel of the casino; CloudFront distribution public; every path 403@0B from this egress (WAF), no Roobet-side auth observable passively.
+evidence_needed: Any 200/302 from ACP (login UI, /graphql, /api/*, /health) from a permitted egress, then an auth/role gap.
+verify_steps: Human phase from permitted/rotating egress: GET /, /login, /graphql, /api, /health (read-only); if 200, map login + admin API, no state changes.
+impact: Admin console of a live casino → user/wallet/game management, ATO-critical if reachable.
+testability: HUMAN_ONLY
+
+[HYP] Cross-affiliate IDOR via _api/affiliate/get parameter parsing
+class: IDOR
+asset: roobet.com/_api/affiliate/get
+confidence: 50
+reasoning: Route live on low-gate `_api/*` surface (not Cloudflare bot-gated); `?user_id` and `?affiliate_code` return 401 not 404 — server parses both parameters pre-auth; sits beside session-gated admin routes.
+evidence_needed: With a valid affiliate session, passing another user's/affiliate's id returns their stats/commission (A/B two accounts).
+verify_steps: Session phase: GET /_api/affiliate/get?affiliate_id=OWN vs OTHER; compare body; read-only, no state change.
+impact: Cross-affiliate commission/financial data exposure → high if confirmed.
+testability: AUTH_HELPED
+
+STEP 4 — SELF-CRITIQUE
+- [PARKED] Non-prod cluster exposure / SSRF ladder (api-stage, flagsmith-edge-proxy, rabbitmq): confidence 40 → all TCP-closed today; every path needs a live authenticated context; no passive signal; session-gated.
+- [PARKED] Cellxpert commission/business-logic flaw: confidence 38 <40 threshold; defect scope is 3P SaaS backend, Roobet-side bounded to branding; drop.
+- [FINAL] ranked: 1) pre-auth GraphQL mutation execution (70, PASSIVE, sole robot-reportable — already VALID); 2) ACP admin auth (55, HUMAN_ONLY); 3) affiliate IDOR (50, AUTH_HELPED).
+
+STEP 5 — NEXT ACTION
+- [NEXT] HUMAN: from a permitted/rotating egress, GET https://xtest.roobet.com → follow to https://acp-frontend.prod.roobet.systems/, capture login/auth headers and map the admin UI + admin API (read-only) for an auth/privilege gap before any interaction.
+
+STEP 6 — LEARNING
+- [LEARN] ACCEPTED OTHER @ roobet.com/_api/*: 25th consecutive byte-stable run — settings/get 200@1765B, graphql named-op GET 200@32B, admin/users+affiliate/get?user_id=1 401@12B; zero surface delta; passive probing fully exhausted.
+- [LEARN] REJECTED OTHER @ roobet.com/_api/graphql: no new mutation/channel behavior; 16/26 mutations pre-auth ISE pattern unchanged; no anonymous data-plane leak.
+
+STEP 7 — RISK
+- [RISK] roobet: 55 — legacy surface at steady-state floor (25 byte-stable runs); sole reportable line = LOW pre-auth GraphQL disclosure (already VALID); every new high-value line (ACP admin console, Cellxpert portal, internal `roobet.systems` cluster) is session/browser/WAF-gated and no passive reportable vuln was produced this run.

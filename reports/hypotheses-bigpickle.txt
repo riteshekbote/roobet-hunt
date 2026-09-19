@@ -1,19 +1,28 @@
-## 2026-09-19 01:36:57 UTC [target] (model bigpickle)
-[HYP] Pre-auth GraphQL mutation execution on HTTP/WS (unchanged, sole robot-line)
+## 2026-09-19 06:38:03 UTC [target] (model bigpickle)
+[HYP] Pre-auth GraphQL mutation execution on HTTP+WS (unchanged, sole robot-reportable line)
 class: OTHER
 asset: roobet.com/_api/graphql
 confidence: 70
-reasoning: Anonymous graphql-transport-ws (101 + connection_ack, no socketToken); full introspection; 16/26 mutations execute pre-auth → INTERNAL_SERVER_ERROR (not 401); GET CSRF gate bypassable via x-apollo-operation-name.
-evidence_needed: resolver-level NOT_AUTHENTICATED caps severity; no anonymous PII leak.
-verify_steps: [done] — passive probing fully exhausted across 26+ runs.
-impact: low standalone; PII-graph elevation only if session compromise achieved.
-testability: PASSIVE
-[HYP] Pre-auth GraphQL mutation execution on HTTP+WS channels (unchanged, sole robot-reportable line)
-class: OTHER
-asset: roobet.com/_api/graphql
-confidence: 70
-reasoning: Anonymous `graphql-transport-ws` (101 + connection_ack, no socketToken); full introspection; 16/26 tested mutations execute pre-auth → INTERNAL_SERVER_ERROR (not 401/NOT_AUTHENTICATED); Apollo GET CSRF gate bypassable via x-apollo-operation-name.
+reasoning: Anonymous `graphql-transport-ws` (101 + connection_ack, no socketToken); full introspection (Query 28/Mut 26/Sub 7); 16/26 tested mutations execute pre-auth → INTERNAL_SERVER_ERROR (not 401/NOT_AUTHENTICATED); Apollo GET CSRF gate bypassable via `x-apollo-operation-name` (200@32B today).
 evidence_needed: Resolver-level NOT_AUTHENTICATED caps severity; no anonymous PII leak on read-plane.
-verify_steps: [DONE] — passive probing fully exhausted across 26+ runs; byte-stable.
-impact: low standalone; PII-graph severity elevation only if session compromise achieved.
+verify_steps: [DONE] — 25 consecutive byte-stable runs; passive probing fully exhausted.
+impact: low standalone; PII-graph elevation only if a session compromise is achieved.
 testability: PASSIVE
+[HYP] ACP admin control-panel weak/absent auth
+class: AUTH
+asset: acp-frontend.prod.roobet.systems (CloudFront; alias xtest.roobet.com)
+confidence: 55
+reasoning: CT+DNS prove host under Roobet `roobet.systems`; "acp"≈admin control panel of the casino; CloudFront distribution public; every path 403@0B from this egress (WAF), no Roobet-side auth observable passively.
+evidence_needed: Any 200/302 from ACP (login UI, /graphql, /api/*, /health) from a permitted egress, then an auth/role gap.
+verify_steps: Human phase from permitted/rotating egress: GET /, /login, /graphql, /api, /health (read-only); if 200, map login + admin API, no state changes.
+impact: Admin console of a live casino → user/wallet/game management, ATO-critical if reachable.
+testability: HUMAN_ONLY
+[HYP] Cross-affiliate IDOR via _api/affiliate/get parameter parsing
+class: IDOR
+asset: roobet.com/_api/affiliate/get
+confidence: 50
+reasoning: Route live on low-gate `_api/*` surface (not Cloudflare bot-gated); `?user_id` and `?affiliate_code` return 401 not 404 — server parses both parameters pre-auth; sits beside session-gated admin routes.
+evidence_needed: With a valid affiliate session, passing another user's/affiliate's id returns their stats/commission (A/B two accounts).
+verify_steps: Session phase: GET /_api/affiliate/get?affiliate_id=OWN vs OTHER; compare body; read-only, no state change.
+impact: Cross-affiliate commission/financial data exposure → high if confirmed.
+testability: AUTH_HELPED

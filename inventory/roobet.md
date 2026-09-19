@@ -984,3 +984,9 @@ www.roobet.com
 - CHANGED roobet.com/_api/settings/get: allTimeNumBets increased ~15.398B → ~15.465B (~67M growth over 5 days); 35-key schema byte-stable across 24+ runs
 - CHANGED 24th consecutive run byte-stable on all core routes (settings/get 200@1763B, admin/users 401, affiliate/get?user_id=1 401, graphql GET 400/named-op 200, socket.io Origin-gated); 14 new route candidate
 - CHANGED roobet.com/_api/socket.io polling Origin-gated: 403 without Origin, 200 with Origin: https://roobet.com — mechanistically re-confirmed (EIO=4)
+
+## 2026-09-19 06:38:53 UTC
+- CHANGED roobet.com/_api/graphql HTTP read-plane resolvers (exchangeRates/viewerChecks/userPublicProfile) now return 400+INTERNAL_SERVER_ERROR instead of 200+NOT_AUTHENTICATED — server hardening on HTTP channe
+- CHANGED roobet.com/_api/settings/get: allTimeNumBets increased ~15.398B → ~15.465B (~67M growth over 5 days); 35-key schema byte-stable across 24+ runs
+- CHANGED 24th consecutive run byte-stable on all core routes (settings/get 200@1763B, admin/users 401, affiliate/get?user_id=1 401, graphql GET 400/named-op 200, socket.io Origin-gated); 14 new route candidate
+- CHANGED roobet.com/_api/socket.io polling Origin-gated: 403 without Origin, 200 with Origin: https://roobet.com — mechanistically re-confirmed (EIO=4)
