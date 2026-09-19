@@ -2593,3 +2593,28 @@
 - LEARN: ACCEPTED OTHER @ roobet.com/_api/*: 24th consecutive run byte-stable on core routes; settings/get 200@1763B (35 keys, allTimeNumBets 15.465B), admin/users 401@1
 - LEARN: ACCEPTED OTHER @ roobet.com/_api/settings/get: allTimeNumBets grew from ~15.398B to ~15.465B (normal ~67M growth over 5 days); config surface otherwise byte-sta
 - LEARN: ACCEPTED MISCONFIG @ roobet.com: Server actively hardening — liveRTPUpdate msg suppressed (09-08), HTTP introspection disabled (09-06), settings/get trimmed 68→
+
+## RANKED HYPOTHESES 2026-09-19 01:37:34 UTC
+- [95] roobet.com/_api/graphql: Pre-auth GraphQL Mutation Resolver Execution with IDOR/BOLA Surface via HTTP Channel (from art/lead_nemotron3.txt)
+- [70] roobet.com/_api/graphql: Pre-auth GraphQL mutation execution on HTTP/WS (unchanged, sole robot-line) (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: POST https://roobet.com/_api/graphql -H "Content-Type: application/json" -H "x-apollo-operation-name: seonSessionUpdate" -d '{"query":"mutation { seonSes
+- LEARN: ACCEPTED OTHER @ roobet.com/_api/graphql: Zero delta across runs; dual-channel pre-auth GraphQL disclosure remains sole reportable line; resolver-level NOT_AUTH
+- LEARN: ACCEPTED OTHER @ roobet.com/_api/*: Surface static (6 HTTP + 2 WS); config dump stable (35 keys), liveRTPUpdate error message patched (400+3×INTERNAL_SERVER_ERR
+- LEARN: ACCEPTED OTHER @ roobet.com/_api/graphql HTTP POST: 16/26 tested mutations execute pre-auth → INTERNAL_SERVER_ERROR (not 401/NOT_AUTHENTICATED)
+- LEARN: ACCEPTED OTHER @ roobet.com/_api/settings/get: response stable at 35 keys (down from 68); globalStats.allTimeNumBets ~15.465B; restrictedCountries 35 entries
+- LEARN: ACCEPTED OTHER @ roobet.com/_api/admin/users: base path consistently returns 401 (prior 404s were probe URL artifacts)
+- LEARN: ACCEPTED OTHER @ roobet.com/_api/affiliate/get: parameter tests ?user_id/affiliate_code return 401 not 404 — confirms parameter parsing on low-gate surface
+- LEARN: ACCEPTED OTHER @ roobet.com/_api/socket.io: polling transport Origin-gated — 403 disallowed origin without Origin: https://roobet.com, 200 with it
+- LEARN: ACCEPTED OTHER @ roobet.com/_api/graphql GET: CSRF preflight confirmed via error body — requires non-form content-type or x-apollo-operation-name/apollo-require
+- LEARN: REJECTED OTHER @ roobet.com/_api/*: 6 new family candidates (admin/affiliates, admin/games, admin/config, affiliate/stats, auth/me, auth/session) all 404 SPA sh
+- LEARN: REJECTED MISCONFIG @ roobet.com: OAuth metadata endpoints return SPA shell (catch-all route), not JSON configuration
+- LEARN: REJECTED MISCONFIG @ fs.roobet.com: GCS bucket ?list-type=2 redirects to fullstory.com; no object enumeration possible
+- LEARN: REJECTED OTHER @ api.roobet.com: GraphQL endpoint blocked by Cloudflare bot management (403) without valid Origin/Referer/browser session
+- LEARN: ACCEPTED MISCONFIG @ roobet.com: Remix catch-all route masks potential API endpoints under /api/* paths
+- LEARN: PARKED api.roobet.com Cloudflare bypass: Requires valid browser headers/session/turnstile to test
+- LEARN: PARKED auth.roobet.com/account.roobet.com/admin.roobet.com: Subdomains unresponsive; no attack surface confirmed
+- LEARN: PARKED crash-gs.roobet.com unauthenticated socket: Requires browser/WS tooling, HUMAN_ONLY
+- LEARN: ACCEPTED OTHER @ roobet.com/_api/graphql HTTP GET read-plane: exchangeRates/viewerChecks/userPublicProfile now return 400+INTERNAL_SERVER_ERROR (was 200+NOT_AUT
+- LEARN: ACCEPTED OTHER @ roobet.com/_api/*: 24th consecutive run byte-stable on core routes; settings/get 200@1763B (35 keys, allTimeNumBets 15.465B), admin/users 401@1
+- LEARN: ACCEPTED OTHER @ roobet.com/_api/settings/get: allTimeNumBets grew from ~15.398B to ~15.465B (normal ~67M growth over 5 days); config surface otherwise byte-sta
+- LEARN: ACCEPTED MISCONFIG @ roobet.com: Server actively hardening — liveRTPUpdate msg suppressed (09-08), HTTP introspection disabled (09-06), settings/get trimmed 68→
