@@ -4458,3 +4458,14 @@ evidence_needed: With a valid affiliate session, passing another user's/affiliat
 verify_steps: Session phase: GET /_api/affiliate/get?affiliate_id=OWN vs OTHER; compare body; read-only, no state change.
 impact: Cross-affiliate commission/financial data exposure → high if confirmed.
 testability: AUTH_HELPED
+## 2026-09-19 11:32:39 UTC [target] (model bigpickle)
+[PRIO] roobet.com/_api/graphql,6.1,pre-auth mutation execution (sole robot-reportable line)
+[PRIO] roobet.com/_api/affiliate/get,5.3,auth-gated IDOR candidate
+[PRIO] roobet.com/_api/admin/*,4.8,auth-gated admin family
+[PARKED] Pre-auth GraphQL mutation disclosure: already characterized across 25+ runs; resolver auth caps severity; no further passive value.
+[PARKED] affiliate IDOR: requires two authenticated accounts (A/B) — AUTH_HELPED.
+[PARKED] admin priv-esc: requires live session — AUTH_HELPED.
+[FINAL] ranked: 1) roobet.com/_api/graphql pre-auth mutation execution (PASSIVE, sole reportable); 2) affiliate IDOR (AUTH_HELPED); 3) ACP admin panel (HUMAN_ONLY).
+[NEXT] PROBE: GET https://roobet.com/_api/settings/get — byte compare 1763B / 35-key schema baseline drift check (passive, ≤1 rps, read-only). If no delta, cycle continues at zero surface delta.
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/*: 25th consecutive run — zero surface delta; all passive robot-side value fully exhausted; remaining lines session-gated.
+[RISK] roobet: 45/100. Surface static across 25+ consecutive runs; server actively hardening (read-plane ISE, introspection disabled, config trimmed); sole reportable line is a low-severity pre-auth GraphQL disclosure. Residual high value strictly requires live sessions or HUMAN-only tooling.

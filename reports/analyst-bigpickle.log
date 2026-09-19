@@ -25574,3 +25574,36 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 - [RISK] roobet: 55 — legacy surface at steady-state floor (25 byte-stable runs); sole reportable line = LOW pre-auth GraphQL disclosure (already VALID); every new high-value line (ACP admin console, Cellxpert portal, internal `roobet.systems` cluster) is session/browser/WAF-gated and no passive reportable vuln was produced this run.
+===== ANALYST bigpickle 2026-09-19 11:36:43 UTC =====
+[0m
+> build · big-pickle
+[0m
+[MY STATE] is "POC" / target "api"
+
+STEP 1 — DELTA
+NO_DELTA. Latest inventory entry (2026-09-19 06:38:53 UTC) matches current context exactly: 24th consecutive byte-stable run across all core routes, read-plane resolvers hardened to ISE, settings/get 35 keys @1763B, allTimeNumBets ~15.465B. No new hosts, no new routes, no delta.
+
+STEP 2 — PRIORITIZE
+Surface fully stable and passively exhausted. No new asset/route/freshness delta to score. Existing surfaces retain prior scores only:
+[PRIO] roobet.com/_api/graphql,6.1,pre-auth mutation execution (sole robot-reportable line)
+[PRIO] roobet.com/_api/affiliate/get,5.3,auth-gated IDOR candidate
+[PRIO] roobet.com/_api/admin/*,4.8,auth-gated admin family
+All remaining hypotheses are AUTH_HELPED or HUMAN_ONLY; no fresh passive potential.
+
+STEP 3 — HYPOTHESES
+[PASS] Top-3 assets unchanged, all strictly gated. Highest-freshness passive lead remains the documented pre-auth GraphQL mutation surface on roobet.com/_api/graphql (already reportable, caps at low severity); affiliate IDOR and admin priv-esc are session-gated and require AUTH_HELPED per engagement rules. No new passive hypothesis warranted.
+
+STEP 4 — SELF-CRITIQUE
+[PARKED] Pre-auth GraphQL mutation disclosure: already characterized across 25+ runs; resolver auth caps severity; no further passive value.
+[PARKED] affiliate IDOR: requires two authenticated accounts (A/B) — AUTH_HELPED.
+[PARKED] admin priv-esc: requires live session — AUTH_HELPED.
+[FINAL] ranked: 1) roobet.com/_api/graphql pre-auth mutation execution (PASSIVE, sole reportable); 2) affiliate IDOR (AUTH_HELPED); 3) ACP admin panel (HUMAN_ONLY).
+
+STEP 5 — NEXT ACTION
+[NEXT] PROBE: GET https://roobet.com/_api/settings/get — byte compare 1763B / 35-key schema baseline drift check (passive, ≤1 rps, read-only). If no delta, cycle continues at zero surface delta.
+
+STEP 6 — LEARNING
+[LEARN] ACCEPTED OTHER @ roobet.com/_api/*: 25th consecutive run — zero surface delta; all passive robot-side value fully exhausted; remaining lines session-gated.
+
+STEP 7 — RISK
+[RISK] roobet: 45/100. Surface static across 25+ consecutive runs; server actively hardening (read-plane ISE, introspection disabled, config trimmed); sole reportable line is a low-severity pre-auth GraphQL disclosure. Residual high value strictly requires live sessions or HUMAN-only tooling.
