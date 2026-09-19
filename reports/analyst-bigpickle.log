@@ -25607,3 +25607,307 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 [RISK] roobet: 45/100. Surface static across 25+ consecutive runs; server actively hardening (read-plane ISE, introspection disabled, config trimmed); sole reportable line is a low-severity pre-auth GraphQL disclosure. Residual high value strictly requires live sessions or HUMAN-only tooling.
+===== ANALYST bigpickle 2026-09-19 14:50:56 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mcurl -s -o /tmp/opencode/settings.json -w "HTTP %{http_code} | bytes=%{size_download} | time=%{time_total}s\n" "https://roobet.com/_api/settings/get" -H "User-Agent: Mozilla/5.0" -H "Origin: https://roobet.com"
+HTTP 200 | bytes=1763 | time=0.313928s
+[0m
+[0m$ [0mpython3 -c "
+import json
+d=json.load(open('/tmp/opencode/settings.json'))
+print('keys:',len(d))
+print('allTimeNumBets:',d.get('globalStats',{}).get('allTimeNumBets'))
+print('restrictedCountries:',len(d.get('restrictedCountries',[])))
+print('top-level sample:',list(d.keys())[:8])
+"
+keys: 35
+allTimeNumBets: 15471486507.742636
+restrictedCountries: 35
+top-level sample: ['globalStats', 'banner', 'bannerLink', 'bannerLinkTitle', 'disabledApp', 'disabledBitcoinWithdraw', 'disabledEthereumArbitrumWithdraw', 'disabledEthereumBaseWithdraw']
+[0m
+[0m$ [0mcurl -s --max-time 25 "https://crt.sh/?q=%25.roobet.systems&output=json" | python3 -c "
+import json,sys
+try:
+    d=json.load(sys.stdin)
+    names=set()
+    for e in d:
+        for n in e.get('name_value','').split('\n'):
+            names.add(n.strip().lower())
+    for n in sorted(names): print(n)
+except Exception as ex:
+    print('ERR',ex)
+" 2>&1 | head -40
+*.de-non-prod.roobet.systems
+*.de-prod.roobet.systems
+*.non-prod.roobet.systems
+*.ops.roobet.systems
+*.prod.roobet.systems
+*.roobet.systems
+api-dev.non-prod.roobet.systems
+api-lbc.prod.roobet.systems
+api-public-dev.non-prod.roobet.systems
+api-public-stage-traefik.non-prod.roobet.systems
+api-public-stage.non-prod.roobet.systems
+api-stage-lbc.non-prod.roobet.systems
+api-stage-traefik.non-prod.roobet.systems
+api-stage.non-prod.roobet.systems
+api-test.non-prod.roobet.systems
+api-traefik.prod.roobet.systems
+api.non-prod.roobet.systems
+api.prod.roobet.systems
+flagsmith-edge-proxy-traefik.non-prod.roobet.systems
+flagsmith-edge-proxy.non-prod.roobet.systems
+flagsmith-edge-proxy.prod.roobet.systems
+lbc-api-stage.non-prod.roobet.systems
+non-prod.roobet.systems
+rabbitmq.non-prod.roobet.systems
+rabbitmq.prod.roobet.systems
+shield-lbc.prod.roobet.systems
+shield-traefik.prod.roobet.systems
+shield.prod.roobet.systems
+[0m
+[0m$ [0mcurl -s --max-time 25 "https://crt.sh/?q=%25.roobet.com&output=json" | python3 -c "
+import json,sys
+try:
+    d=json.load(sys.stdin)
+    names=set()
+    for e in d:
+        for n in e.get('name_value','').split('\n'):
+            names.add(n.strip().lower())
+    known={'account.roobet.com','admin.roobet.com','api.roobet.com','app.roobet.com','auth.roobet.com','billing.roobet.com','crash-gs.roobet.com','dashboard.roobet.com','dev.roobet.com','fs.roobet.com','login.roobet.com','m.roobet.com','mail.roobet.com','my.roobet.com','portal.roobet.com','roobet.com','sso.roobet.com','staging.roobet.com','support.roobet.com','test.roobet.com','web.roobet.com','www.roobet.com'}
+    for n in sorted(names):
+        if n not in known:
+            print(n)
+except Exception as ex:
+    print('ERR',ex)
+" 2>&1 | head -40
+*.games.staging.roobet.com
+*.monitoring.staging.roobet.com
+*.roobet.com
+*.routing-mx.roobet.com
+*.snoopdogg.roobet.com
+*.staging.roobet.com
+*.unsub.roobet.com
+api-test.roobet.com
+api.staging.roobet.com
+bitcoin-node.roobet.com
+blog.roobet.com
+ca.staging.roobet.com
+canary.roobet.com
+coinflip.games.roobet.com
+dice.games.roobet.com
+dice.roobet.com
+dice.staging.roobet.com
+echo.staging.roobet.com
+edge-cf.roobet.com
+edge.roobet.com
+email.mg.roobet.com
+games.staging.roobet.com
+go.roobet.com
+help.roobet.com
+hotbox.games.roobet.com
+i.roobet.com
+jungle-mines.games.roobet.com
+junglemines.games.roobet.com
+links.roobet.com
+links1.roobet.com
+live-lp.roobet.com
+live.roobet.com
+lp.roobet.com
+mexico.roobet.com
+mines.games.staging.roobet.com
+news.roobet.com
+oneplusone-towers.games.staging.roobet.com
+outbound.intercom.roobet.com
+plinko.games.roobet.com
+plinko.games.staging.roobet.com
+[0m
+[0m$ [0mcurl -s --max-time 25 "https://crt.sh/?q=%25.roobet.com&output=json" | python3 -c "
+import json,sys
+try:
+    d=json.load(sys.stdin)
+    names=set()
+    for e in d:
+        for n in e.get('name_value','').split('\n'):
+            names.add(n.strip().lower())
+    known={'account.roobet.com','admin.roobet.com','api.roobet.com','app.roobet.com','auth.roobet.com','billing.roobet.com','crash-gs.roobet.com','dashboard.roobet.com','dev.roobet.com','fs.roobet.com','login.roobet.com','m.roobet.com','mail.roobet.com','my.roobet.com','portal.roobet.com','roobet.com','sso.roobet.com','staging.roobet.com','support.roobet.com','test.roobet.com','web.roobet.com','www.roobet.com'}
+    for n in sorted(names):
+        if n not in known:
+            print(n)
+except Exception as ex:
+    print('ERR',ex)
+" 2>&1 | tail -40
+live-lp.roobet.com
+live.roobet.com
+lp.roobet.com
+mexico.roobet.com
+mines.games.staging.roobet.com
+news.roobet.com
+oneplusone-towers.games.staging.roobet.com
+outbound.intercom.roobet.com
+plinko.games.roobet.com
+plinko.games.staging.roobet.com
+plinko.roobet.com
+plinko.staging.roobet.com
+promotions.roobet.com
+raw.roobet.com
+reporting.roobet.com
+reviews.roobet.com
+roulette.games.roobet.com
+routing-mx.roobet.com
+snoop-crash.games.roobet.com
+snoopdogg.roobet.com
+snoops-hotbox.games.roobet.com
+soda.roobet.com
+storybook.staging.roobet.com
+tcr.roobet.com
+test-staging.roobet.com
+testsite.roobet.com
+tiki-21.games.roobet.com
+tiki-21.games.toast.roobet.com
+toast-cf.roobet.com
+toast.roobet.com
+towers.games.roobet.com
+tulaco-roulette.games.staging.roobet.com
+tulaco-roulette.staging.roobet.com
+unsub.roobet.com
+x.new.staging.roobet.com
+x.roobet.com
+x.staging.roobet.com
+x.toast.roobet.com
+xtest.roobet.com
+yeti-towers.games.roobet.com
+[0m
+CT sweep surfaces several Roobet-owned hosts not in inventory (mostly non-prod/prod `.roobet.systems` internal cluster + `.roobet.com` marketing/edge hosts). DNS-checking the highest-value ones passively:
+[0m$ [0mpython3 - <<'EOF'
+import socket
+hosts = [
+ "rabbitmq.prod.roobet.systems","shield.prod.roobet.systems",
+ "shield-traefik.prod.roobet.systems","api-traefik.prod.roobet.systems",
+ "flagsmith-edge-proxy.prod.roobet.systems","api.prod.roobet.systems",
+ "edge.roobet.com","edge-cf.roobet.com","raw.roobet.com","reporting.roobet.com",
+ "tcr.roobet.com","soda.roobet.com","go.roobet.com","live.roobet.com",
+ "toast-cf.roobet.com","xtest.roobet.com","news.roobet.com","reviews.roobet.com",
+]
+for h in hosts:
+    try:
+        addrs = sorted({a[4][0] for a in socket.getaddrinfo(h,443)})
+        print(f"{h:38s} -> {', '.join(addrs)}")
+    except Exception as e:
+        print(f"{h:38s} -> NXDOMAIN/ERR {type(e).__name__}")
+EOF
+rabbitmq.prod.roobet.systems           -> 35.207.108.25, 35.207.191.191, 35.207.81.50
+shield.prod.roobet.systems             -> 3.70.34.43, 3.71.155.20, 63.179.179.104
+shield-traefik.prod.roobet.systems     -> 3.70.34.43, 3.71.155.20, 63.179.179.104
+api-traefik.prod.roobet.systems        -> 3.70.34.43, 3.71.155.20, 63.179.179.104
+flagsmith-edge-proxy.prod.roobet.systems -> 3.70.34.43, 3.71.155.20, 63.179.179.104
+api.prod.roobet.systems                -> 3.70.34.43, 3.71.155.20, 63.179.179.104
+edge.roobet.com                        -> 104.18.36.13, 172.64.151.243, 2606:4700:4400::6812:240d, 2606:4700:4401::ac40:97f3
+edge-cf.roobet.com                     -> NXDOMAIN/ERR gaierror
+raw.roobet.com                         -> NXDOMAIN/ERR gaierror
+reporting.roobet.com                   -> NXDOMAIN/ERR gaierror
+tcr.roobet.com                         -> NXDOMAIN/ERR gaierror
+soda.roobet.com                        -> NXDOMAIN/ERR gaierror
+go.roobet.com                          -> 104.26.14.179, 104.26.15.179, 172.67.75.65, 2606:4700:20::681a:eb3, 2606:4700:20::681a:fb3, 2606:4700:20::ac43:4b41
+live.roobet.com                        -> NXDOMAIN/ERR gaierror
+toast-cf.roobet.com                    -> NXDOMAIN/ERR gaierror
+xtest.roobet.com                       -> 104.18.36.13, 172.64.151.243, 2606:4700:4400::6812:240d, 2606:4700:4401::ac40:97f3
+news.roobet.com                        -> NXDOMAIN/ERR gaierror
+reviews.roobet.com                     -> 104.18.36.13, 172.64.151.243, 2606:4700:4400::6812:240d, 2606:4700:4401::ac40:97f3
+[0m
+Notable delta: the `.roobet.systems` prod cluster resolves to **direct GCP IPs (no Cloudflare WAF)** — including `rabbitmq.prod.roobet.systems`, which sounds like an exposed management console. Read-only HEAD/GET probes, spaced to ≤1 rps:
+[0m$ [0mprobe() {
+  url="$1"; shift
+  curl -s -o /tmp/opencode/resp.bin -D /tmp/opencode/hdr.txt -w "code=%{http_code} size=%{size_download} time=%{time_total}s ip=%{remote_ip}" --max-time 8 -k "$@" "$url" 2>&1
+  echo -n " | "; head -1 /tmp/opencode/hdr.txt | tr -d '\r'
+  echo "  body: $(head -c 140 /tmp/opencode/resp.bin | tr -d '\r\n\t' | cut -c1-120)"
+}
+echo "== rabbitmq.prod.roobet.systems:15672 (mgmt UI) =="
+probe "https://rabbitmq.prod.roobet.systems:15672/" -H "User-Agent: Mozilla/5.0"
+sleep 1.5
+echo "== rabbitmq.prod.roobet.systems:443 =="
+probe "https://rabbitmq.prod.roobet.systems/" -H "User-Agent: Mozilla/5.0"
+sleep 1.5
+echo "== api-traefik.prod.roobet.systems:443 =="
+probe "https://api-traefik.prod.roobet.systems/" -H "User-Agent: Mozilla/5.0"
+sleep 1.5
+echo "== shield.prod.roobet.systems:443 =="
+probe "https://shield.prod.roobet.systems/" -H "User-Agent: Mozilla/5.0"
+== rabbitmq.prod.roobet.systems:15672 (mgmt UI) ==
+code=000 size=0 time=8.002875s ip= | head: cannot open '/tmp/opencode/resp.bin' for reading: No such file or directory
+  body: 
+== rabbitmq.prod.roobet.systems:443 ==
+code=000 size=0 time=8.002275s ip= | head: cannot open '/tmp/opencode/resp.bin' for reading: No such file or directory
+  body: 
+== api-traefik.prod.roobet.systems:443 ==
+code=000 size=0 time=8.002124s ip= | head: cannot open '/tmp/opencode/resp.bin' for reading: No such file or directory
+  body: 
+== shield.prod.roobet.systems:443 ==
+code=000 size=0 time=8.002076s ip= |   body: 
+head: cannot open '/tmp/opencode/resp.bin' for reading: No such file or directory
+[0m
+All `.roobet.systems` prod hosts are TCP-filtered from public egress (connect hang → 8s timeout on 443 and 15672) — GCP firewall default-deny, consistent with an IP-allowlisted internal cluster. No new reachable surface. Synthesizing the cycle.
+
+---
+
+## STEP 1 — DELTA
+- [CHANGED] `roobet.com/_api/settings/get`: 26th consecutive byte-stable run — 200 @1763B, 35 keys, restrictedCountries 35; `allTimeNumBets` 15.471B (normal ~6M/day growth; was 15.465B). No service delta.
+- [NEW] CT sweep reveals Roobet-owned `.roobet.systems` prod cluster in public DNS pointing to **direct GCP IPs, no Cloudflare**: `rabbitmq.prod`, `api-traefik.prod`, `shield.prod`, `shield-traefik.prod`, `api.prod`, `flagsmith-edge-proxy.prod`.
+- [CHANGED] That cluster is **TCP-filtered from public egress** (connect hang, 8s timeout on :443 and :15672) — internal-only network posture confirmed, not an open surface.
+- [NEW] `.roobet.com` CT hosts (`edge`, `go`, `news`, `reviews`, `live`, `toast`, `raw`/`tcr`/`soda`/`reporting` are NXDOMAIN) — the resolvable ones are Cloudflare-fronted and already-characterized classes.
+- NO_DELTA on reachable, attackable surface.
+
+## STEP 2 — PRIORITIZE
+- [PRIO] roobet.com/_api/graphql,7.8,pre-auth GraphQL mutation execution + full introspection (WS-only) — sole robot-reportable line. a7 b9 t9 g8 c5 f7
+- [PRIO] roobet.com/_api/affiliate/get,5.1,auth-gated cross-affiliate IDOR candidate. a5 b8 t3 g3 c4 f5
+- [PRIO] rabbitmq.prod.roobet.systems,6.4,exposed RabbitMQ mgmt console on public GCP IPs (egress-filtered here). a6 b9 t7 g0 c6 f10
+
+## STEP 3 — HYPOTHESES
+[HYP] Pre-auth GraphQL mutation resolver execution returning internal errors via HTTP+WS
+class: OTHER
+asset: roobet.com/_api/graphql
+confidence: 70
+reasoning: Anonymous `graphql-transport-ws` (101+connection_ack, no socketToken), full introspection (Query 28/Mut 26/Sub 7), 19/26 mutations execute pre-auth → 400+INTERNAL_SERVER_ERROR (not 401/NOT_AUTHENTICATED), Apollo GET gate bypassable via `x-apollo-operation-name` (200@32B). Resolver auth caps read-plane severity.
+evidence_needed: Severity stays low standalone; PII-graph elevation only if session compromise achieved.
+verify_steps: [DONE] — 26+ byte-stable runs; passive probing fully exhausted; already reported VALID 5.3.
+impact: Schema/input-shape + internal-error disclosure; low standalone severity.
+testability: PASSIVE
+
+[HYP] Cross-affiliate IDOR via _api/affiliate/get parameter parsing
+class: IDOR
+asset: roobet.com/_api/affiliate/get
+confidence: 50
+reasoning: Route live on low-gate `_api/*` surface (not Cloudflare bot-gated); `?user_id` and `?affiliate_code` return 401 not 404 — server parses both params pre-auth; sits beside session-gated admin routes.
+evidence_needed: With a valid affiliate session, passing another affiliate's/user's id returns their stats/commission (A/B two accounts).
+verify_steps: Session phase: GET /_api/affiliate/get?affiliate_id=OWN vs OTHER; compare bodies; read-only.
+impact: Cross-affiliate commission/financial data → high if confirmed.
+testability: AUTH_HELPED
+
+[HYP] RabbitMQ management console exposed on public GCP IPs
+class: MISCONFIG
+asset: rabbitmq.prod.roobet.systems (35.207.x.x GCP)
+confidence: 45
+reasoning: CT-published name, resolves to 3 direct GCP IPs (no Cloudflare), classic prod mgmt-console naming. TCP-filtered from this egress (8s connect hang on :443/:15672) ⇒ IP-allowlisted; reachability depends on egress IP.
+evidence_needed: HTTP 200 login banner on :15672 (or :15671 TLS, :443) from a permitted egress IP.
+verify_steps: Human from permitted egress: single GET https://rabbitmq.prod.roobet.systems:15672/ (read-only). If banner shown, do NOT attempt creds; report exposure (mgmt console reachable from internet).
+impact: Management-UI exposure → queue/node admin, message tampering if creds weak — high, but gated.
+testability: HUMAN_ONLY
+
+## STEP 4 — SELF-CRITIQUE
+- [PARKED] ACP admin panel (`xtest.roobet.com`/acp-frontend.prod.roobet.systems): WAF 403@0B from all tested egresses; no auth observable; no further passive value.
+- [PARKED] .roobet.systems api/shield/traefik cluster: TCP-filtered from public egress; internal-only; no passive path.
+- [PARKED] Marketing hosts (edge/go/reviews): Cloudflare-fronted, SPA/3P, covered by existing rejections.
+- [FINAL] ranked: 1) pre-auth GraphQL mutation execution (PASSIVE, sole reportable, VALID 5.3); 2) affiliate IDOR (AUTH_HELPED); 3) rabbitmq.prod mgmt-console exposure (HUMAN_ONLY, fresh).
+
+## STEP 5 — NEXT ACTION
+- [NEXT] HUMAN: from a permitted egress, single read-only GET `https://rabbitmq.prod.roobet.systems:15672/` (fallback :15671/:443) — confirm RabbitMQ mgmt login banner; report exposure only, no credential attempts.
+
+## STEP 6 — LEARNING
+- [LEARN] ACCEPTED OTHER @ roobet.com/_api/settings/get: 26th consecutive byte-stable run — 200@1763B, 35 keys; allTimeNumBets 15.471B (~+6M/day); zero surface delta.
+- [LEARN] ACCEPTED MISCONFIG @ *.prod.roobet.systems: prod cluster (rabbitmq/api-traefik/shield/flagsmith-edge-proxy/api) resolves via public DNS to direct GCP IPs but is TCP-filtered from external egress (connect hang) — internal-only posture; rabbitmq.prod:15672 warrants one permitted-egress check.
+- [LEARN] REJECTED OTHER @ roobet.com CT sweep: only Cloudflare-fronted hosts reachable publicly; raw/tcr/soda/reporting/live/toast NXDOMAIN; no new attackable surface beyond already-characterized routes.
+
+## STEP 7 — RISK
+- [RISK] roobet: 45/100. Surface byte-stable across 26+ consecutive runs; server actively hardening (read-plane ISE, HTTP introspection disabled, config trimmed); sole reportable line remains low-severity pre-auth GraphQL disclosure (VALID 5.3). CT delta surfaced only an IP-firewalled internal cluster; residual high value strictly requires live sessions (affiliate/admin) or permitted-egress/human tooling (rabbitmq mgmt, ACP, crash-gs socket).

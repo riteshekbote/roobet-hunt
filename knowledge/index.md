@@ -573,3 +573,4 @@
 - 2026-09-19 ACCEPTED MISCONFIG @ roobet.com: Server actively hardening — liveRTPUpdate msg suppressed (09-08), HTTP introspection disabled (09-06), settings/get trimmed 68→35 (09-08), read-plane resolvers now ISE instead of NOT_AUTHENTICATED (this run). Hardening trend reduces exploitable surface.
 - 2026-09-19 ACCEPTED OTHER @ roobet.com/_api/*: 25th consecutive run — zero surface delta; all passive robot-side value fully exhausted; remaining lines session-gated.
 - 2026-09-19 ACCEPTED OTHER @ roobet.com/_api/graphql HTTP POST: 19/26 tested mutations execute pre-auth → INTERNAL_SERVER_ERROR (not 401/NOT_AUTHENTICATED)
+- 2026-09-19 ACCEPTED OTHER @ roobet.com/_api/*: 25th consecutive run byte-stable on core routes; settings/get 200@1763B (35 keys, allTimeNumBets 15.465B), admin/users 401@12B, affiliate/get?user_id=1 401@12B, 14 new route candidates all 404; passive probing fully exhausted
